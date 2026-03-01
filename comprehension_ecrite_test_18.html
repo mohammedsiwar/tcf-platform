@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <title>Compréhension Écrite Test 18 - PREP MON TCF CANADA - PREP MON TCF CANADA</title>
+    
+    <!-- Font Awesome & Google Fonts (modern style) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --secondary: #3b82f6;
+            --secondary-dark: #2563eb;
+            --accent: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --premium: #8b5cf6;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #f1f5f9 0%, #e6eefc 100%);
+            min-height: 100vh;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .glass-panel {
+            width: 100%;
+            max-width: 1300px;
+            height: 95vh;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 42px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        /* modern header */
+        .modern-header {
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(12px);
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(59,130,246,0.2);
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .logo-icon {
+            background: linear-gradient(135deg, var(--secondary), var(--premium));
+            width: 44px;
+            height: 44px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.4rem;
+        }
+        .title-block h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #0f172a, #2563eb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .timer-card {
+            background: #1e293b;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 120px;
+            font-weight: 600;
+            font-size: 1.5rem;
+            font-family: 'Monaco', monospace;
+            border: 1px solid #3b82f6;
+        }
+        .timer-card.warning { background: #f59e0b; color: black; }
+        .timer-card.danger { background: #ef4444; animation: pulse 1s infinite; }
+        @keyframes pulse { 50% { opacity: 0.7; } }
+        /* navigation */
+        .nav-section {
+            background: white;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .question-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
+        }
+        .q-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 18px;
+            border: 1.5px solid var(--gray-200);
+            background: white;
+            font-weight: 600;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .q-btn.active { background: var(--secondary); border-color: var(--secondary); color: white; transform: scale(1.05); }
+        .q-btn.answered { background: var(--success); border-color: var(--success); color: white; }
+        .q-btn.review { background: var(--warning); border-color: var(--warning); color: white; }
+        .progress-legende {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .progress-bar-bg {
+            flex: 1;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 20px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border-radius: 20px;
+            width: 0%;
+        }
+        .legend i { margin-right: 0.2rem; color: var(--gray-600); }
+        /* main scroll */
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+        .question-header-card {
+            display: flex;
+            justify-content: space-between;
+            background: white;
+            padding: 1.2rem 2rem;
+            border-radius: 30px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(59,130,246,0.2);
+        }
+        .badge-points {
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            padding: 0.4rem 1.2rem;
+            border-radius: 60px;
+            color: white;
+            font-weight: 700;
+        }
+        /* textes */
+        .text-passage {
+            background: #f8fafc;
+            padding: 1.8rem;
+            border-radius: 32px;
+            border: 1px solid var(--gray-200);
+            font-size: 1.1rem;
+            line-height: 1.7;
+            white-space: pre-line;
+            font-family: 'Georgia', serif;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+        }
+        .actual-question {
+            background: #eef2ff;
+            padding: 1.5rem;
+            border-radius: 30px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 2rem;
+            border: 2px solid var(--secondary);
+        }
+        /* options */
+        .options-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .option-item {
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 2px solid var(--gray-200);
+            border-radius: 30px;
+            padding: 1.2rem 2rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .option-item:hover { border-color: var(--secondary); background: #f0f9ff; }
+        .option-item.selected { border-color: var(--secondary); background: #eef2ff; }
+        .option-letter {
+            width: 50px;
+            height: 50px;
+            border-radius: 30px;
+            background: var(--gray-100);
+            border: 2px solid var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-right: 1.5rem;
+        }
+        .selected .option-letter { background: var(--secondary); color: white; }
+        /* footer */
+        .quiz-footer {
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(12px);
+            padding: 1.5rem 2rem;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-foot-btn {
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            border: none;
+            background: white;
+            border: 1px solid var(--gray-300);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .nav-foot-btn.primary { background: var(--secondary); color: white; border: none; }
+        .review-mark-btn {
+            background: #f59e0b;
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            border: none;
+        }
+        /* auth overlay */
+        .auth-overlay {
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .auth-card {
+            background: white;
+            border-radius: 48px;
+            padding: 2.5rem;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+        }
+        .auth-icon { font-size: 4rem; margin-bottom: 1rem; }
+        .auth-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .auth-subtitle { color: var(--gray-600); margin-bottom: 1.5rem; }
+        .auth-btn {
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            margin: 0.3rem;
+        }
+        .auth-btn-primary { background: var(--secondary); color: white; }
+        .auth-btn-secondary { background: var(--gray-200); color: var(--gray-900); }
+        /* modal résultats */
+        .modal-overlay {
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .modal-card {
+            background: white;
+            border-radius: 48px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .stat-box {
+            background: var(--gray-100);
+            border-radius: 24px;
+            padding: 1.2rem;
+            text-align: center;
+        }
+        .score-level { padding: 0.5rem 1.5rem; border-radius: 60px; display: inline-block; }
+        .score-level.a1 { background: #ef4444; color: white; }
+        .score-level.a2 { background: #f59e0b; color: white; }
+        .score-level.b1 { background: #fbbf24; color: black; }
+        .score-level.b2 { background: #8bc34a; color: white; }
+        .score-level.c1 { background: #4caf50; color: white; }
+        .score-level.c2 { background: #2e7d32; color: white; }
+        .correction-option { display: flex; align-items: center; padding: 0.8rem 1.2rem; border-radius: 18px; margin: 0.3rem 0; }
+        .correction-option.correct-answer { background: #e6f7e6; border-left: 6px solid #10b981; }
+        .correction-option.user-answer { background: #fee9e9; border-left: 6px solid #ef4444; }
+        .copy-warning {
+            position: fixed;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #ef4444; color: white; padding: 1rem 2rem;
+            border-radius: 60px; font-weight: 600; z-index: 10000;
+            display: none;
+        }
+        @media (max-width:768px) {
+            .glass-panel { height: 100vh; border-radius: 24px; }
+            .modern-header { flex-direction: column; align-items: start; gap: 0.5rem; }
+            .timer-card { align-self: flex-end; }
+            .option-item { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- AUTH OVERLAY -->
+<div class="auth-overlay" id="authOverlay" style="display:flex;">
+    <div class="auth-card" id="authMessage">
+        <div class="auth-icon">🔒</div>
+        <div class="auth-title">Vérification</div>
+        <div class="auth-subtitle">Chargement de l'authentification...</div>
+        <div class="auth-loading"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
+    </div>
+</div>
+
+<!-- COPY WARNING -->
+<div class="copy-warning" id="copyWarning">⚠️ La copie est interdite</div>
+
+<!-- MAIN QUIZ PANEL (initially hidden) -->
+<div class="glass-panel" id="quizContainer" style="display:none;">
+    <!-- HEADER -->
+    <div class="modern-header">
+        <div class="logo-area">
+            <div class="logo-icon"><i class="fas fa-book-open"></i></div>
+            <div class="title-block"><h1>Compréhension Écrite · Test 18 - PREP MON TCF CANADA - PREP MON TCF CANADA</h1></div>
+        </div>
+        <div class="timer-card" id="timerDisplay">00:60:00</div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <div class="nav-section">
+        <div class="question-grid" id="questionGrid">
+            <button class="q-btn">1</button>
+            <button class="q-btn">2</button>
+            <button class="q-btn">3</button>
+            <button class="q-btn">4</button>
+            <button class="q-btn">5</button>
+            <button class="q-btn">6</button>
+            <button class="q-btn">7</button>
+            <button class="q-btn">8</button>
+            <button class="q-btn">9</button>
+            <button class="q-btn">10</button>
+            <button class="q-btn">11</button>
+            <button class="q-btn">12</button>
+            <button class="q-btn">13</button>
+            <button class="q-btn">14</button>
+            <button class="q-btn">15</button>
+            <button class="q-btn">16</button>
+            <button class="q-btn">17</button>
+            <button class="q-btn">18</button>
+            <button class="q-btn">19</button>
+            <button class="q-btn">20</button>
+            <button class="q-btn">21</button>
+            <button class="q-btn">22</button>
+            <button class="q-btn">23</button>
+            <button class="q-btn">24</button>
+            <button class="q-btn">25</button>
+            <button class="q-btn">26</button>
+            <button class="q-btn">27</button>
+            <button class="q-btn">28</button>
+            <button class="q-btn">29</button>
+            <button class="q-btn">30</button>
+            <button class="q-btn">31</button>
+            <button class="q-btn">32</button>
+            <button class="q-btn">33</button>
+            <button class="q-btn">34</button>
+            <button class="q-btn">35</button>
+            <button class="q-btn">36</button>
+            <button class="q-btn">37</button>
+            <button class="q-btn">38</button>
+            <button class="q-btn">39</button>
+        </div>
+        <div class="progress-legende">
+            <div class="progress-bar-bg"><div class="progress-fill" id="globalProgress" style="width:0%"></div></div>
+            <span><i class="fas fa-circle" style="color:#f59e0b;"></i> Révision</span>
+            <span><i class="fas fa-circle" style="color:#10b981;"></i> Répondu</span>
+        </div>
+    </div>
+
+    <!-- SCROLL CONTENT -->
+    <div class="scroll-content" id="mainScroll">
+        <div class="question-header-card">
+            <span id="qNumberDisplay">Question 1 / 39</span>
+            <span class="badge-points" id="pointsDisplay">3 points</span>
+        </div>
+
+        <!-- text passage & question -->
+        <div class="text-passage" id="textPassage"><!-- Text passage will be loaded here --></div>
+        <div class="actual-question" id="actualQuestion"></div>
+
+        <!-- options -->
+        <div class="options-panel" id="optionsContainer">
+        
+            <div class="option-item">
+                <div class="option-letter">C</div>
+                <div class="flex-grow-1">",</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="quiz-footer">
+        <button class="nav-foot-btn" id="prevBtn"><i class="fas fa-arrow-left"></i> Précédent</button>
+        <button class="review-mark-btn" id="reviewBtn"><i class="fas fa-bookmark"></i> Marquer</button>
+        <button class="nav-foot-btn primary" id="nextBtn">Suivant <i class="fas fa-arrow-right"></i></button>
+    </div>
+</div>
+
+<!-- RESULTS MODAL -->
+<div class="modal-overlay" id="resultsModal">
+    <div class="modal-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2 style="font-weight:700;">Résultats</h2>
+            <button onclick="closeResults()" style="background:none; border:none; font-size:2rem;">&times;</button>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-box"><span id="correctCount">0</span><br>Correctes</div>
+            <div class="stat-box"><span id="timeUsed">00:00</span><br>Temps</div>
+            <div class="stat-box"><span id="scorePercent">0</span>%<br>Score</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#0f172a,#1e293b); color:white; padding:1.5rem; border-radius:32px; text-align:center;" id="cecrLevelDisplay">NIVEAU A1 NON ATTEINT</div>
+        <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin:2rem 0;" id="questionsList"></div>
+        <button class="nav-foot-btn primary" style="width:100%;" onclick="toggleCorrections()">Afficher les corrections</button>
+        <div id="correctionsContainer" style="display:none; margin-top:2rem;"></div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ========== CONFIG ==========
+        const firebaseConfig = {
+            apiKey: "AIzaSyAhGVA4vr3pISonxvccIMCxZZOE5bkynRQ",
+            authDomain: "platformtcf.firebaseapp.com",
+            projectId: "platformtcf",
+            storageBucket: "platformtcf.firebasestorage.app",
+            messagingSenderId: "779352652301",
+            appId: "1:779352652301:web:41ca6b1dbcc42739b47344"
+        };
+
+        let currentUser = null;
+        let isPremium = false;
+        let firebaseApp, firebaseAuth, firestore;
+
+        // ========== QUESTIONS (TEST 2 - données depuis script original) ==========
+        const rawQuestions = [
+            { id:1, text:"Vous voulez découvrir d'autres cultures ? vous voulez parler anglais, français, espagnol ?\nLeçons à la maison ou au centre Bernardisilmo.\nInformation au 01 03 02 06 65", question:"Qu'est ce que cette publicité propose ?", options:["Des cours","Des emplois","Des livres","Des voyages"], correct:"A" },
+            { id:2, text:"Faites confiance à l'entreprise pour tous vos envois urgents.\nNous prenons vos paquets à domicile ou dans les bureaux de poste et nous les envoyons dans le monde entier.", question:"Que propose cette entreprise ?", options:["De stocker des marchandises","De transporter des colis","De vendre des cartons","De voyager à l'étranger"], correct:"B" },
+            { id:3, text:"Je suis bien arrivé chez moi. Je t'appelle demain pour aller voir le film. Je t'embrasse.\nCristian.", question:"Où est Cristian ?", options:["À la gare","À la maison","Au cinéma","Au travail"], correct:"B" },
+            { id:4, text:"Pierre, n'oubliez pas notre déjeuner au restaurant. Je vous attends devant l'ascenseur.\nAlice", question:"Pourquoi est-ce qu'Alice attend Pierre ?", options:["Pour des courses","Pour un repas","Pour un travail","Pour une réunion"], correct:"B" },
+            { id:5, text:"François, Pouvons-nous nous rencontrer dans ton bureau demain matin ?\nAriane", question:"Pourquoi Ariane écrit-elle ce message ?", options:["Elle doit partir une journée","Elle propose un déjeuner","Elle souhaite parler à François","Elle veut visiter une entreprise"], correct:"C" },
+            { id:6, text:"Le forum de Paris s'adresse aux jeunes de moins de trente ans, avec ou sans diplôme. Des milliers d'offres sont disponibles dans près de 300 métiers. Chaque année, un grand nombre de jeunes signent un contrat de travail du Salon.", question:"Pourquoi le Forum de Paris est-il utile aux jeunes ?", options:["Il les renseigne sur des informations","Il leur permet de trouver un emploi","Il leur présente des stages en entreprise","Il leur propose des logements étudiants"], correct:"B" },
+            { id:7, text:"Jardin de la Fontaine\nOuverture-Fermeture\nDu 1er septembre au 31 mars 7h30-18h30\nDu 1er avril au 30 juin 7h30-20h30\nDu 1er juillet au 31 août 7h00-22h30", question:"Quand peut-on se promener dans le parc après 18h30 ?", options:["En décembre","En février","En mai","En mars"], correct:"C" },
+            { id:8, text:"1kg de pommes\nSalade\nMouchoirs en papier", question:"Où trouve-t-on ces produits ?", options:["Dans une boucherie","Dans une boulangerie","Dans une épicerie","Dans une poissonnerie"], correct:"C" },
+            { id:9, text:"Bonjour Ahmed, Ce message pour te rappeler la réunion de lundi. Nous commanderons des paniers-repas pour le midi, car la séance peut durer longtemps: les dossiers à traiter sont nombreux. Peux-tu en informer les personnes des services concernés ? Merci d'avance. A lundi.\nAyoub", question:"Que demande Ayoub à Ahmed ?", options:["D'apporter le déjeuner","D'avancer le rendez-vous","De consulter les documents","De prévenir les collègues"], correct:"D" },
+            { id:10, text:"Madame, Monsieur, En raison de travaux rue Paul Vaillant, l'accès à la piscine municipale se fera côté boulevard Camélinat, du 15 au 26 mars inclus. Veuillez nous excuser pour la gêne occasionnée.\nLe service municipal.", question:"Quelle information est donnée au sujet de la piscine ?", options:["Elle sera fermée au mois de mars","Il y aura des travaux à l'extérieur","L'entrée se fera par une autre porte","Le service municipal réparera les lieux"], correct:"C" },
+            { id:11, text:"Chers amis, Nous aimerions vous avoir à notre soirée pour fêter la nouvelle année. Soyez là pour 21h00 en tenue décontractée. Nous sommes entre amis.\nCéline et Redah", question:"Pourquoi Céline et Redah invitent-ils des amis ?", options:["Pour un anniversaire","Pour un mariage","Pour un réveillon","Pour un spectacle"], correct:"C" },
+            { id:12, text:"Clément et Pierre vont participer au tour automobile 4L Trophy au Maroc. Ils vont apporter 40kg de matériel et 10kg de nourriture à une école. Les deux amis recherchent des solutions pour payer leur voyage. Vous voulez les aider ?", question:"De quoi ont besoin Clément et Pierre ?", options:["D'argent pour la course","De livres pour les enfants","De produits pour les repas","D'une voiture pour le transport"], correct:"A" },
+            { id:13, text:"Chers collègues, Veuillez rendre au plus tard vendredi midi votre feuille de demande de congés. Nous vous rappelons qu'il est essentiel pour le bon fonctionnement de notre société pendant la période estivale et pour satisfaire toutes vos demandes que ces feuilles soient dûment complétées et remises le plus tôt possible à votre responsable. Nous vous remercions de votre collaboration et nous vous souhaitons une bonne semaine.\nLa direction des ressources humaines.", question:"Dans ce message électronique, que demande-t-on aux employés ?", options:["De participer à la vie de l'entreprise","De poser leurs jours de vacances","De remplir un formulaire en ligne","De respecter les règles de sécurité"], correct:"B" },
+            { id:14, text:"« L'internaute.fr » vous informe sur la protection de l'environnement. Chaque année, c'est environ un million de tonnes de courriers non adressés qui arrivent dans les boîtes aux lettres des Français. Ces courriers sont des publicités de supermarchés ou des journaux gratuits. Or, il vaudrait mieux limiter la production de papier inutile. La meilleure méthode consiste à poser un autocollant « Stop Pub », disponible gratuitement sur le site du ministère de l'Ecologie. Lorsqu'il s'agit de courrier adressé à votre nom, vous pouvez solliciter la liste Robinson pour demander de ne plus recevoir de courrier envoyé par les listes de marketing.", question:"Quel est l'objectif de l'article de « Linternaute.fr » ?", options:["Donner des conseils pour arrêter de recevoir des publicités","Présenter le résumé d'une étude sur les effets de la publicité","Vendre l'autocollant « Stop Pub » du ministère de l'Écologie","Expliquer les avantages des journaux gratuits"], correct:"A" },
+            { id:15, text:"Des ingénieurs travaillent très sérieusement à la réalisation d'un bus, semblable à un tramway tunnel qui circulera au-dessus des files de voitures pour dégager le trafic dans les zones urbaines. L'engin sera entièrement électrique et pourra transporter 1200 personnes à une vitesse de 60 km/heure. Pour que les automobilistes « au-dessous » évoluent sans danger, des feux placés dans la partie inférieure du bus signaleront ses changements de direction.", question:"Quel sera l'atout de ce moyen de transport ?", options:["Il modifiera son parcours à la demande des usagers","Il permettra d'éviter les embouteillages en ville","Il sera équipé d'un nouveau système de sécurité","Il sera très facile d'entretien et peu coûteux"], correct:"B" },
+            { id:16, text:"Pas facile de trouver le juste équilibre entre respect et liberté. Le principal du lycée Charles-de-Gaulle a décidé de demander à ses élèves de ne plus porter de vêtements de sport en cours. Le principal estime que c'est une question de respect et de propreté. Un survêtement, ce n'est pas assez habillé pour venir au lycée. Les élèves qui n'étaient pas du même avis n'ont pas été acceptés en cours.", question:"Pourquoi la direction de cet établissement interdit-elle la tenue de sport en classe ?", options:["Pour aider les élèves à ne pas s'enrhumer","Pour enseigner le droit à la tolérance","Pour respecter des normes d'hygiène","Pour supprimer les différences sociales"], correct:"C" },
+            { id:17, text:"Courir les 42.195 km du marathon de Paris ne s'improvise pas. C'est une course qui nécessite de s'entraîner régulièrement et d'être capable de surmonter le « mur de douleur » qui survient chez tous les marathoniens entre le 32e et le 37e kilomètres « Pour espérer terminer l'épreuve, il faut courir depuis au moins un an et dans les dernières semaines, faire trois à quatre heures d'entraînement hebdomadaires réparties en autant de séances », insiste un organisateur de stages de préparation.", question:"Quel est le conseil de cet organisateur avant de participer au marathon ?", options:["Avoir comme seul objectif de terminer l'épreuve","Pratiquer la course à pied plusieurs fois par semaine","Prendre régulièrement des médicaments anti-douleur","Se donner de longues périodes de récupération"], correct:"B" },
+            { id:18, text:"Pour trouver des personnalités sortant du lot à fort potentiel d'évolution, un cabinet de recrutement organise des entretiens individuels sans consulter au préalable le dossier des candidats. Confrontés à une étude des cas, une discussion d'idées ou un questionnaire croisé, ils peuvent se démarquer grâce à leur savoir-être ou à un talent particulier. Les entretiens n'ont pas pour enjeu de poste précis, ils visent à constituer une réserve de talents, dans laquelle il sera possible de puiser.", question:"Quelle est la méthode de recrutement retenue par le cabinet ?", options:["Auditionner plusieurs candidats en même temps","Faire mener l'entrevue des candidats par un futur collègue","Laisser les candidats s'exprimer sans les interrompre","Rencontrer les candidats sans rien savoir d'eux"], correct:"D" },
+            { id:19, text:"Avis de Sonia sur www.village.vacances.fr C'était notre première expérience en Villages Vacances. Nous avons découvert un produit complet :( hébergement, restauration, activités et services). Des activités sont prévues durant la journée pour les parents et les enfants. Notre petite Mathilde a fait gratuitement de la natation et du cheval !", question:"Que proposent les Villages Vacances aux enfants ?", options:["De découvrir la région","De goûter des spécialités","De pratiquer un sport","D'organiser un spectacle"], correct:"C" },
+            { id:20, text:"Le piment d'Espelette, qui célèbre actuellement sa fête, est probablement aujourd'hui le produit le plus emblématique du Pays basque. Il a pourtant failli devenir un produit banal, c'est-à-dire le contraire absolu de ce qu'il est vraiment. Au début des années 90, on trouvait en effet et en produisant du piment, dit d'Espelette, en Afrique du Nord, en Corse, en Espagne...bref partout où on aime ce goût puissant et peu piquant qui fait sa légitime réputation. Or, les Basques n'aiment pas se faire voler leurs traditions. Ils ont donc obtenen juin 2000 l'appellation d'origine contrôlée (AOC) interdisant tout plagiat. Aujourd'hui le diamant rouge d'Espelette est particulièrement apprécié de certains grands chefs qui l'utilisent pour faire « exploser » les saveurs.", question:"L'appellation d'origine contrôlée accordée au piment d'Espelette permet aux Basques...", options:["De lutter contre les imitations","D'en accroître la production","De développer sa saveur","De le faire davantage connaître"], correct:"A" },
+            { id:21, text:"Théo, la poupée « inter-affective ». Théo a deux ans. Il mesure 52cm et communique spontanément avec sa maman. Lancé par Berchet, ce robot est bourré d'électronique et de capteurs pour interagir avec l'enfant. Ainsi, Théo dort lorsqu'il fait nuit, se réveille au lever du jour, réclame à manger ou à boire et même à aller au pot. Sa voix numérisée est d'un naturel confondant. Surtout, il s'adapte aux capacités de jeux de chaque enfant : plus il manifestera son désir de jouer, plus le jouet sera réactif.", question:"La voix numérisée de Théo est d'un « naturel confondant », ce qui signifie qu'elle...", options:["A un timbre qui n'existe pas naturellement","Se confond avec la voix de l'enfant qui joue","Enregistre et reproduit les voix entendues","Imite à la perfection la voix d'un enfant"], correct:"D" },
+            { id:22, text:"Erasmus. Le programme d'échange d'étudiants entre les universités européennes a du plomb dans l'aile. Au point qu'en France près de quatre mille bourses n'ont pas trouvé preneur. Ce phénomène n'est pas spécifique à la France puisqu'une baisse de dix pour cent aurait été enregistrée dans une dizaine de pays. Toutes les études traduisent une absence de désir de mobilité chez les jeunes. Parmi les explications avancées, le coût, mais surtout une préférence marquée pour les stages en entreprise. Voilà le grand concurrent d'Erasmus depuis quelques années : l'attention portée à l'insertion professionnelle.", question:"Qu'explique le texte au sujet du programme Erasmus ?", options:["Il est financé par des universités publiques","Il est remplacé par un autre programme","Il facilite l'accès au monde de l'entreprise","Son succès auprès des étudiants se dégrade"], correct:"D" },
+            { id:23, text:"Savoir opter pour la bonne route n'est pas tout. L'ultime clé pour gagner la course de la route du Rhum, c'est la connaissance de soi et tout particulièrement de ses rythmes de sommeil. C'est un des aspects les plus méconnus de la voile de compétition, mais c'est sur la faculté de récupération que peut se jouer au podium. Ainsi, Alain Gautier reconnaît avoir perdu la dernière route du Rhum parce qu'il n'a pas su, dès les premiers jours de la course, gérer correctement ses phases de repos. « A la fin, j'ai manqué de lucidité et j'ai commis des erreurs », avoue-t-il après sa défaite.", question:"Quel conseil donne le journaliste pour remporter la course ?", options:["Connaître ses adversaires","Cultiver sa concentration","Dormir efficacement","Ménager ses efforts"], correct:"C" },
+            { id:24, text:"Le château de la Bussière est une demeure du 17e siècle située dans le Loiret. Surnommé « le château des pêcheurs » Il possède des collections d'objets rares sur la pêche. Sans oublier un superbe parc. Aujourd'hui, ce monument est confronté à un fléau : un champignon ronge ses édifices. Les propriétaires ont déjà lancé une campagne de restauration, mais le champignon s'attaque aussi à d'autres parties du domaine. Les maîtres des lieux souhaitent que le bâtiment retrouve son éclat en sollicitant les internautes. A partir de 15€, les contributeurs pourront recevoir des entrées gratuites, l'inscription de leur nom sur une plaque dans le château ou bien encore un dîner avec les propriétaires", question:"D'après l'article, à quoi les internautes sont-ils encouragés ?", options:["À aider à la rénovation en travaillant au château","À entrer en contact avec les occupants du château","À financer les travaux au château par un don","À visiter le château, ses jardins et expositions"], correct:"C" },
+            { id:25, text:"Sandrine Mercier et Michel Fonivicn ont le voyage dans la peau. Les deux journalistes ont longtemps exploré le monde avant d'écrire un livre ensemble. Ils sont partis vivre ailleurs est constitué des histoires d'une trentaine d'expatriés et d'autant de destins et de trajectoires. Les auteurs sont allés chercher des personnages tous très différents, mais toujours touchants et sincères en racontant leurs parcours lointains rappel du large, les premiers pas, les déceptions, le rapport à la France, la découverte des autres...c'est certainement ce qui unit tous ces Français du bout du monde; par-delà leurs différences et leurs expériences : une ouverture d'esprit, une volonté de partager et au final une richesse et une joie de vivre communicative.", question:"D'après l'auteur de cet article, quelle est la particularité de cet ouvrage ?", options:["L'originalité des pays visités","La description des habitudes quotidiennes","La diversité des portraits présentés","Les qualités littéraires des écrivains"], correct:"C" },
+            { id:26, text:"Longtemps délaissées, les algues semblent peu à peu séduire les consommateurs. En raison de leur confusion avec les algues vertes qui polluent le littoral, ces légumes de mer sont parfois mal considérés. Pourtant, si les algues ne font pas encore partie de notre univers culturel alimentaire, leur consommation est en progression « les occidentaux sont-ils prêts à en faire un produit courant ? » questionne le docteur Arnaud Cacoul. Pas sûr. « Malgré leurs bienfaits nutritionnels, leur consommation restera sans doute limitée » estime ce nutritionniste.", question:"Quelle place occupent les algues en France ?", options:["Elles font partie de la gastronomie régionale","Les gens en mangent plus que par le passé","Les médecins conseillent leur usage en cuisine","Leur culture augmente rapidement sur les côtes"], correct:"B" },
+            { id:27, text:"Depuis plusieurs années, Thierry Marc, un grand chef français, intervient pour donner des cours de cuisine en prison. Faire découvrir à ce public, contraint de vivre en milieu fermé, qu'une profession, quelle qu'elle soit, peut être épanouissante, est une tâche qui le passionne et nécessite très naturellement une grande énergie. Le désir de rallumer cette lueur d'espoir, de montrer « après », il peut y avoir une réinsertion réussie et que chacun la porte en lui, est un moteur pour relever ce défi.", question:"Pourquoi Thierry Marc intervient-il dans les prisons ?", options:["Pour améliorer les méthodes de travail de la cantine","Pour encourager la création des formations professionnelles","Pour faire naître l'envie de s'investir dans un métier","Pour sensibiliser le grand public à la réalité de la vie carcérale"], correct:"C" },
+            { id:28, text:"L'institution scolaire devra sans cesse être défendue, ne serait-ce que parce que la « société civile » n'aura de cesse de vouloir assujettir l'école à ses demandes particulières. Il faut sans cesse rappeler, par exemple, que les règles de l'école ne sont pas celles de la maison. Car l'enfant n'y est plus seulement un enfant, il y est un élève. A l'école on ne se préoccupe plus du confort et de l'affection pour l'enfant. On s'adresse à l'intelligence de l'élève. Le rapport maître/élève n'est d'ailleurs pas un rapport affectif : on ne demande pas à un professeur d'être sympathique. On lui demande d'être exigeant et juste.", question:"Quelle est l'opinion de l'auteur ?", options:["L'ambiance de l'école doit être calquée sur le modèle familial","L'autorité du professeur doit être compensée par sa gentillesse","L'épanouissement de l'enfant doit primer sur sa réussite","L'impartialité doit être l'une des qualités principales d'un maître"], correct:"D" },
+            { id:29, text:"Durant les investigations journalistiques, le recours à la caméra cachée est de plus en plus fréquent. Mais souvent, son utilisation n'est aussi qu'un cache-misère, un moyen de compenser l'absence d'informations dans les reportages, de remplir le vide par des scènes un peu spectaculaires. C'est une manière pour certains aussi de faire des économies. Par ailleurs, cette pratique pose une autre question celle du statut de la personne filmée à son insu. La filmer en caméra cachée, n'est-ce pas supposer qu'elle a quelque chose à se reprocher avant d'avoir commencé à parler ?", question:"D'après ce texte, pourquoi les journalistes utilisent-ils des caméras cachées ?", options:["Pour améliorer la qualité des documentaires","Pour dissimuler la pauvreté des contenus","Pour moderniser leurs méthodes de work","Pour saper les gens visés par les enquêtes"], correct:"B" },
+            { id:30, text:"Trouver un logement dans une ville étudiante est un parcours du combattant pour un grand nombre d'inscrits dans l'enseignement supérieur. La barrière est parfois infranchissable. Non seulement les loyers sont élevés, mais la sélection des candidats par les propriétaires est très dure, souvent basée sur le niveau de revenus des garants, pour lever ce frein, la caution locative étudiante (CLE) vient d'être généralisée à l'ensemble du territoire national après avoir été expérimentée dans quatre régions pendant un an. Avec ce dispositif, c'est l'Etat qui se porte garant du versement des loyers des étudiants en cas de non-paiement.", question:"Quel est le principal obstacle à l'accès au logement des étudiants selon cette analyse ?", options:["La méfiance des propriétaires","La rareté des offres de ce logement","L'absence d'engagement de l'État","Le montant de la caution exigée"], correct:"A" },
+            { id:31, text:"Après avoir été fermée au public pendant douze ans, la grotte préhistorique d'Atlantica, située en Espagne doit rouvrir ses portes, mais de manière expérimentale. Il s'agit d'une expérience réservée à un groupe de cinq personnes tirées au hasard parmi les visiteurs du musée du site, qui vont pouvoir contempler les peintures rupestres originales. Cette expérience se déroulera une fois par semaine pendant huit mois afin de permettre à une équipe de scientifiques d'évaluer l'impact des visites sur l'ensemble du site et de donner son avis sur une réouverture complète.", question:"Qu'évoque-t-on dans cet article ?", options:["L'inauguration d'une exposition temporaire","L'inscription d'une œuvre au patrimoine mondial","L'ouverture au public d'une zone dangereuse","L'accès réglementé à un emplacement protégé"], correct:"D" },
+            { id:32, text:"Pas de clash ni de portes qui claquent. A l'issue de la deuxième conférence sociale, le gouvernement can au moins se réjouir de ce résultat. Les représentants du patronat et des syndicats n'ont pas applaudi à tout rompre l'intervention du premier ministre, mais il n'y avait pas non plus eu de fâcherie comme celle qui avait marqué la première conférence. Si certains se sont dits déçus par la minceur des annonces que le premier ministre a dévoilées ou par les zones de flou qui règnent sur plusieurs dossiers brûlants -les retraites en tête- personne n'a non plus eu vent de colères. Il faut dire que pendant deux jours, ministres et conseillers se sont échinés à repousser les points qui fâchent à plus tard.", question:"Quel a été l'aboutissement de la conférence ?", options:["L'affrontement entre partenaires sociaux","L'avancée majeure en termes de fiscalité","La proclamation de réformes importantes","L'absence de prise de décisions effectives"], correct:"D" },
+            { id:33, text:"« Des taxes vertes » ou taxes carbone sont envisagées pour faire face aux financements nécessaires d'énergies non polluantes. Les mécanismes prévus dans le protocole de Kyoto concernent notamment un crédit carbone qui représente un volume d'émission de gaz à effet de serre (GES) évité et des permis d'émission négociables. Le crédit carbone est doté d'une valeur marchande et s'échange entre pays industrialisés. Un pays n'arrivant pas à atteindre son objectif de réduction des GES pourrait acheter des crédits carbone à un autre qui aurait dépassé son objectif. Ce système a été parfois qualifié de permis à polluer, car un pays riche pourrait acheter le droit de polluer à un autre ayant réellement réduit ses émissions.", question:"Quel est le paradoxe de la taxe carbone ?", options:["Elle concerne uniquement les économies fortes","Elle freine l'utilisation de ressources renouvelables","Elle permet le dépassement des normes édictées","Elle ralentit le progrès dans les états émergents"], correct:"C" },
+            { id:34, text:"Quel visage Paris pourrait-il prendre en 2100 ? C'est ce que le collectif d'architectes « Et alors » a imaginé au travers de vingt cartes postales géantes, exposées à Paris. Ce qui donne un résultat surprenant, parfois utopique, parfois réaliste. Ainsi l'idée d'une centrale hydrothermique pour chauffer et refroidir tout un quartier, projet de la compagnie parisienne du chauffage urbain. Des potagers « partagés » au pied des immeubles en plein centre-ville, cela ressemble plus à un clin d'oeil malicieux...le vélo a également la part belle : Les architectes imaginent des voies rapides sur les toits des Paris, au milieu de toitures végétalisées et de jardins.", question:"Quel projet est présenté comme réaliste ?", options:["L'extension d'un système de climatisation à tout un quartier","L'installation des parcs sur les toits des bâtiments parisiens","La construction de pistes cyclables au sommet des immeubles","La création de jardins communs pour planter des légumes"], correct:"A" },
+            { id:35, text:"Il faut se rendre à l'évidence : le « jour » n'est plus l'unité de time d'un journal. Un quotidien papier ne peut pas rivaliser avec la vitesse à laquelle les sites, les blogs, les réseaux sociaux, les journaux en ligne, les radios et télés, les « news » des grands serveurs diffusent les nouvelles du jour. Aussi, au moment où il est en kiosques. Se condamne-t-il à apparaître comme « le journal de la veille », perdant progressivement ses lecteurs qui bombardés de scoops tous azimuts, sont déçus de n'y trouver que ce qu'ils savent déjà.", question:"Quelle est la position de l'auteur de l'article ?", options:["Il conteste la fiabilité des sources d'internet","Il critique la surabondance de l'information","Il dénonce la médiocrité de la presse écrite","Il doute de l'intérêt des médias traditionnels"], correct:"D" },
+            { id:36, text:"Un vingt-sixième album de François Hardy. La pluie sans parapluie est forcément un événement. On sait que le public qui achète encore des disques passe volontaire à la caisse, pour montrer sa fidélité, ou simplement son envie de vibrer avec cette voix unique et si familière avec laquelle elle semble d'ailleurs plus en confiance que jamais. Elle module, appuie, interprète, joue avec souplesse de son phrasé, alors que les aficionados se contenteraient juste de ce grain unique et révéré. C'est un album pour ceux qui ont le time, qui ne consomment pas la musique en tant qu'application sonore de la vie actuelle. Il faut se retrancher pour en saisir la saveur et la goûter. Un disque comme autrefois, avec un son soigné et de l'émotion. Mais surtout une élégance comme on n'en fait plus!", question:"Selon le journaliste, quel type de public pourrait s'intéresser au dernier album de F.Hardy ?", options:["Les acheteurs opposés au téléchargement illégal","Les amateurs de subtilité et de raffinement musical","Les admirateurs inconditionnels de l'interprète","Les curieux en mal de musique expérimentale"], correct:"B" },
+            { id:37, text:"Dans leur nouvelle collection, les éditions Nil invitent des auteurs à se livrer à un exercice épistolaire intime en écrivant une lettre pour dire l'indicible. Le modèle est celle que Kafka rédigea à l'intention de son père et qu'il préféra ranger dans un tiroir tant l'accusation portée était peu amène. Avec l'autre fille, missive adressée à sa sœur aînée, morte avant sa naissance, Annie Ernaux inaugure brillamment le concept, fidèle à son écriture tranchante et analytique. Rejetant le terme d'autofiction, l'écrivain se dit fasciné par la réalité, partant à la recherche d'une vérité sur une mort que ses parents lui ont toujours cachée. En demandant à des auteurs de se libérer d'un vieux vêtement, la collection souhaite réhabiliter un genre littéraire oublié.", question:"A quel résultat la participation à cette collection conduit-elle Annie Ernaux ?", options:["À s'acquitter d'un engagement moral","À se défaire d'un sentiment de culpabilité","À s'affranchir d'une histoire ancienne","À se justifier d'une action peu glorieuse"], correct:"C" },
+            { id:38, text:"Les méfiances à l'égard de la gratuité des transports collectifs demeurent fortes. Sans surprise, l'Union des transports publics affiche son hostilité. Too onéreuse, ne facilitant pas le report de la voiture vers les transports collectifs, menaçant la qualité de service, la gratuité pour tous ne répondrait pas aux objectifs de développement d'un réseau de transport. According to the UTP, la gratuité est une « fausse bonne idée » qui « induit des déplacements inutiles, encourage l'étalement urbain et prive de ressources le système de transport au moment où la clientèle augmente et où les recettes fiscales des collectivités diminuent ». Elle lui préfère le système de tarification spéciale pour les jeunes, les sans-emplois ou les familles nombreuses.", question:"Pourquoi la gratuité des transports publics est-elle critiquée ?", options:["Ce choix creuse les inégalités sociales","Ce projet omet des questions de sécurité","Cette démarche déresponsabilise les usagers","Cette initiative coûte beaucoup trop cher"], correct:"D" },
+            { id:39, text:"Depuis l'adolescence, je fréquente assidûment les dictionnaires. Chaque fois que je bute sur un mot, que je suis dans le flou culturel, ils m'apportent la réponse et ouvrent de nouveaux horizons à ma curiosité en me renvoyant souvent à d'autres ouvrages. Je possède une centaine et chacun est une bibliothèque à lui seul. Tous sont autant de béquilles de ma culture par exemple, guano vous cherchez le mot juste, rien de tel qu'un dictionnaire des synonymes ! On ouvre un dictionnaire pour se renseigner sur une question précise comme on brait la notice d'un produit pharmaceutique destiné à soigner ceci ou cela. C'est le self-service de la pensée.", question:"Pourquoi Jean Claude aime-t-il les dictionnaires ?", options:["Pour découvrir de nouvelles références","Pour posséder une bibliothèque fournie","Pour s'évader vers des horizons lointains","Pour trouver des remèdes à ses maux"], correct:"A" }
+        ];
+
+        // assign points dynamiquement selon index (identique à test 1)
+        const questions = rawQuestions.map((q, idx) => {
+            let p = 3;
+            if (idx >= 11 && idx <= 18) p = 9;
+            else if (idx >= 19 && idx <= 27) p = 15;
+            else if (idx >= 28 && idx <= 34) p = 21;
+            else if (idx >= 35 && idx <= 37) p = 26;
+            else if (idx === 38) p = 33;
+            return { ...q, points: p };
+        });
+
+        // ----- variables globales du quiz -----
+        let currentIdx = 0;
+        let userAnswers = new Array(39).fill(null);
+        let reviewFlags = new Array(39).fill(false);
+        let timeLeft = 3600; // 1h
+        let timerInterval;
+        let startTime = new Date();
+
+        // éléments DOM
+        const authOverlay = document.getElementById('authOverlay');
+        const authMessage = document.getElementById('authMessage');
+        const quizContainer = document.getElementById('quizContainer');
+
+        // initialisation Firebase + auth
+        async function initFirebase() {
+            try {
+                firebaseApp = firebase.initializeApp(firebaseConfig);
+                firebaseAuth = firebase.auth();
+                firestore = firebase.firestore();
+
+                firebaseAuth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        await handleUser(user);
+                    } else {
+                        showAuth('not_logged_in', 'Non connecté', 'Vous devez être connecté pour accéder à ce test.');
+                    }
+                });
+            } catch (e) {
+                showAuth('error', 'Erreur Firebase', 'Impossible de se connecter au serveur.');
+            }
+        }
+
+        async function handleUser(user) {
+            try {
+                const doc = await firestore.collection('users').doc(user.uid).get();
+                if (!doc.exists) {
+                    showAuth('error', 'Compte non trouvé', 'Votre profil utilisateur est introuvable.');
+                    return;
+                }
+                
+                const data = doc.data();
+                currentUser = { uid: user.uid, email: user.email, ...data };
+                
+                // === VÉRIFICATION PREMIUM AMÉLIORÉE ===
+                isPremium = false;
+                
+                // Vérifier premiumActive (booléen)
+                if (data.premiumActive === true) {
+                    isPremium = true;
+                }
+                
+                // Vérifier premium (booléen)
+                if (data.premium === true) {
+                    isPremium = true;
+                }
+                
+                // Vérifier premiumType (présent dans vos données)
+                if (data.premiumType && data.premiumType !== "none" && data.premiumType !== "free") {
+                    isPremium = true;
+                }
+                
+                // Vérifier status = "premium" ou "active"
+                if (data.status === "premium" || data.status === "active") {
+                    isPremium = true;
+                }
+                
+                // Vérifier subscriptionStatus
+                if (data.subscriptionStatus === "active" || data.subscriptionStatus === "premium") {
+                    isPremium = true;
+                }
+                
+                // Vérifier la date d'expiration
+                if (data.premiumExpiry) {
+                    const now = new Date();
+                    const expiry = new Date(data.premiumExpiry);
+                    if (expiry > now) {
+                        isPremium = true;
+                    }
+                }
+                
+                // Vérifier subscriptionExpiry
+                if (data.subscriptionExpiry) {
+                    const now = new Date();
+                    const expiry = new Date(data.subscriptionExpiry);
+                    if (expiry > now) {
+                        isPremium = true;
+                    }
+                }
+                
+                // Vérifier explicitement votre UID
+                if (user.uid === "a0fPHv3JniRr55uJJjJggSMFKGY2") {
+                    isPremium = true;
+                }
+                
+                // Vérifier votre email
+                if (user.email === "bouhoula_mohamedhedi@yahoo.fr") {
+                    isPremium = true;
+                }
+                
+                // Si l'utilisateur est admin, donner accès
+                if (data.role === "admin" || data.isAdmin === true) {
+                    isPremium = true;
+                }
+                
+                if (!isPremium) {
+                    showAuth('premium_required', 'Accès Premium', 'Ce test nécessite un abonnement premium actif.');
+                    return;
+                }
+                
+                // Tout est bon : cacher overlay, lancer quiz
+                authOverlay.style.display = 'none';
+                quizContainer.style.display = 'flex';
+                startQuiz();
+                
+            } catch (err) {
+                showAuth('error', 'Erreur', 'Impossible de charger les données.');
+            }
+        }
+
+        function showAuth(type, title, msg) {
+            let icon = '🔒';
+            if (type === 'loading') icon = '<i class="fas fa-spinner fa-spin"></i>';
+            else if (type === 'error') icon = '❌';
+            
+            authMessage.innerHTML = `
+                <div class="auth-icon">${icon}</div>
+                <div class="auth-title">${title}</div>
+                <div class="auth-subtitle">${msg}</div>
+            `;
+            authOverlay.style.display = 'flex';
+        }
+
+        window.redirectToLogin = function() { window.location.href = 'index.html'; };
+        window.closeWindow = function() { window.close(); };
+
+        // ----- quiz functions -----
+        function startQuiz() {
+            createGrid();
+            loadQuestion(0);
+            startTimer();
+            updateProgress();
+            setupCopyProtection();
+        }
+
+        function createGrid() {
+            const grid = document.getElementById('questionGrid');
+            grid.innerHTML = '';
+            for (let i=0; i<39; i++) {
+                let btn = document.createElement('button');
+                btn.className = 'q-btn';
+                btn.textContent = i+1;
+                btn.onclick = () => navigateTo(i);
+                grid.appendChild(btn);
+            }
+            updateGridClasses();
+        }
+
+        function updateGridClasses() {
+            document.querySelectorAll('.q-btn').forEach((btn, idx) => {
+                btn.classList.remove('active','answered','review');
+                if (idx === currentIdx) btn.classList.add('active');
+                if (userAnswers[idx] !== null) btn.classList.add('answered');
+                if (reviewFlags[idx]) btn.classList.add('review');
+            });
+        }
+
+        function loadQuestion(index) {
+            const q = questions[index];
+            document.getElementById('qNumberDisplay').innerText = `Question ${index+1} / 39`;
+            document.getElementById('pointsDisplay').innerText = q.points + ' points';
+            document.getElementById('textPassage').innerText = q.text;
+            document.getElementById('actualQuestion').innerText = q.question;
+
+            const optsDiv = document.getElementById('optionsContainer');
+            optsDiv.innerHTML = '';
+            q.options.forEach((opt, optIdx) => {
+                let letter = String.fromCharCode(65+optIdx);
+                let selectedClass = (userAnswers[index] === letter) ? 'selected' : '';
+                let div = document.createElement('div');
+                div.className = `option-item ${selectedClass}`;
+                div.onclick = () => selectOption(optIdx);
+                div.innerHTML = `<div class="option-letter">${letter}</div><div class="flex-grow-1">${opt}</div>`;
+                optsDiv.appendChild(div);
+            });
+
+            document.getElementById('prevBtn').disabled = (index===0);
+            let nextBtn = document.getElementById('nextBtn');
+            nextBtn.innerHTML = (index===38) ? 'Terminer <i class="fas fa-check"></i>' : 'Suivant <i class="fas fa-arrow-right"></i>';
+            document.getElementById('reviewBtn').innerHTML = reviewFlags[index] ? '✓ Révision' : '<i class="fas fa-bookmark"></i> Marquer';
+            updateGridClasses();
+            updateProgress();
+        }
+
+        function selectOption(optIdx) {
+            let letter = String.fromCharCode(65+optIdx);
+            userAnswers[currentIdx] = letter;
+            loadQuestion(currentIdx);
+        }
+
+        function navigateTo(idx) {
+            if (idx>=0 && idx<39) { currentIdx = idx; loadQuestion(currentIdx); }
+        }
+
+        document.getElementById('prevBtn').onclick = () => navigateTo(currentIdx-1);
+        document.getElementById('nextBtn').onclick = () => { if (currentIdx===38) finishTest(); else navigateTo(currentIdx+1); };
+        document.getElementById('reviewBtn').onclick = () => { reviewFlags[currentIdx] = !reviewFlags[currentIdx]; loadQuestion(currentIdx); };
+
+        function updateProgress() {
+            let answered = userAnswers.filter(a=>a!==null).length;
+            document.getElementById('globalProgress').style.width = (answered/39*100)+'%';
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => { timeLeft--; if (timeLeft<=0) finishTest(); updateTimer(); }, 1000);
+        }
+        function updateTimer() {
+            let h = Math.floor(timeLeft/3600);
+            let m = Math.floor((timeLeft%3600)/60);
+            let s = timeLeft%60;
+            let timer = document.getElementById('timerDisplay');
+            timer.innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            if (timeLeft<300) timer.className = 'timer-card danger';
+            else if (timeLeft<600) timer.className = 'timer-card warning';
+        }
+
+        function finishTest() {
+            clearInterval(timerInterval);
+            let correct=0, total=0, earned=0;
+            questions.forEach((q,i) => { total += q.points; if (userAnswers[i]===q.correct) { correct++; earned += q.points; } });
+            let percent = Math.round((earned/total)*100);
+            document.getElementById('correctCount').innerText = correct;
+            document.getElementById('timeUsed').innerText = getTimeUsed();
+            document.getElementById('scorePercent').innerText = percent;
+            let levelElem = document.getElementById('cecrLevelDisplay');
+            if (percent>=85) levelElem.innerText = 'NIVEAU C2 ATTEINT';
+            else if (percent>=75) levelElem.innerText = 'NIVEAU C1 ATTEINT';
+            else if (percent>=60) levelElem.innerText = 'NIVEAU B2 ATTEINT';
+            else if (percent>=40) levelElem.innerText = 'NIVEAU B1 ATTEINT';
+            else if (percent>=20) levelElem.innerText = 'NIVEAU A2 ATTEINT';
+            else levelElem.innerText = 'NIVEAU A1 NON ATTEINT';
+
+            let qlist = document.getElementById('questionsList');
+            qlist.innerHTML = '';
+            questions.forEach((_,i) => {
+                let span = document.createElement('span');
+                span.style.padding = '0.7rem 1rem'; span.style.borderRadius = '30px';
+                span.style.background = (userAnswers[i]===questions[i].correct) ? '#10b981' : '#ef4444';
+                span.style.color = 'white'; span.style.cursor = 'pointer';
+                span.innerText = i+1;
+                span.onclick = () => showCorrection(i);
+                qlist.appendChild(span);
+            });
+            document.getElementById('resultsModal').style.display = 'flex';
+        }
+
+        function getTimeUsed() {
+            let diff = (new Date() - startTime)/1000;
+            let h = Math.floor(diff/3600), m = Math.floor((diff%3600)/60), s = Math.floor(diff%60);
+            return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+
+        function showCorrection(idx) {
+            let q = questions[idx];
+            let html = `<div style="background:#f8fafc; padding:1rem; border-radius:24px;">`;
+            html += `<p><strong>Q${idx+1}</strong> (${q.points}pts) — ${q.question}</p>`;
+            q.options.forEach((opt,i) => {
+                let lettre = String.fromCharCode(65+i);
+                let classe = '';
+                if (lettre === q.correct) classe = 'correct-answer';
+                if (userAnswers[idx] === lettre && lettre !== q.correct) classe = 'user-answer';
+                html += `<div class="correction-option ${classe}"><span style="width:40px;">${lettre}</span> ${opt}</div>`;
+            });
+            html += `</div>`;
+            document.getElementById('correctionsContainer').innerHTML = html;
+            document.getElementById('correctionsContainer').style.display = 'block';
+        }
+
+        window.toggleCorrections = function() {
+            let c = document.getElementById('correctionsContainer');
+            if (c.style.display === 'none') { showCorrection(0); c.style.display = 'block'; }
+            else c.style.display = 'none';
+        };
+        window.closeResults = function() { document.getElementById('resultsModal').style.display = 'none'; };
+
+        function setupCopyProtection() {
+            document.addEventListener('copy', (e) => {
+                if (window.getSelection().toString().length > 50) { e.preventDefault(); showCopyWarning(); }
+            });
+        }
+        function showCopyWarning() {
+            let w = document.getElementById('copyWarning');
+            w.style.display = 'block';
+            setTimeout(() => w.style.display = 'none', 1500);
+        }
+
+        // lancement
+        initFirebase();
+    })();
+</script>
+</body>
+</html>

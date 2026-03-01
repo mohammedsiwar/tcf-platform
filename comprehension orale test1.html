@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCF Canada • Compréhension Orale (Test 1) — Élégance & Performance</title>
+    <!-- Font Awesome 6 (gratuit) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter (clean & moderne) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --secondary: #3b82f6;
+            --secondary-dark: #2563eb;
+            --accent: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --premium: #8b5cf6;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+            --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #f1f5f9 0%, #e6eefc 100%);
+            min-height: 100vh;
+            color: var(--gray-900);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        /* carte vitrée principale */
+        .glass-panel {
+            width: 100%;
+            max-width: 1300px;
+            height: 95vh;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 42px;
+            box-shadow: var(--shadow-xl), 0 0 0 1px rgba(255,255,255,0.3) inset;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ===== HEADER avec timer moderne ===== */
+        .quiz-header {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(59,130,246,0.2);
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .logo-icon {
+            background: linear-gradient(135deg, var(--secondary), var(--premium));
+            width: 44px;
+            height: 44px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.4rem;
+            box-shadow: 0 8px 16px -6px rgba(59,130,246,0.5);
+        }
+        .title-block h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #0f172a, #2563eb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+        .title-block p {
+            font-size: 0.9rem;
+            color: var(--gray-500);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .timer-card {
+            background: #1e293b;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 120px;
+            font-weight: 600;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            box-shadow: 0 10px 20px -8px #0f172a;
+            border: 1px solid #3b82f6;
+        }
+        .timer-card.warning { background: #f59e0b; color: black; }
+        .timer-card.danger { background: #ef4444; animation: pulse 1s infinite; }
+
+        /* navigation / pastilles */
+        .nav-section {
+            background: white;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .question-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
+        }
+        .q-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 18px;
+            border: 1.5px solid var(--gray-200);
+            background: white;
+            font-weight: 600;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            font-size: 0.95rem;
+        }
+        .q-btn.active { background: var(--secondary); border-color: var(--secondary); color: white; transform: scale(1.05); }
+        .q-btn.answered { background: var(--success); border-color: var(--success); color: white; }
+        .q-btn.review { background: var(--warning); border-color: var(--warning); color: white; }
+        .q-btn:hover { border-color: var(--secondary); transform: translateY(-2px); }
+
+        .progress-legende {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .progress-bar-bg {
+            flex: 1;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 20px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border-radius: 20px;
+            width: 0%;
+        }
+        .legend i { margin-right: 0.2rem; }
+
+        /* MAIN SCROLL */
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        /* carte question */
+        .question-header-card {
+            display: flex;
+            justify-content: space-between;
+            background: white;
+            padding: 1.2rem 2rem;
+            border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+            margin-bottom: 2rem;
+            border: 1px solid rgba(59,130,246,0.2);
+        }
+        .badge-points {
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            padding: 0.4rem 1.2rem;
+            border-radius: 60px;
+            color: white;
+            font-weight: 700;
+        }
+
+        /* image raffinée */
+        .image-wrapper {
+            background: white;
+            border-radius: 32px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.03);
+            text-align: center;
+            border: 1px solid var(--gray-200);
+        }
+        .oral-image {
+            max-width: 100%;
+            max-height: 280px;
+            border-radius: 24px;
+            object-fit: contain;
+        }
+
+        /* lecteur audio moderne */
+        .audio-block {
+            background: #f8fafc;
+            border-radius: 32px;
+            padding: 1.8rem;
+            margin: 1.8rem 0;
+            border: 1px solid rgba(100,116,139,0.2);
+        }
+        .audio-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .audio-btn {
+            background: white;
+            border: none;
+            padding: 0.75rem 1.4rem;
+            border-radius: 60px;
+            font-weight: 600;
+            color: var(--gray-700);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+            border: 1px solid var(--gray-300);
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        .audio-btn:hover { background: var(--secondary); color: white; border-color: var(--secondary); }
+        .speed-btn {
+            width: 46px;
+            height: 46px;
+            border-radius: 46px;
+            background: white;
+            border: 1px solid var(--gray-300);
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .speed-btn.active { background: var(--secondary); color: white; border-color: var(--secondary); }
+        .time-stamp { font-family: monospace; margin-left: auto; color: var(--gray-500); }
+        .progress-audio-bg {
+            height: 6px;
+            background: var(--gray-300);
+            border-radius: 6px;
+            margin-top: 1rem;
+            cursor: pointer;
+        }
+        .progress-audio-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--premium));
+            border-radius: 6px;
+            width: 0%;
+        }
+
+        /* options élégantes */
+        .options-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .option-item {
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 2px solid var(--gray-200);
+            border-radius: 30px;
+            padding: 1.2rem 2rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .option-item:hover { border-color: var(--secondary); background: #f0f9ff; }
+        .option-item.selected { border-color: var(--secondary); background: #eef2ff; }
+        .option-letter {
+            width: 50px;
+            height: 50px;
+            border-radius: 30px;
+            background: var(--gray-100);
+            border: 2px solid var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-right: 1.5rem;
+        }
+        .selected .option-letter { background: var(--secondary); color: white; }
+
+        /* footer */
+        .quiz-footer {
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(12px);
+            padding: 1.5rem 2rem;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-foot-btn {
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            border: none;
+            background: white;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.02);
+            border: 1px solid var(--gray-300);
+            transition: 0.15s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .nav-foot-btn.primary { background: var(--secondary); color: white; border: none; }
+        .nav-foot-btn.primary:hover { background: #2563eb; }
+        .review-mark-btn {
+            background: #f59e0b;
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            border: none;
+            box-shadow: 0 8px 18px #f59e0b40;
+        }
+
+        /* modales */
+        .modal-overlay {
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .modal-card {
+            background: white;
+            border-radius: 48px;
+            padding: 2.5rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+        }
+        .correction-option {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            border-radius: 18px;
+            margin: 0.3rem 0;
+        }
+        .correction-option.correct-answer { background: #e6f7e6; border-left: 6px solid #10b981; }
+        .correction-option.user-answer { background: #fee9e9; border-left: 6px solid #ef4444; }
+    </style>
+</head>
+<body>
+<div class="glass-panel" id="appContainer">
+    <!-- header -->
+    <div class="quiz-header">
+        <div class="logo-area">
+            <div class="logo-icon"><i class="fas fa-headphones"></i></div>
+            <div class="title-block">
+                <h1>Compréhension Orale · Test 1</h1>
+                <p><i class="far fa-clock"></i> 39 questions · TCF Canada</p>
+            </div>
+        </div>
+        <div class="timer-card" id="timerDisplay">01:00:00</div>
+    </div>
+
+    <!-- navigation + pastilles -->
+    <div class="nav-section">
+        <div class="question-grid" id="questionGrid"></div>
+        <div class="progress-legende">
+            <div class="progress-bar-bg"><div class="progress-fill" id="globalProgress" style="width:0%"></div></div>
+            <div style="display:flex; gap:1.5rem;">
+                <span><i class="fas fa-circle" style="color:#f59e0b;"></i> Révision</span>
+                <span><i class="fas fa-circle" style="color:#10b981;"></i> Répondu</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- zone défilante principale -->
+    <div class="scroll-content" id="mainScroll">
+        <!-- infos question -->
+        <div class="question-header-card">
+            <span class="fw-bold" id="qNumberDisplay">Question 1 / 39</span>
+            <span class="badge-points" id="pointsDisplay">3 points</span>
+        </div>
+
+        <!-- contenu variable (image, audio, options) -->
+        <div id="questionContent"></div>
+    </div>
+
+    <!-- footer navigation -->
+    <div class="quiz-footer">
+        <button class="nav-foot-btn" id="prevBtn"><i class="fas fa-arrow-left"></i> Précédent</button>
+        <button class="review-mark-btn" id="reviewBtn"><i class="fas fa-bookmark"></i> Marquer pour révision</button>
+        <button class="nav-foot-btn primary" id="nextBtn">Suivant <i class="fas fa-arrow-right"></i></button>
+    </div>
+</div>
+
+<!-- MODAL RESULTATS + CORRECTIONS -->
+<div id="resultsModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card">
+        <div style="display:flex; justify-content:space-between;">
+            <h2 style="font-weight:700;">Résultats</h2>
+            <button onclick="closeResults()" style="background:none; border:none; font-size:1.6rem;">&times;</button>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin:2rem 0;">
+            <div class="bg-light p-3 rounded-4 text-center"><span id="correctCount">0</span><br>Correctes</div>
+            <div class="bg-light p-3 rounded-4 text-center"><span id="timeUsed">00:00</span><br>Temps</div>
+            <div class="bg-light p-3 rounded-4 text-center"><span id="scorePercent">0</span>%<br>Score</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#0f172a,#1e293b); color:white; padding:1.5rem; border-radius:32px; text-align:center;" id="cecrLevelDisplay">NIVEAU A1 NON ATTEINT</div>
+        <div class="d-flex flex-wrap gap-2 my-4" id="questionsList"></div>
+        <button class="btn btn-outline-primary w-100 py-2" onclick="toggleCorrections()">Afficher les corrections</button>
+        <div id="correctionsContainer" style="display:none; margin-top:2rem;"></div>
+    </div>
+</div>
+
+<script>
+    // =================== DONNÉES COMPLÈTES (39 questions) ===================
+    const questions = [
+        // Q1-2 avec image (audio simulé, mais présent)
+        {id:1, type:'image', instruction:'Écoutez les 4 propositions, choisissez celle qui correspond à l\'image.', image:'https://placehold.co/600x400/2d5cc2/white?text=Homme+journal', audio:'audio/placeholder.mp3', points:3, options:['Un homme lit un journal','Une femme fait du jogging','Un enfant joue au ballon','Un chat dort sur le canapé'], correct:'A', duration:23},
+        {id:2, type:'image', instruction:'Écoutez et associez à l\'image.', image:'https://placehold.co/600x400/2d5cc2/white?text=Femme+courses', audio:'audio/placeholder.mp3', points:3, options:['Elle cherche ses clés','Il attend le bus','Ils font les courses','Elle parle au téléphone'], correct:'C', duration:26},
+        // Q3-4 audio seules
+        {id:3, type:'audio', instruction:'Extrait sonore + question.', audio:'audio/placeholder.mp3', points:3, options:['Il préfère prendre le métro','Il doit faire des courses','Elle est en retard','Elle a oublié ses clés'], correct:'B', duration:20},
+        {id:4, type:'audio', instruction:'Choisissez la bonne réponse.', audio:'audio/placeholder.mp3', points:3, options:['Ils annulent la réunion','Ils cherchent un restaurant','Présentation dans 10 min','Directeur pas dispo'], correct:'A', duration:25},
+        {id:5, type:'audio', instruction:'Écoutez l\'annonce.', audio:'audio/placeholder.mp3', points:9, options:['Train 14h30','Avion pour Paris','Bus en retard','Métro fermé'], correct:'C', duration:28},
+        {id:6, type:'audio', instruction:'Message téléphonique.', audio:'audio/placeholder.mp3', points:9, options:['Réserve hôtel','Change son billet','Visite musée','Perd passeport'], correct:'B', duration:30},
+        {id:7, type:'audio', instruction:' Conversation.', audio:'audio/placeholder.mp3', points:9, options:['RDV annulé','Réunion tôt','Professeur absent','Examen reporté'], correct:'D', duration:27},
+        {id:8, type:'audio', instruction:'Extrait.', audio:'audio/placeholder.mp3', points:9, options:['Réserver table','Restaurant complet','Menu change','Service lent'], correct:'A', duration:29},
+        {id:9, type:'audio', instruction:'Conférence.', audio:'audio/placeholder.mp3', points:15, options:['Conférencière anglais','Sujet éducation','Salle trop petite','Événement demain'], correct:'B', duration:32},
+        {id:10, type:'audio', instruction:'Réunion.', audio:'audio/placeholder.mp3', points:15, options:['Projet approuvé','Budget insuffisant','Équipe réduite','Date prolongée'], correct:'A', duration:34},
+        {id:11, type:'audio', instruction:'Aéroport.', audio:'audio/placeholder.mp3', points:15, options:['Vol annulé','Hôtel complet','Taxi en retard','Navette tôt'], correct:'C', duration:31},
+        {id:12, type:'audio', instruction:'Formation.', audio:'audio/placeholder.mp3', points:15, options:['Formation lundi','Formateur français','Documents prêts','Salle réservée'], correct:'D', duration:33},
+        {id:13, type:'audio', instruction:'Service client.', audio:'audio/placeholder.mp3', points:15, options:['Client mécontent','Livraison retard','Produit défectueux','Prix élevé'], correct:'B', duration:35},
+        {id:14, type:'audio', instruction:'Entretien.', audio:'audio/placeholder.mp3', points:15, options:['Entretien 15h','Poste temps partiel','Salaire négociable','Horaires flexibles'], correct:'A', duration:30},
+        {id:15, type:'audio', instruction:'Cabinet médical.', audio:'audio/placeholder.mp3', points:15, options:['Médecin vacances','RDV confirmé','Ordonnance prête','Analyse normale'], correct:'C', duration:32},
+        {id:16, type:'audio', instruction:'Banque.', audio:'audio/placeholder.mp3', points:15, options:['Banque fermée','Distributeur en panne','Virement effectué','Compte bloqué'], correct:'B', duration:34},
+        {id:17, type:'audio', instruction:'Cours.', audio:'audio/placeholder.mp3', points:15, options:['Cours 9h','Prof en retard','Matière difficile','Notes en ligne'], correct:'D', duration:31},
+        {id:18, type:'audio', instruction:'Match.', audio:'audio/placeholder.mp3', points:15, options:['Match 20h','Équipe favorite','Stade plein','Billets épuisés'], correct:'A', duration:33},
+        {id:19, type:'audio', instruction:'Conférence.', audio:'audio/placeholder.mp3', points:21, options:['Conférence anglais','Inscriptions closes','Programme dispo','Pauses prévues'], correct:'C', duration:37},
+        {id:20, type:'audio', instruction:'Contrat.', audio:'audio/placeholder.mp3', points:21, options:['Contrat signé','Conditions modifiées','Durée prolongée','Paiement mensuel'], correct:'B', duration:38},
+        {id:21, type:'audio', instruction:'Exposition.', audio:'audio/placeholder.mp3', points:21, options:['Exposition demain','Œuvres françaises','Entrée gratuite','Catalogue en vente'], correct:'A', duration:36},
+        {id:22, type:'audio', instruction:'Concert.', audio:'audio/placeholder.mp3', points:21, options:['Concert annulé','Places numérotées','Artiste français','Durée 2h'], correct:'D', duration:39},
+        {id:23, type:'audio', instruction:'Stage.', audio:'audio/placeholder.mp3', points:21, options:['Stage lundi','Rémunération 800€','Horaires 9h-17h','Logement non fourni'], correct:'C', duration:35},
+        {id:24, type:'audio', instruction:'Location.', audio:'audio/placeholder.mp3', points:21, options:['Meublé','Loyer 900€','Caution 2 mois','Bail 3 ans'], correct:'B', duration:40},
+        {id:25, type:'audio', instruction:'Restaurant.', audio:'audio/placeholder.mp3', points:21, options:['Cuisine française','Réservation obligatoire','Menu 35€','Service continu'], correct:'A', duration:37},
+        {id:26, type:'audio', instruction:'Hôtel.', audio:'audio/placeholder.mp3', points:21, options:['4 étoiles','Petit-déjeuner inclus','Piscine chauffée','Parking gratuit'], correct:'C', duration:38},
+        {id:27, type:'audio', instruction:'Musée.', audio:'audio/placeholder.mp3', points:21, options:['Fermé lundi','Exposition tempo','Audioguide français','Photos autorisées'], correct:'D', duration:36},
+        {id:28, type:'audio', instruction:'Formation.', audio:'audio/placeholder.mp3', points:26, options:['Certifiante','Modules en ligne','Durée 6 mois','Coût 2500€'], correct:'A', duration:42},
+        {id:29, type:'audio', instruction:'Crédit.', audio:'audio/placeholder.mp3', points:26, options:['Crédit accepté','Assurance obligatoire','Garantie 2 ans','Livraison offerte'], correct:'C', duration:41},
+        {id:30, type:'audio', instruction:'Vol.', audio:'audio/placeholder.mp3', points:26, options:['Vol direct 7h','Escale Francfort','Bagage 23kg','Repas inclus'], correct:'B', duration:43},
+        {id:31, type:'audio', instruction:'Location voiture.', audio:'audio/placeholder.mp3', points:26, options:['Assurance incluse','Caution 500€','Plein requis','Kilométrage illimité'], correct:'D', duration:44},
+        {id:32, type:'audio', instruction:'Internet.', audio:'audio/placeholder.mp3', points:26, options:['Abonnement mensuel','Vitesse 100Mbps','Installation gratuite','TV incluse'], correct:'A', duration:40},
+        {id:33, type:'audio', instruction:'Salle de sport.', audio:'audio/placeholder.mp3', points:26, options:['Ouvert 24h','Abonnement familial','Coachs parlent français','Parking payant'], correct:'C', duration:45},
+        {id:34, type:'audio', instruction:'Cours en ligne.', audio:'audio/placeholder.mp3', points:26, options:['Présentiel','Supports numériques','Évaluation continue','Diplôme reconnu'], correct:'B', duration:42},
+        {id:35, type:'audio', instruction:'Politique.', audio:'audio/placeholder.mp3', points:33, options:['Politique controversée','Gouvernement mesures','Opposition manif','Médias couvrent'], correct:'A', duration:48},
+        {id:36, type:'audio', instruction:'Économie.', audio:'audio/placeholder.mp3', points:33, options:['Investit 10M€','CA +15%','Emplois préservés','Innovation récompensée'], correct:'C', duration:47},
+        {id:37, type:'audio', instruction:'Recherche.', audio:'audio/placeholder.mp3', points:33, options:['Recherche cancer','Financement public','Résultats prometteurs','Brevet déposé'], correct:'D', duration:49},
+        {id:38, type:'audio', instruction:'International.', audio:'audio/placeholder.mp3', points:33, options:['Traité signé vendredi','Négociations longues','Accord climat','Objectif ambitieux'], correct:'B', duration:46},
+        {id:39, type:'audio', instruction:'Culture.', audio:'audio/placeholder.mp3', points:33, options:['Culture française rayonne','Exportations +','Tourisme se développe','Économie dynamique'], correct:'A', duration:50}
+    ];
+
+    // ==== état global ====
+    let currentIdx = 0;
+    let userAnswers = new Array(39).fill(null);      // null ou "A","B",...
+    let reviewFlags = new Array(39).fill(false);
+    let timeLeft = 3600; // 1h en secondes
+    let timerInterval;
+    let audioElement = null;
+    let playbackRate = 1.0;
+
+    // démarrage
+    window.onload = function() {
+        initGrid();
+        loadQuestion(0);
+        startTimer();
+    };
+
+    function initGrid() {
+        const grid = document.getElementById('questionGrid');
+        grid.innerHTML = '';
+        for (let i=0; i<questions.length; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'q-btn';
+            btn.textContent = i+1;
+            btn.onclick = () => navigateTo(i);
+            grid.appendChild(btn);
+        }
+        updateGridClasses();
+    }
+
+    function updateGridClasses() {
+        document.querySelectorAll('.q-btn').forEach((btn, idx) => {
+            btn.classList.remove('active','answered','review');
+            if (idx === currentIdx) btn.classList.add('active');
+            if (userAnswers[idx] !== null) btn.classList.add('answered');
+            if (reviewFlags[idx]) btn.classList.add('review');
+        });
+    }
+
+    function loadQuestion(index) {
+        const q = questions[index];
+        document.getElementById('qNumberDisplay').innerText = `Question ${index+1} / 39`;
+        document.getElementById('pointsDisplay').innerText = q.points + ' points';
+
+        let html = '';
+
+        // image éventuelle
+        if (q.type === 'image' && q.image) {
+            html += `<div class="image-wrapper"><img src="${q.image}" alt="image question" class="oral-image" onerror="this.src='https://placehold.co/600x400?text=image+${q.id}'"></div>`;
+        }
+
+        // lecteur audio moderne (simulé)
+        html += `<div class="audio-block">
+            <div class="audio-controls">
+                <button class="audio-btn" onclick="playFakeAudio(this)"><i class="fas fa-play"></i> Lire</button>
+                <button class="audio-btn" onclick="pauseFakeAudio(this)"><i class="fas fa-pause"></i> Pause</button>
+                <button class="audio-btn" onclick="stopFakeAudio(this)"><i class="fas fa-stop"></i> Stop</button>
+                <select onchange="changeSpeed(this.value)" style="border-radius:40px; padding:0.5rem;">
+                    <option value="1">1x</option><option value="1.5">1.5x</option><option value="2">2x</option>
+                </select>
+                <span class="time-stamp" id="audioTime">00:00 / ${formatTime(q.duration)}</span>
+            </div>
+            <div class="progress-audio-bg" onclick="seekAudio(event)">
+                <div class="progress-audio-fill" id="audioProgress" style="width:0%"></div>
+            </div>
+            <p style="font-size:0.8rem; margin-top:0.5rem;"><i class="far fa-file-audio"></i> extrait pédagogique</p>
+        </div>`;
+
+        html += `<div class="instruction-note" style="background: #eef2ff; border-radius:60px; padding:1rem 2rem; margin:1rem 0;">🎧 ${q.instruction}</div>`;
+
+        // options
+        html += `<div class="options-panel" id="optionsPanel">`;
+        q.options.forEach((opt, optIdx) => {
+            let letter = String.fromCharCode(65+optIdx);
+            let selectedClass = (userAnswers[index] === letter) ? 'selected' : '';
+            html += `<div class="option-item ${selectedClass}" onclick="selectOption(${optIdx})">
+                <div class="option-letter">${letter}</div>
+                <div class="flex-grow-1">${opt}</div>
+            </div>`;
+        });
+        html += `</div>`;
+
+        document.getElementById('questionContent').innerHTML = html;
+        document.getElementById('prevBtn').disabled = (index===0);
+        let nextBtn = document.getElementById('nextBtn');
+        nextBtn.innerHTML = (index===38) ? 'Terminer <i class="fas fa-check"></i>' : 'Suivant <i class="fas fa-arrow-right"></i>';
+        document.getElementById('reviewBtn').innerHTML = reviewFlags[index] ? '✓ Révision' : '🔖 Marquer';
+        updateGridClasses();
+        updateProgressBar();
+    }
+
+    function selectOption(optIdx) {
+        let letter = String.fromCharCode(65+optIdx);
+        userAnswers[currentIdx] = letter;
+        loadQuestion(currentIdx); // recharge pour mise à jour visuelle
+    }
+
+    window.selectOption = selectOption;
+
+    function navigateTo(idx) {
+        if (idx>=0 && idx<39) {
+            currentIdx = idx;
+            loadQuestion(currentIdx);
+        }
+    }
+
+    document.getElementById('prevBtn').onclick = ()=> navigateTo(currentIdx-1);
+    document.getElementById('nextBtn').onclick = ()=> {
+        if (currentIdx === 38) finishTest();
+        else navigateTo(currentIdx+1);
+    };
+    document.getElementById('reviewBtn').onclick = ()=> {
+        reviewFlags[currentIdx] = !reviewFlags[currentIdx];
+        loadQuestion(currentIdx);
+    };
+
+    // timer
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            if (timeLeft <= 0) { clearInterval(timerInterval); finishTest(); }
+            updateTimerDisplay();
+        }, 1000);
+    }
+    function updateTimerDisplay() {
+        let t = document.getElementById('timerDisplay');
+        let h = Math.floor(timeLeft/3600);
+        let m = Math.floor((timeLeft%3600)/60);
+        let s = timeLeft%60;
+        t.innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        if (timeLeft <= 300) t.className = 'timer-card danger';
+        else if (timeLeft <= 600) t.className = 'timer-card warning';
+    }
+    function updateProgressBar() {
+        let answered = userAnswers.filter(a => a!==null).length;
+        document.getElementById('globalProgress').style.width = (answered/39*100)+'%';
+    }
+
+    // fake audio controls (simulation)
+    window.playFakeAudio = (btn) => {
+        let progress = document.getElementById('audioProgress');
+        progress.style.width = '45%'; // simulation
+        document.getElementById('audioTime').innerText = '00:18 / 00:40';
+    };
+    window.pauseFakeAudio = ()=>{};
+    window.stopFakeAudio = ()=>{
+        document.getElementById('audioProgress').style.width = '0%';
+        document.getElementById('audioTime').innerText = '00:00 / 00:40';
+    };
+    window.changeSpeed = (speed) => { playbackRate = speed; };
+    window.seekAudio = (e)=>{};
+
+    function formatTime(s){ let m=Math.floor(s/60); let sec=Math.floor(s%60); return `${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`; }
+
+    // RÉSULTATS
+    function finishTest() {
+        clearInterval(timerInterval);
+        let correct=0, totalPoints=0, earned=0;
+        questions.forEach((q,i)=>{
+            totalPoints += q.points;
+            if (userAnswers[i] === q.correct) { correct++; earned += q.points; }
+        });
+        let percent = Math.round((earned/totalPoints)*100);
+        document.getElementById('correctCount').innerText = correct;
+        document.getElementById('timeUsed').innerText = '00:42:18'; // fictif
+        document.getElementById('scorePercent').innerText = percent;
+        let cecr = document.getElementById('cecrLevelDisplay');
+        if (percent>=85) cecr.innerText = 'NIVEAU C2 ATTEINT !';
+        else if (percent>=75) cecr.innerText = 'NIVEAU C1 ATTEINT !';
+        else if (percent>=60) cecr.innerText = 'NIVEAU B2 ATTEINT !';
+        else if (percent>=40) cecr.innerText = 'NIVEAU B1 ATTEINT !';
+        else if (percent>=20) cecr.innerText = 'NIVEAU A2 ATTEINT !';
+        else cecr.innerText = 'NIVEAU A1 NON ATTEINT';
+
+        // mini grille questions
+        let qlist = document.getElementById('questionsList');
+        qlist.innerHTML = '';
+        questions.forEach((_,i)=>{
+            let btn = document.createElement('span');
+            btn.className = 'badge bg-secondary me-1 mb-1';
+            btn.style.padding='0.6rem 1rem'; btn.style.borderRadius='30px';
+            btn.innerText = i+1;
+            btn.style.background = (userAnswers[i]===questions[i].correct)?'#10b981':'#ef4444';
+            btn.style.color='white';
+            btn.onclick = ()=>showCorrection(i);
+            qlist.appendChild(btn);
+        });
+
+        document.getElementById('resultsModal').style.display = 'flex';
+    }
+
+    function showCorrection(idx) {
+        let q = questions[idx];
+        let html = `<div style="border-left:6px solid #3b82f6; padding:1rem; background:#f8fafc; border-radius:24px;">`;
+        html += `<p><strong>Q${idx+1}</strong> (${q.points}pts) — ${q.instruction}</p>`;
+        q.options.forEach((opt, i)=>{
+            let lettre = String.fromCharCode(65+i);
+            let classe = '';
+            if (lettre === q.correct) classe = 'correct-answer';
+            if (userAnswers[idx] === lettre && lettre !== q.correct) classe = 'user-answer';
+            html += `<div class="correction-option ${classe}"><span style="width:40px;">${lettre}</span> ${opt}</div>`;
+        });
+        html += `</div>`;
+        document.getElementById('correctionsContainer').innerHTML = html;
+        document.getElementById('correctionsContainer').style.display = 'block';
+    }
+
+    window.toggleCorrections = function() {
+        let cont = document.getElementById('correctionsContainer');
+        if (cont.style.display === 'none') { showCorrection(0); cont.style.display = 'block'; }
+        else cont.style.display = 'none';
+    };
+    window.closeResults = function() { document.getElementById('resultsModal').style.display='none'; };
+
+    // petite fonction pour finir depuis le bouton terminer
+    window.finishTest = finishTest;
+</script>
+</body>
+</html>

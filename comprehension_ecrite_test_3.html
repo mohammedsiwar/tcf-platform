@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <title>TCF Master · Compréhension Écrite (Test 3)</title>
+    
+    <!-- Font Awesome & Google Fonts (modern style) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --secondary: #3b82f6;
+            --secondary-dark: #2563eb;
+            --accent: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --premium: #8b5cf6;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #f1f5f9 0%, #e6eefc 100%);
+            min-height: 100vh;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .glass-panel {
+            width: 100%;
+            max-width: 1300px;
+            height: 95vh;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 42px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        /* modern header */
+        .modern-header {
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(12px);
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(59,130,246,0.2);
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .logo-icon {
+            background: linear-gradient(135deg, var(--secondary), var(--premium));
+            width: 44px;
+            height: 44px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.4rem;
+        }
+        .title-block h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #0f172a, #2563eb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .timer-card {
+            background: #1e293b;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 120px;
+            font-weight: 600;
+            font-size: 1.5rem;
+            font-family: 'Monaco', monospace;
+            border: 1px solid #3b82f6;
+        }
+        .timer-card.warning { background: #f59e0b; color: black; }
+        .timer-card.danger { background: #ef4444; animation: pulse 1s infinite; }
+        @keyframes pulse { 50% { opacity: 0.7; } }
+        /* navigation */
+        .nav-section {
+            background: white;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .question-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
+        }
+        .q-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 18px;
+            border: 1.5px solid var(--gray-200);
+            background: white;
+            font-weight: 600;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .q-btn.active { background: var(--secondary); border-color: var(--secondary); color: white; transform: scale(1.05); }
+        .q-btn.answered { background: var(--success); border-color: var(--success); color: white; }
+        .q-btn.review { background: var(--warning); border-color: var(--warning); color: white; }
+        .progress-legende {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .progress-bar-bg {
+            flex: 1;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 20px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border-radius: 20px;
+            width: 0%;
+        }
+        .legend i { margin-right: 0.2rem; color: var(--gray-600); }
+        /* main scroll */
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+        .question-header-card {
+            display: flex;
+            justify-content: space-between;
+            background: white;
+            padding: 1.2rem 2rem;
+            border-radius: 30px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(59,130,246,0.2);
+        }
+        .badge-points {
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            padding: 0.4rem 1.2rem;
+            border-radius: 60px;
+            color: white;
+            font-weight: 700;
+        }
+        /* textes */
+        .text-passage {
+            background: #f8fafc;
+            padding: 1.8rem;
+            border-radius: 32px;
+            border: 1px solid var(--gray-200);
+            font-size: 1.1rem;
+            line-height: 1.7;
+            white-space: pre-line;
+            font-family: 'Georgia', serif;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+        }
+        .actual-question {
+            background: #eef2ff;
+            padding: 1.5rem;
+            border-radius: 30px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 2rem;
+            border: 2px solid var(--secondary);
+        }
+        /* options */
+        .options-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .option-item {
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 2px solid var(--gray-200);
+            border-radius: 30px;
+            padding: 1.2rem 2rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .option-item:hover { border-color: var(--secondary); background: #f0f9ff; }
+        .option-item.selected { border-color: var(--secondary); background: #eef2ff; }
+        .option-letter {
+            width: 50px;
+            height: 50px;
+            border-radius: 30px;
+            background: var(--gray-100);
+            border: 2px solid var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-right: 1.5rem;
+        }
+        .selected .option-letter { background: var(--secondary); color: white; }
+        /* footer */
+        .quiz-footer {
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(12px);
+            padding: 1.5rem 2rem;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-foot-btn {
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            border: none;
+            background: white;
+            border: 1px solid var(--gray-300);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .nav-foot-btn.primary { background: var(--secondary); color: white; border: none; }
+        .review-mark-btn {
+            background: #f59e0b;
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            border: none;
+        }
+        /* auth overlay */
+        .auth-overlay {
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .auth-card {
+            background: white;
+            border-radius: 48px;
+            padding: 2.5rem;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+        }
+        .auth-icon { font-size: 4rem; margin-bottom: 1rem; }
+        .auth-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .auth-subtitle { color: var(--gray-600); margin-bottom: 1.5rem; }
+        .auth-btn {
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            margin: 0.3rem;
+        }
+        .auth-btn-primary { background: var(--secondary); color: white; }
+        .auth-btn-secondary { background: var(--gray-200); color: var(--gray-900); }
+        /* modal résultats */
+        .modal-overlay {
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .modal-card {
+            background: white;
+            border-radius: 48px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .stat-box {
+            background: var(--gray-100);
+            border-radius: 24px;
+            padding: 1.2rem;
+            text-align: center;
+        }
+        .score-level { padding: 0.5rem 1.5rem; border-radius: 60px; display: inline-block; }
+        .score-level.a1 { background: #ef4444; color: white; }
+        .score-level.a2 { background: #f59e0b; color: white; }
+        .score-level.b1 { background: #fbbf24; color: black; }
+        .score-level.b2 { background: #8bc34a; color: white; }
+        .score-level.c1 { background: #4caf50; color: white; }
+        .score-level.c2 { background: #2e7d32; color: white; }
+        .correction-option { display: flex; align-items: center; padding: 0.8rem 1.2rem; border-radius: 18px; margin: 0.3rem 0; }
+        .correction-option.correct-answer { background: #e6f7e6; border-left: 6px solid #10b981; }
+        .correction-option.user-answer { background: #fee9e9; border-left: 6px solid #ef4444; }
+        .copy-warning {
+            position: fixed;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #ef4444; color: white; padding: 1rem 2rem;
+            border-radius: 60px; font-weight: 600; z-index: 10000;
+            display: none;
+        }
+        @media (max-width:768px) {
+            .glass-panel { height: 100vh; border-radius: 24px; }
+            .modern-header { flex-direction: column; align-items: start; gap: 0.5rem; }
+            .timer-card { align-self: flex-end; }
+            .option-item { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- AUTH OVERLAY -->
+<div class="auth-overlay" id="authOverlay" style="display:flex;">
+    <div class="auth-card" id="authMessage">
+        <div class="auth-icon">🔒</div>
+        <div class="auth-title">Vérification</div>
+        <div class="auth-subtitle">Chargement de l'authentification...</div>
+        <div class="auth-loading"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
+    </div>
+</div>
+
+<!-- COPY WARNING -->
+<div class="copy-warning" id="copyWarning">⚠️ La copie est interdite</div>
+
+<!-- MAIN QUIZ PANEL (initially hidden) -->
+<div class="glass-panel" id="quizContainer" style="display:none;">
+    <!-- HEADER -->
+    <div class="modern-header">
+        <div class="logo-area">
+            <div class="logo-icon"><i class="fas fa-book-open"></i></div>
+            <div class="title-block"><h1>Compréhension Écrite · Test 3</h1></div>
+        </div>
+        <div class="timer-card" id="timerDisplay">40:00</div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <div class="nav-section">
+        <div class="question-grid" id="questionGrid"></div>
+        <div class="progress-legende">
+            <div class="progress-bar-bg"><div class="progress-fill" id="globalProgress" style="width:0%"></div></div>
+            <span><i class="fas fa-circle" style="color:#f59e0b;"></i> Révision</span>
+            <span><i class="fas fa-circle" style="color:#10b981;"></i> Répondu</span>
+        </div>
+    </div>
+
+    <!-- SCROLL CONTENT -->
+    <div class="scroll-content" id="mainScroll">
+        <div class="question-header-card">
+            <span id="qNumberDisplay">Question 1 / 39</span>
+            <span class="badge-points" id="pointsDisplay">3 points</span>
+        </div>
+
+        <!-- text passage & question -->
+        <div class="text-passage" id="textPassage"></div>
+        <div class="actual-question" id="actualQuestion"></div>
+
+        <!-- options -->
+        <div class="options-panel" id="optionsContainer"></div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="quiz-footer">
+        <button class="nav-foot-btn" id="prevBtn"><i class="fas fa-arrow-left"></i> Précédent</button>
+        <button class="review-mark-btn" id="reviewBtn"><i class="fas fa-bookmark"></i> Marquer</button>
+        <button class="nav-foot-btn primary" id="nextBtn">Suivant <i class="fas fa-arrow-right"></i></button>
+    </div>
+</div>
+
+<!-- RESULTS MODAL -->
+<div class="modal-overlay" id="resultsModal">
+    <div class="modal-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2 style="font-weight:700;">Résultats</h2>
+            <button onclick="closeResults()" style="background:none; border:none; font-size:2rem;">&times;</button>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-box"><span id="correctCount">0</span><br>Correctes</div>
+            <div class="stat-box"><span id="timeUsed">00:00</span><br>Temps</div>
+            <div class="stat-box"><span id="scorePercent">0</span>%<br>Score</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#0f172a,#1e293b); color:white; padding:1.5rem; border-radius:32px; text-align:center;" id="cecrLevelDisplay">NIVEAU A1 NON ATTEINT</div>
+        <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin:2rem 0;" id="questionsList"></div>
+        <button class="nav-foot-btn primary" style="width:100%;" onclick="toggleCorrections()">Afficher les corrections</button>
+        <div id="correctionsContainer" style="display:none; margin-top:2rem;"></div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ========== CONFIG ==========
+        const firebaseConfig = {
+            apiKey: "AIzaSyAhGVA4vr3pISonxvccIMCxZZOE5bkynRQ",
+            authDomain: "platformtcf.firebaseapp.com",
+            projectId: "platformtcf",
+            storageBucket: "platformtcf.firebasestorage.app",
+            messagingSenderId: "779352652301",
+            appId: "1:779352652301:web:41ca6b1dbcc42739b47344"
+        };
+
+        let currentUser = null, isPremium = false;
+        let firebaseApp, firebaseAuth, firestore;
+
+        // ========== QUESTIONS (TEST 3 - données depuis script original) ==========
+        const rawQuestions = [
+            { id:1, text:"**Chers Amis,**\nNous sommes heureux de vous annoncer l'arrivée d'un nouveau membre dans notre famille. Il se nomme Adrien et a vu le jour le 1er septembre au matin.\n**Bien à vous.**", question:"De quel évènement s'agit-il ?", options:["D'un anniversaire","D'un décès","D'un mariage","D'une naissance"], correct:"D" },
+            { id:2, text:"Désolée, je ne viens pas aux cours de français et je ne peux pas travailler à la bibliothèque avec toi aujourd'hui. Je suis malade et je reste à la maison.\nÀ bientôt,\nSandra", question:"Qu'est-ce que Sandra fait ?", options:["Elle étudie son français","Elle invite son ami Rémi","Elle reste chez elle","Elle va à la bibliothèque"], correct:"C" },
+            { id:3, text:"J'ai une réunion jusqu'à 19h30. Tu peux réserver nos places au cinéma pour un film après 20h ? Merci\nLucie", question:"Que veut faire Lucie après 19h30 ?", options:["Aller voir un film","Dîner avec Fred","Passer chez un ami","Rester au travail"], correct:"A" },
+            { id:4, text:"Samedi\nMarthe : 12h--13h30 : Cours de natation\nDjamel : 11h--13h30 : Révision avec Claire.\nDimanche\nMarthe : 8h--9h : Course avec Claire\nDjamel : 14h--18h : Répétition avec groupe", question:"Que fait Marthe le samedi à 12 heures ?", options:["Elle chante","Elle court","Elle étudie","Elle nage"], correct:"D" },
+            { id:5, text:"Une société de production RECHERCHE\nPour faire de la FIGURATION dans un film sur le thème parents/enfants, de jeunes mères confrontées à l'éducation de leurs enfants.", question:"Que recherche la société de production ?", options:["De jeunes enfants","Des femmes et des enfants","De jeunes mamans","Des parents avec leurs enfants"], correct:"C" },
+            { id:6, text:"À Héloïse\nHéloïse, quand tu viendras chez moi, pense à prendre des vêtements chauds. À la montagne, en hiver, il fait très froid ! Je t'ai envoyé les horaires du bus par SMS. Appelle-moi ce soir quand tu rentres du travail. Vivement les vacances !\nBises\nSam", question:"Que doit faire Héloïse ?", options:["Bien choisir ses vêtements","Chercher les horaires du bus","Envoyer un courriel à Sam","Trouver une location de vacances"], correct:"A" },
+            { id:7, text:"Salut Samira,\nLa fête du cinéma commence samedi prochain, ça t'intéresse ? Viens chez moi après le travail vendredi, on choisira ce qu'on ira voir samedi ou dimanche. Réponds-moi vite !\nLali", question:"Que veut faire Lali ?", options:["Aller à un anniversaire","Dîner avec son amie","Partir en week-end","Regarder des films"], correct:"D" },
+            { id:8, text:"ECOLE FERRANDI\nLes parents peuvent venir chercher leurs enfants après les cours du matin et du soir sauf si les enfants mangent à l'école ou s'ils font des activités après la classe.\nTous les enfants doivent avoir quitté l'école à 18h.\nP.Guignoux", question:"De quoi parle le directeur ?", options:["De l'inscription des élèves","Des horaires de sortie","Des repas à la cantine","Du temps de repos"], correct:"B" },
+            { id:9, text:"Que puis-je dire de ce documentaire, moi qui pleure depuis tant d'années sur le manque de saveur de ce que je mange? Je me rappelle du bon goût des pêches et des abricots ! Je comprends mieux la majorité des agriculteurs : ils ne mangeraient pas ce qu'ils vendent, c'est fou! J'ai apprécié d'avoir le point de vue des différentes personnes concernées : agriculteurs, consommateurs, enseignants, cuisiniers", question:"Quel est le thème du documentaire ?", options:["L'alimentation","L'éducation","La cuisine","Le commerce"], correct:"A" },
+            { id:10, text:"Partagez vos prises de vue (portraits, paysages, etc.) qui montrent que l'Europe fait partie de votre vie. Participez au concours \"Europe en images\"\nÀ gagner : Un séjour à Bruxelles ou un atelier cuisine.", question:"Que propose ce concours ?", options:["D'envoyer des photos","D'inventer une recette","De créer un spectacle","De découvrir une langue"], correct:"A" },
+            { id:11, text:"L'école Jean Monnet organise sa \"Journée Portes Ouvertes\" Samedi prochain, de 9h00 à 16h00. Tous les parents d'élèves sont invités. Ce sera l'occasion de rencontrer les professeurs et l'équipe administrative qui se tiennent prêts à répondre à vos questions.\nLa direction de l'école J.Monnet", question:"Que pourront faire les parents pendant cette journée ?", options:["Dialoguer avec le personnel enseignant","Écouter une présentation du directeur","Participer à une conférence sur l'éducation","Répondre à un questionnaire sur tes cours"], correct:"A" },
+            { id:12, text:"On savait déjà que le chocolat était bon pour la tension. Les scientifiques affirment maintenant \"qu'une consommation de chocolat pourrait être une stratégie efficace de protection contre les rayons du soleil\". Pour cela, il n'est pas nécessaire de recouvrir son corps de cacao : d'après les chercheurs, il suffirait de consommer trois carrés par jour pour bénéficier des bienfaits du chocolat. Cela n'empêche pas de se protéger avec de la crème solaire et d'avoir une bonne alimentation.", question:"Que conseillent ces chercheurs pour se protéger du soleil ?", options:["D'utiliser des crèmes solaires à base de chocolat","De diminuer sa consommation de chocolat","De manger quotidiennement du chocolat","De suivre un traitement de pilules au chocolat"], correct:"C" },
+            { id:13, text:"Adoptées séparément à la naissance, des jumelles indonésiennes se sont retrouvées 29 ans plus tard en Suède. Elles habitaient à 40 km l'une de l'autre mais ne le savaient pas. Leurs parents adoptifs avaient été informés de leur lien de parenté mais avaient arrêté leurs recherches. C'est un message posté sur Facebook par l'une des jumelles qui a permis leur rencontre. Elles sont l'une et l'autre enseignantes !", question:"Qu'est-ce que ces jumelles ont en commun ?", options:["Elles adorent utiliser Facebook","Elles enseignent dans la même école","Elles habitent dans le même pays","Elles ont la même famille adoptive"], correct:"C" },
+            { id:14, text:"\"Avec un Master Commerce en poche, je ne pensais pas qu'il serait à ce point difficile de trouver mon premier emploi. Et pourtant... quel chemin semé d'embûches ! Tout le monde me disait « Ne t'inquiète pas, dans deux ou trois mois tu auras trouvé ! » Sept mois plus tard toujours rien en vue. À 26 ans, je me retrouve sans emploi, toujours chez mes parents. L'avenir ? Je le vois ailleurs, je prépare activement mon départ pour l'Angleterre.\" Amandine n'est pas une exception chez les jeunes. Les diplômes ne suffisent plus à assurer une situation stable en France et beaucoup de jeunes décident de partir à l'étranger pour obtenir un emploi.", question:"De quoi est-il dans cet article ?", options:["La difficulté de trouver un stage à travailler","La nécessité de s'exiler pour pouvoir travailler","Le manque de formation des jeunes diplômés","Le niveau trop faible des salaires proposés"], correct:"B" },
+            { id:15, text:"Pour ou contre les devoirs ?\nUne école donne sa réponse en accueillant chaque lundi, de 17 à 18 heures, les élèves qui peuvent revenir en classe faire leurs devoirs avec leur enseignant... et leurs parents. Ainsi, un dialogue s'instaure entre enseignants, parents et élèves. Le directeur relève un autre avantage : les devoirs sont bien faits. Mais les devoirs alourdissent des journées déjà longues. Avec six heures de cours, quatre jours par semaine, l'écolier français décroche la première place sur le podium de la fatigue.", question:"Que propose cette école ?", options:["D'alléger les emplois du temps le lundi pour les professeurs","De permettre aux enfants de faire leur travail du soir en classe","De supprimer totalement le travail à la maison pour les élèves","D'inviter les parents à des visites régulières de l'établissement"], correct:"B" },
+            { id:16, text:"Pour permettre à tous un accès égal au sport, la maison départementale des personnes handicapées offre d'accompagner ceux qui sont en situation de handicap dans leurs projets de loisirs sportifs. Ce service propose une aide dans le choix d'une activité, une recherche de clubs capables de les accueillir et si besoin, un accompagnement dans le premier contact avec l'association. Il s'agit de partir des besoins, des envies et des possibilités de la personne, pour construire avec elle son projet sportif adapté.", question:"Que propose la maison départementale ?", options:["De faciliter les rencontres avec des sportifs handicapés","De trouver des entraîneurs spécialisés en handisport","D'encourager les personnes handicapées à faire du sport","D'organiser les matches avec des sportifs handicapés"], correct:"C" },
+            { id:17, text:"COMMENT APPRENDRE UNE LANGUE ÉTRANGÈRE\nExiste-t-il un âge critique au-delà duquel on ne peut plus jamais atteindre le niveau d'un locuteur natif ? Ce sujet fait l'objet de nombreux débats. Plus on est jeune, plus on a d'appétit pour découvrir le monde. L'apprentissage d'une langue, quelle qu'elle soit, est donc plus simple. Mais il y a également une composante sociale. On se comporte avec l'enfant d'une manière bien particulière, que l'on ne peut reproduire avec un adolescent ou un adulte.", question:"D'après cet extrait, qu'est-ce qui favorise chez les enfants l'apprentissage d'une langue étrangère ?", options:["Leur curiosité","Leur imagination","Leur mémoire","Leur obéissance"], correct:"A" },
+            { id:18, text:"La question de l'orientation est fondamentale et se pose inévitablement au moment de commencer des études universitaires. Comment faire le bon choix ? Sur quelles bases ? Quel parcours sera le mieux adapté à la personnalité scolaire et psychologique, aux capacités de l'étudiant ? Un livre, édité par le magazine l'Étudiant, propose une démarche progressive qui aide à définir un projet en fonction des goûts et d'un objective professionnel.", question:"Que peut-on trouver dans ce livre ?", options:["Des idées de stages en entreprises","Un guide des démarches d'inscription","Une méthode pour choisir une formation","Une sélection des meilleures universités"], correct:"C" },
+            { id:19, text:"Madame Mansion,\nSuite à notre conversation téléphonique pour le travail de secrétaire, nous aimerions vous rencontrer jeudi prochain à 10h00 dans nos bureaux. Il faudra apporter une photocopie de votre carte d'identité et de vos diplômes. Merci de nous rappeler pour confirmer.\nCordialement,\nMathieu Leroux\nDirecteur du service des ressources humaines", question:"Que doit faire Mme Mansion ?", options:["Annuler un rendez-vous","Chercher des documents","Envoyer un curriculum vitae","Téléphoner à l'entreprise"], correct:"D" },
+            { id:20, text:"Chers Valérie et Serge,\nQue vos projets immobiliers voient enfin le jour avec cette année qui débute ! Qu'elle vous apporte la joie de déménager à Nancy comme vous le souhaitez, mais aussi, à tous les niveaux, réussite et beaucoup de bonheur !\nJ'espère que nous aurons le temps de nous voir plus souvent et de partir à nouveau en vacances ensemble ; notre séjour en Corse reste un merveilleux souvenir pour moi.\nJe vous embrasse,\nElisa", question:"Quel est le but de cette lettre ?", options:["Annoncer l'achat d'un appartement","Donner des nouvelles à des amis","Envoyer des vœux de nouvel an","Organiser un voyage en Corse"], correct:"C" },
+            { id:21, text:"Les bons vieux bancs verts sur les trottoirs parisiens ont de la concurrence. Depuis le mois de décembre, sur certains boulevards, un nouveau mobilier urbain a fait son apparition, avec 12 modèles de banquettes, chaises et tabourets. Pour la première fois, la ville de Paris recueille l'avis des usagers et des riverains. Le traditionnel banc en fonte et bois a-t-il encore de l'avenir au milieu de ce mobilier futuriste ?", question:"Quelle est l'originalité de ce projet ?", options:["La priorité donnée à l'aspect écologique","La prise en compte de l'opinion publique","Le caractère provisoire de l'installation","Le choix des matériaux de fabrication"], correct:"B" },
+            { id:22, text:"Le smartphone participe à l'entretien d'un lien pathologique de plus en plus répandu, le désir de mainmise des parents sur les adolescents. La crise d'adolescence confronte les parents au désir d'autonomie de l'adolescent et les oblige à faire le deuil de leur position de parent. Cela suppose qu'ils lâchent prise et fassent confiance à leur enfant. Mais de plus en plus de parents souhaitent que leur ado reste à la maison. Le smartphone, qui permet de rester en lien avec ses copains, arrange donc les parents.", question:"Quel est le constat fait par l'auteur à propos des smartphones ?", options:["Ils éloignent les jeunes du monde des adultes","Ils entraînent des comportements de type addictif","Ils ont tendance à couper les adolescents du réel","Ils peuvent être utilisés comme outils de contrôle"], correct:"D" },
+            { id:23, text:"Les Art Premiers Au Musée\nSi cette reconnaissance sonne comme un cri de victoire, c'est qu'elle marque l'issue d'un combat idéaliste qui n'a fait d'autres victimes que l'arrogance et les préjugés. Le signal en fut donné par Guillaume Apollinaire en 1909 : « le Louvre devrait recueillir certains chefs d'œuvre exotiques dont l'aspect n'est pas moins émouvant que celui des beaux spécimens de la statuaire occidentale. » Près d'un siècle plus tard, le vœu du poète est enfin comblé : plus d'une centaine de sculptures primitives d'Afrique, d'Asie, d'Océanie et des Amériques, jusqu'alors confinées dans des réserves ethnographiques, prennent place dans le temple de l'Art, jusqu'alors réservé à l'Europe et à ses sources.", question:"Cet événement est présenté comme...", options:["Le résultat d'une lutte menée par des gens orgueilleux et intolérants","Le triomphe d'une opinion émise par Apollinaire mais autrefois combattue","Un miracle dû à la persévérance des archéologues sur plusieurs continents","La consécration des œuvres européennes jusqu'alors remisées dans les musées"], correct:"B" },
+            { id:24, text:"Quelles sont les forces dont dispose l'Homme pour conquérir l'hégémonie sur la planète ?\nL'Homme est dépourvu de moyens physiques, il n'a ni crocs, ni griffes, ni armure ; il est chétif, fragile et vulnérable. Mais, d'une part, il prime tous autres compagnons de life par la puissance de son cerveau ; d'autre part, il est attiré par ses semblables, il tend à faire groupe avec les autres individus de son espèce, et ce sont ces tendances sociales qui, multipliant l'Homme par lui-même, lui ont donné le moyen d'atteindre à de si prodigieux résultats dans le domaine du savoir comme dans celui du pouvoir.", question:"Qu'est-ce qui a permis à l'espèce humaine de conquérir le world, à part son intelligence ?", options:["La fréquence de ses congénères","L'amélioration de son habitat naturel","Les mutations de son organisme","L'extermination des autres espèces"], correct:"A" },
+            { id:25, text:"Le témoignage de Maud est très représentatif de la vie étudiante actuelle :\n\"J'ai cherché un logement près de la fac. J'ai trouvé un studio à 600 € par mois. Mon père me donne 500 par mois. Je dois travailler comme surveillante dans un lycée. Les fins de mois sont difficiles, mais mon dossier d'allocation logement vient d'être accepté. Finalement ? J'ai de la chance !\"", question:"Pourquoi Maud pense-t-elle avoir de la chance ?", options:["Elle aura un meilleur pouvoir d'achat sous peu","Elle se débrouille sans l'aide de personne","Elle trouvera facilement un emploi après l'université","Elle va habiter près de chez ses parents"], correct:"A" },
+            { id:26, text:"Le rapport de l'Agence internationale de l'énergie se concentre sur les données de la dernière conférence climatique. Il contient une information intéressante : d'après l'agence, les réserves mondiales de gaz sont plus importantes que prévues. Le marché mondial serait même sous la menace d'un excédent massive, en raison de l'essor de la production américaine et d'une chute de la demande liée à la crise.", question:"Qu'a révélé le rapport de l'agence internationale de l'énergie ?", options:["La consommation de gaz dans le monde augmente","La demande croissante en gaz a des effets sur le climat","Les besoins en gaz des Américains sont supérieurs à l'offre","Les ressources en gaz à l'échelle mondiale s'accroissent"], correct:"D" },
+            { id:27, text:"Une étude récente révèle que la concentration de déchets plastiques flottant à la surface du Pacifique nord a été multipliée par cent en quarante ans.\nCe constat, émis par les pêcheurs en haute mer, est alarmant car cette pollution a des conséquences écologiques. La gigantesque plaque de déchets flottant sur l'océan Pacifique, épaisse par endroits de plusieurs dizaines de mètres, constitue un milieu favorable à la reproduction d'une espèce d'araignée d'eau. Cet insecte est en train de se multiplier dans le Pacifique nord. Si la densité des plastiques continue à augmenter, certaines espèces pourraient continuer à se multiplier, risquant de déséquilibrer l'écosystème du Pacifique.", question:"Quel danger représentent ces déchets ?", options:["Un obstacle pour les bateaux de pêche","Un réchauffement dramatique des eaux","Un risque d'intoxication des populations du Pacifique","Une diminution de la diversité de la faune océanique"], correct:"D" },
+            { id:28, text:"Avez-vous déjà observé des familles en train de remplir des sachets de bonbons sur un stand de confiserie ? Un chercheur américain a montré qu'elles en achètent plus quand les bonbons sont de couleurs différentes. De nombreuses observations similaires prouvent que les entreprises agroalimentaires connaissent nos comportements et la manière dont nous prenons certaines de nos décisions. Par exemple, elles exploitent notre préférence innée pour le sucre, à tous les âges. Elles savent que l'éducation nutritionnelle des enfants et des jeunes est défaillante dans certaines familles et en profitent.", question:"Que dénonce l'auteur de cet article ?", options:["La manipulation des clients par les industriels","L'attitude imprévisible des consommateurs","L'uniformisation des saveurs des goûts","L'utilisation abusive des produits de synthèse"], correct:"A" },
+            { id:29, text:"L'étendue et la variété des invités reçus par le Parlement Européen ne cessent d'étonner. Prix Nobel, stars de série télé, grand maître des échecs... Cette diversité n'a d'égale que l'éclectisme des sujets préparés et débattus au sein de l'hémicycle : la situation dans des pays en guerre, les relations entre pays, les changements climatiques... Bien évidemment, ces personnalités connues et reconnues ne sont pas choisies pour les paillettes et le strass qu'elles peuvent, parfois, véhiculer, mais parce qu'elles ont une expertise reconnue ou un message à délivrer.", question:"À quoi se réfère le terme « diversité » dans le texte.", options:["Aux hôtes du parlement","Aux idées débattues","Aux pays représentés","Aux projets de loi votés"], correct:"A" },
+            { id:30, text:"Parcourir les routes d'Europe l'été, beaucoup de touristes le font sans forcément connaître les règles en vigueur dans chacun des pays. Ce qu'il faut savoir, c'est qu'il existe des différences qui peuvent être notables selon les législations. Alors que la vitesse maximale sur autoroute est de 130 km/h en France, elle n'est que 120 km/h en Belgique, en Espagne ou au Portugal. Quant au taux d'alcoolémie toléré, il varie de 0,8 g/l en Irlande à zéro en République tchèque.", question:"Que fait l'auteur de cet article ?", options:["Il commente une loi","Il donne un conseil","Il formule une plainte","Il raconte une anecdote"], correct:"B" },
+            { id:31, text:"On s'est habitué depuis belle lurette à ne plus rencontrer de poinçonneurs dans le métro ni de pompistes dans les stations-service. Mais la liste des professions en voie de disparition ne cesse de s'allonger. Caissières dans les supermarchés, guichetiers dans les banques, hôtesses dans les cinémas... Tous remplacés par des machines ? Pas si simple.\nComme l'analyse Thibaut Carpentier, directeur du cabinet de conseil Obstand, la tentation industrielle de réduire les frais de personnel est grande mais cette logique se heurte à celle des consommateurs qui ont du mal à se passer d'une personne humaine. D'ailleurs, toutes les entreprises concernées l'ont bien compris : pas de suppression de postes mais des redéploiements avec élargissement des compétences.", question:"Quel obstacle rencontre l'automatisation des services ?", options:["Les coûts élevés des investissements","Les faibles qualifications des employés","Les réticences émises par la clientèle","Les spécificités de certains métiers"], correct:"C" },
+            { id:32, text:"Théâtre\nJoël Pommerat nous offre un très court spectacle dont la fois la pureté formelle et le sens nous ont conquis. Le matériau en est constitué par une série de rencontres, auxquelles lui-même et son équipe assistèrent, entre des travailleurs sociaux et des femmes d'origine simple, vivant en cité, et en proie à des problèmes familiaux. De ces confidences relatives aux tensions qu'elles connaissent dans leurs rapports, soit avec leurs parents, soit avec leurs enfants, Pommerat a tiré une suite de brèves séquences qui composent une tragédie intense de la souffrance familiale, et particulièrement de la souffrance de la femme. Son regard sur la détresse humaine est d'une bienveillance et d'une tendresse infinies, il ne nous livre aucun message moral et à peine un message social : il fait simplement appel à notre sensibilité.", question:"Dans quel objectif Joël Pommerat a-t-il créé son spectacle ?", options:["Aider les femmes à se battre pour améliorer leur situation familiale","Amener les spectateurs à s'émouvoir d'un quotidien douloureux","Démontrer que la condition de la femme dans les cités est désastreuse","Informer des difficultés que peuvent rencontrer les enfants des cités"], correct:"B" },
+            { id:33, text:"Plancher sur la réforme des rythmes scolaires, comme le fera la \"Conférence\" installée aujourd'hui par le ministre de l'éducation, c'est prendre en compte toute une série de paramètres qui n'ont rien à voir, ou si peu, avec l'école primaire. C'est s'intéresser aux évolutions de la famille et à la multiplication des horaires de travail dits \"atypiques\", c'est examiner, du point de vue des collectivités locales, les conséquences financières et pratiques (transport scolaire, cantine, centres de loisirs) de tout changement éventuel dans l'organisation de la semaine. C'est encore recueillir l'avis des experts de la circulation routière et entendre les préoccupations des professionnels du tourisme... Autant dire que l'intérêt de l'enfant se trouve plus ou moins sacrifié sur l'autel du compromis.", question:"Quel constat dresse le journaliste à propos de la réforme des rythmes scolaires ?", options:["Les familles sont opposées à toute modification","Les impacts financiers demeurent insurmontables","Les intérêts en jeu sont difficilement compatibles","Les opinions des experts sont en tout désaccord"], correct:"C" },
+            { id:34, text:"L'éclairage événementiel est une discipline artistique récente qui consiste à créer des décors et des ambiances par un jeu de lumières projetées sur des monuments et des sites remarquables. L'intérêt de cet art est double : il permet, sans toucher au site qui accueille l'événement, de modifier littéralement l'aspect d'une façade ou d'un intérieur et de personnaliser un lieu en rapport avec le thème abordé. Ainsi une grande ville comme Paris peut façonner ses monuments et ses bâtiments publics grâce aux éclairages conçus et réalisés par de véritables artistes.", question:"Quel est l'atout principal de cette discipline artistique ?", options:["Donner une dimension nouvelle aux lieux mis en scène","Permettre la réhabilitation des monuments historiques","Transformer de manière durable les bâtiments illuminés","Valoriser culturellement des zones urbaines délaissées"], correct:"A" },
+            { id:35, text:"Plutôt que de multiplier les tests et les mises en situation, certaines entreprises choisissent de déléguer la responsabilité du recrutement... à leurs salariés ! « Personnellement, je suis très favorable à la cooptation, affirme ce responsable. Si vous avez un bon élément dans votre équipe, vous avez une excellente chance qu'il vous amène un autre bon élément, ça permet de limiter les risques. » Signe des temps. La « cooptation » est aujourd'hui acceptée et revendiquée par tous. Dans certaines entreprises, elle est même encouragée par une prime : 4000 euros sont versés à tout employé ayant recommandé un candidat recruté à son tour.", question:"En adoptant la cooptation pour le recrutement, que recherchent les entreprises ?", options:["À gagner du time","À minimiser les aléas","À réduire les frais","À simplifier les procédures"], correct:"B" },
+            { id:36, text:"Le discours écologique actuel est très factuel, \"pratico-pratique\" comme si on n'osait pas parler de cette beauté dont nous avons pourtant besoin pour nous épanouir. C'est peut-être l'une des raisons pour lesquelles l'écologie politique ne rallie pas tant que ça. Si on n'est pas sensible à la terre, aux végétaux, on devient un technicien de l'écologie, on emploie un langage neutre et rassurant, fait d' \"environnement\" et de \"développement durable\". Mais il faut pouvoir parler de la beauté spécifique de la nature qui nous enchante, qui nous fait vibrer. Nous avons besoin de nous nourrir de sa splendeur, de son mystère, et pas seulement de ses aspects matériels, pratiques, biologiques.", question:"Selon l'intervenant, qu'est-ce qui caractérise le discours écologique actuel ?", options:["Il apaise les tensions de la société","Il insiste sur le point de vue matériel","Il propose des programmes utopiques","Il traite les problèmes liés aux sols"], correct:"B" },
+            { id:37, text:"Le Bon Usage est un gros livre, parce que son auteur n'a voulu éluder aucune des chausse-trapes de cette langue française dont Colette disait « C'est une langue bien difficile que le français. À peine écrit-on depuis quarante-cinq ans qu'on commence à s'en apercevoir ». J'avais craint, jadis, que la masse même du volume n'en rebutât plus d'un. Appréhension vaine : l'ouvrage s'est étoffé à chaque réédition, la typographie (tout en restant d'une parfaite lisibilité) se présente dans une composition beaucoup plus serrée, et le succès du livre va croissant, à mesure que le lecteur a davantage le sentiment qu'il est aimablement conduit par la main grâce surtout à un index infiniment précieux, et que les explications qu'on lui propose ne sont pas de sommaires ukases, mais le reflet patient, probe jusqu'à l'aveu d'incertitudes, d'une actualité aussi mouvante que la vie.", question:"D'après cet extrait, quelle est la plus grande qualité du Bon usage ?", options:["Il est complet","Il est concis","Il est innovant","Il est irréfutable"], correct:"A" },
+            { id:38, text:"Il est incroyable que la perspective d'avoir à lire son propre livre en public n'ait jamais fait renoncer un écrivain à l'écrire. Rien n'est extravagant comme ces émissions littéraires où ils sont régulièrement requis de sacrifier à ce rituel qui suppose tout de même une habitude, une habileté, pour ne pas dire une technique, qui ne sont pas données à tous les romanciers. La plupart n'osent pas refuser, en quoi ils ont tort. Pour les convaincre de renoncer à ce dernier avatar de leur vanité, il suffirait de les emmender, un soir, écouter des comédiens lire leur livre. En principe, si l'on est lucide et de bonne foi, on ne se remet pas d'une telle épreuve.", question:"Que pense cet écrivain de la lecture publique d'un roman par son auteur ?", options:["Elle demande de posséder des talents d'acteur","Elle dessert le travail d'écriture du romancier","Elle est particulièrement adaptée au petit écran","Elle rend les émissions littéraires prétentieuses"], correct:"B" },
+            { id:39, text:"Le trois-mâts d'exploitation la Boudeuse va reprendre le large pour une nouvelle mission à caractère scientifique.\nLe voilier va mettre le cap en septembre prochain sur l'Amérique du Sud et ses grands fleuves. Il se consacrera « aux études scientifiques et humaines concernant la biosphère, le réchauffement climatique et le développement durable », selon la \"lettre de mission\" adressée à son commandant, signée du ministre d'État aux transports et à l'écologie. Cette \"lettre de mission\" de la République assigne à l'équipage un audacieux programme concernant la protection de l'environnement.", question:"Selon l'article, que va faire l'équipage du voilier La Boudeuse ?", options:["Former des scientifiques à la prévention des risques écologiques","Innover dans les moyens de lutter contre les pollutions fluviales","Observer l'écosystème dans une région de grands fleuves","Représenter le gouvernement français lors d'une rencontre"], correct:"C" }
+        ];
+
+        // assign points dynamiquement selon index (identique aux tests précédents)
+        const questions = rawQuestions.map((q, idx) => {
+            let p = 3;
+            if (idx >= 4 && idx <= 10) p = 9;   // questions 5-11 (index 4-10)
+            else if (idx >= 11 && idx <= 18) p = 15; // 12-19
+            else if (idx >= 19 && idx <= 28) p = 21; // 20-29
+            else if (idx >= 29 && idx <= 34) p = 26; // 30-35
+            else if (idx >= 35 && idx <= 37) p = 33; // 36-38? index 35,36,37 = 36,37,38
+            else if (idx === 38) p = 33; // question 39
+            return { ...q, points: p };
+        });
+
+        // ----- variables globales du quiz -----
+        let currentIdx = 0;
+        let userAnswers = new Array(39).fill(null);
+        let reviewFlags = new Array(39).fill(false);
+        let timeLeft = 40 * 60; // 40 minutes
+        let timerInterval;
+        let startTime = new Date();
+
+        // éléments DOM
+        const authOverlay = document.getElementById('authOverlay');
+        const authMessage = document.getElementById('authMessage');
+        const quizContainer = document.getElementById('quizContainer');
+
+        // initialisation Firebase + auth
+        async function initFirebase() {
+            try {
+                firebaseApp = firebase.initializeApp(firebaseConfig);
+                firebaseAuth = firebase.auth();
+                firestore = firebase.firestore();
+
+                firebaseAuth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        await handleUser(user);
+                    } else {
+                        showAuth('not_logged_in', 'Accès non autorisé', 'Vous devez être connecté et avoir un accès premium.');
+                    }
+                });
+            } catch (e) {
+                showAuth('error', 'Erreur Firebase', 'Impossible de se connecter au serveur.');
+            }
+        }
+
+        async function handleUser(user) {
+            try {
+                const doc = await firestore.collection('users').doc(user.uid).get();
+                if (!doc.exists) { firebaseAuth.signOut(); return; }
+                const data = doc.data();
+                currentUser = { uid: user.uid, email: user.email, ...data };
+                if (data.premiumActive && data.premiumExpiry) {
+                    const now = new Date();
+                    const expiry = new Date(data.premiumExpiry);
+                    if (now < expiry) isPremium = true;
+                }
+                if (!isPremium) {
+                    showAuth('premium_expired', 'Accès Premium requis', 'Ce test nécessite un abonnement premium actif.');
+                    return;
+                }
+                authOverlay.style.display = 'none';
+                quizContainer.style.display = 'flex';
+                startQuiz();
+            } catch (err) {
+                showAuth('error', 'Erreur', 'Impossible de charger les données.');
+            }
+        }
+
+        function showAuth(type, title, msg) {
+            let icon = '🔒', buttons = '';
+            if (type === 'loading') icon = '<i class="fas fa-spinner fa-spin"></i>';
+            else if (type === 'error') icon = '❌';
+            else if (type === 'not_logged_in') {
+                buttons = `<button class="auth-btn auth-btn-primary" onclick="redirectToLogin()">Se connecter</button>
+                           <button class="auth-btn auth-btn-secondary" onclick="closeWindow()">Fermer</button>`;
+            } else if (type === 'premium_expired') {
+                buttons = `<button class="auth-btn auth-btn-primary" onclick="redirectToLogin()">Retour</button>`;
+            }
+            authMessage.innerHTML = `<div class="auth-icon">${icon}</div><div class="auth-title">${title}</div>
+                <div class="auth-subtitle">${msg}</div>${buttons}`;
+            authOverlay.style.display = 'flex';
+        }
+
+        window.redirectToLogin = function() { window.location.href = 'index.html'; };
+        window.closeWindow = function() { window.close(); };
+
+        // ----- quiz functions -----
+        function startQuiz() {
+            createGrid();
+            loadQuestion(0);
+            startTimer();
+            updateProgress();
+            setupCopyProtection();
+        }
+
+        function createGrid() {
+            const grid = document.getElementById('questionGrid');
+            grid.innerHTML = '';
+            for (let i=0; i<39; i++) {
+                let btn = document.createElement('button');
+                btn.className = 'q-btn';
+                btn.textContent = i+1;
+                btn.onclick = () => navigateTo(i);
+                grid.appendChild(btn);
+            }
+            updateGridClasses();
+        }
+
+        function updateGridClasses() {
+            document.querySelectorAll('.q-btn').forEach((btn, idx) => {
+                btn.classList.remove('active','answered','review');
+                if (idx === currentIdx) btn.classList.add('active');
+                if (userAnswers[idx] !== null) btn.classList.add('answered');
+                if (reviewFlags[idx]) btn.classList.add('review');
+            });
+        }
+
+        function loadQuestion(index) {
+            const q = questions[index];
+            document.getElementById('qNumberDisplay').innerText = `Question ${index+1} / 39`;
+            document.getElementById('pointsDisplay').innerText = q.points + ' points';
+            document.getElementById('textPassage').innerText = q.text;
+            document.getElementById('actualQuestion').innerText = q.question;
+
+            const optsDiv = document.getElementById('optionsContainer');
+            optsDiv.innerHTML = '';
+            q.options.forEach((opt, optIdx) => {
+                let letter = String.fromCharCode(65+optIdx);
+                let selectedClass = (userAnswers[index] === letter) ? 'selected' : '';
+                let div = document.createElement('div');
+                div.className = `option-item ${selectedClass}`;
+                div.onclick = () => selectOption(optIdx);
+                div.innerHTML = `<div class="option-letter">${letter}</div><div class="flex-grow-1">${opt}</div>`;
+                optsDiv.appendChild(div);
+            });
+
+            document.getElementById('prevBtn').disabled = (index===0);
+            let nextBtn = document.getElementById('nextBtn');
+            nextBtn.innerHTML = (index===38) ? 'Terminer <i class="fas fa-check"></i>' : 'Suivant <i class="fas fa-arrow-right"></i>';
+            document.getElementById('reviewBtn').innerHTML = reviewFlags[index] ? '✓ Révision' : '<i class="fas fa-bookmark"></i> Marquer';
+            updateGridClasses();
+            updateProgress();
+        }
+
+        function selectOption(optIdx) {
+            let letter = String.fromCharCode(65+optIdx);
+            userAnswers[currentIdx] = letter;
+            loadQuestion(currentIdx);
+        }
+
+        function navigateTo(idx) {
+            if (idx>=0 && idx<39) { currentIdx = idx; loadQuestion(currentIdx); }
+        }
+
+        document.getElementById('prevBtn').onclick = () => navigateTo(currentIdx-1);
+        document.getElementById('nextBtn').onclick = () => { if (currentIdx===38) finishTest(); else navigateTo(currentIdx+1); };
+        document.getElementById('reviewBtn').onclick = () => { reviewFlags[currentIdx] = !reviewFlags[currentIdx]; loadQuestion(currentIdx); };
+
+        function updateProgress() {
+            let answered = userAnswers.filter(a=>a!==null).length;
+            document.getElementById('globalProgress').style.width = (answered/39*100)+'%';
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => { timeLeft--; if (timeLeft<=0) finishTest(); updateTimer(); }, 1000);
+        }
+        function updateTimer() {
+            let m = Math.floor(timeLeft/60);
+            let s = timeLeft%60;
+            let timer = document.getElementById('timerDisplay');
+            timer.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            if (timeLeft<300) timer.className = 'timer-card danger';
+            else if (timeLeft<600) timer.className = 'timer-card warning';
+            else timer.className = 'timer-card';
+        }
+
+        function finishTest() {
+            clearInterval(timerInterval);
+            let correct=0, total=0, earned=0;
+            questions.forEach((q,i) => { total += q.points; if (userAnswers[i]===q.correct) { correct++; earned += q.points; } });
+            let percent = Math.round((earned/total)*100);
+            document.getElementById('correctCount').innerText = correct;
+            document.getElementById('timeUsed').innerText = getTimeUsed();
+            document.getElementById('scorePercent').innerText = percent;
+            let levelElem = document.getElementById('cecrLevelDisplay');
+            if (percent>=85) levelElem.innerText = 'NIVEAU C2 ATTEINT';
+            else if (percent>=75) levelElem.innerText = 'NIVEAU C1 ATTEINT';
+            else if (percent>=60) levelElem.innerText = 'NIVEAU B2 ATTEINT';
+            else if (percent>=40) levelElem.innerText = 'NIVEAU B1 ATTEINT';
+            else if (percent>=20) levelElem.innerText = 'NIVEAU A2 ATTEINT';
+            else levelElem.innerText = 'NIVEAU A1 NON ATTEINT';
+
+            let qlist = document.getElementById('questionsList');
+            qlist.innerHTML = '';
+            questions.forEach((_,i) => {
+                let span = document.createElement('span');
+                span.style.padding = '0.7rem 1rem'; span.style.borderRadius = '30px';
+                span.style.background = (userAnswers[i]===questions[i].correct) ? '#10b981' : '#ef4444';
+                span.style.color = 'white'; span.style.cursor = 'pointer';
+                span.innerText = i+1;
+                span.onclick = () => showCorrection(i);
+                qlist.appendChild(span);
+            });
+            document.getElementById('resultsModal').style.display = 'flex';
+        }
+
+        function getTimeUsed() {
+            let diff = (new Date() - startTime)/1000;
+            let h = Math.floor(diff/3600), m = Math.floor((diff%3600)/60), s = Math.floor(diff%60);
+            return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+
+        function showCorrection(idx) {
+            let q = questions[idx];
+            let html = `<div style="background:#f8fafc; padding:1rem; border-radius:24px;">`;
+            html += `<p><strong>Q${idx+1}</strong> (${q.points}pts) — ${q.question}</p>`;
+            q.options.forEach((opt,i) => {
+                let lettre = String.fromCharCode(65+i);
+                let classe = '';
+                if (lettre === q.correct) classe = 'correct-answer';
+                if (userAnswers[idx] === lettre && lettre !== q.correct) classe = 'user-answer';
+                html += `<div class="correction-option ${classe}"><span style="width:40px;">${lettre}</span> ${opt}</div>`;
+            });
+            html += `</div>`;
+            document.getElementById('correctionsContainer').innerHTML = html;
+            document.getElementById('correctionsContainer').style.display = 'block';
+        }
+
+        window.toggleCorrections = function() {
+            let c = document.getElementById('correctionsContainer');
+            if (c.style.display === 'none') { showCorrection(0); c.style.display = 'block'; }
+            else c.style.display = 'none';
+        };
+        window.closeResults = function() { document.getElementById('resultsModal').style.display = 'none'; };
+
+        function setupCopyProtection() {
+            document.addEventListener('copy', (e) => {
+                if (window.getSelection().toString().length > 50) { e.preventDefault(); showCopyWarning(); }
+            });
+        }
+        function showCopyWarning() {
+            let w = document.getElementById('copyWarning');
+            w.style.display = 'block';
+            setTimeout(() => w.style.display = 'none', 1500);
+        }
+
+        // lancement
+        initFirebase();
+    })();
+</script>
+</body>
+</html>

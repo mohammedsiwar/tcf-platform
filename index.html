@@ -1,0 +1,2505 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <title>TCF Master • Préparation Complète</title>
+    
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --secondary: #3b82f6;
+            --secondary-dark: #2563eb;
+            --accent: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --premium: #8b5cf6;
+            --premium-dark: #7c3aed;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--gray-900);
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .modern-header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.75rem 0;
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--secondary), var(--premium));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 700;
+            transform: rotate(10deg);
+            transition: transform 0.3s ease;
+        }
+
+        .logo-container:hover .logo-icon {
+            transform: rotate(0deg) scale(1.1);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .logo-text span {
+            background: linear-gradient(135deg, var(--secondary), var(--premium));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            padding: 0.6rem 1.2rem;
+            border-radius: 30px;
+            color: var(--gray-300);
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-item i {
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .nav-item.premium {
+            background: linear-gradient(135deg, var(--premium), var(--premium-dark));
+            color: white;
+            box-shadow: 0 10px 20px -5px rgba(139, 92, 246, 0.5);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--secondary), var(--premium));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .user-info {
+            color: white;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .user-status {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .modern-card {
+            background: white;
+            border-radius: 24px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .modern-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-title i {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--secondary), var(--premium));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .welcome-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .welcome-banner h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-banner p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--secondary);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        .tests-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.75rem;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+
+        .test-btn {
+            background: var(--gray-100);
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            padding: 0.75rem 0.5rem;
+            text-align: center;
+            font-weight: 500;
+            color: var(--gray-700);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+            font-size: 0.9rem;
+        }
+
+        .test-btn:hover:not(.locked):not(.completed) {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+            transform: scale(1.05);
+        }
+
+        .test-btn.completed {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .test-btn.locked {
+            background: var(--gray-200);
+            color: var(--gray-500);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .test-btn i {
+            font-size: 0.8rem;
+        }
+
+        .premium-offer {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+            border-radius: 24px;
+            padding: 3rem;
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .premium-offer::before {
+            content: '✨';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            font-size: 150px;
+            opacity: 0.1;
+            transform: rotate(20deg);
+        }
+
+        .premium-offer h2 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .premium-offer .price {
+            font-size: 4rem;
+            font-weight: 800;
+            margin: 1.5rem 0;
+        }
+
+        .premium-offer .price small {
+            font-size: 1.5rem;
+            font-weight: 400;
+            opacity: 0.8;
+        }
+
+        .benefits-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            max-width: 800px;
+            margin: 2rem auto;
+            text-align: left;
+        }
+
+        .benefit-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .benefit-item i {
+            color: #fbbf24;
+            font-size: 1.25rem;
+        }
+
+        .progress-section {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .progress-item {
+            margin: 1.5rem 0;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .progress-bar-bg {
+            height: 10px;
+            background: var(--gray-200);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--premium));
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .contact-page {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .contact-form {
+            background: white;
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 16px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .modern-footer {
+            background: var(--primary);
+            color: white;
+            padding: 3rem 0 2rem;
+            margin-top: 4rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1.5fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--secondary), var(--premium));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .footer-description {
+            color: var(--gray-400);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links a {
+            color: var(--gray-400);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .footer-links a:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .footer-links a i {
+            width: 20px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .footer-links a.danger {
+            color: #f87171;
+        }
+
+        .footer-links a.danger:hover {
+            color: #ef4444;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--gray-400);
+            font-size: 0.9rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+        }
+
+        .auth-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 32px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 480px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            animation: slideUp 0.5s ease;
+            margin: auto;
+        }
+
+        .auth-card::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .auth-card::-webkit-scrollbar-track {
+            background: var(--gray-100);
+            border-radius: 8px;
+        }
+
+        .auth-card::-webkit-scrollbar-thumb {
+            background: var(--gray-400);
+            border-radius: 8px;
+        }
+
+        .auth-card::-webkit-scrollbar-thumb:hover {
+            background: var(--gray-500);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--gray-100);
+            padding: 0.5rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            background: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--gray-600);
+            font-size: 0.95rem;
+        }
+
+        .auth-tab.active {
+            background: white;
+            color: var(--secondary);
+            box-shadow: var(--shadow);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .auth-message {
+            padding: 1rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            display: none;
+            font-size: 0.95rem;
+        }
+
+        .auth-message.error {
+            background: #fee2e2;
+            color: #dc2626;
+            display: block;
+        }
+
+        .auth-message.success {
+            background: #dcfce7;
+            color: #16a34a;
+            display: block;
+        }
+
+        .vip-badge {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+            padding: 1rem;
+            border-radius: 16px;
+            text-align: center;
+            margin: 1.5rem 0;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+            animation: pulse 2s infinite;
+            border: 2px solid gold;
+        }
+
+        .vip-badge i {
+            margin-right: 0.5rem;
+            font-size: 1.2rem;
+            color: gold;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.02);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .timer-badge {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-left: 1rem;
+        }
+
+        .timer-badge i {
+            font-size: 1rem;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 16px;
+            color: white;
+            font-weight: 500;
+            z-index: 9999;
+            animation: slideInRight 0.3s ease;
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(10px);
+            max-width: 350px;
+        }
+
+        .toast.success {
+            background: rgba(16, 185, 129, 0.95);
+        }
+
+        .toast.error {
+            background: rgba(239, 68, 68, 0.95);
+        }
+
+        .toast.info {
+            background: rgba(59, 130, 246, 0.95);
+        }
+
+        .toast.warning {
+            background: rgba(245, 158, 11, 0.95);
+        }
+
+        .toast.vip {
+            background: rgba(139, 92, 246, 0.95);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loader {
+            text-align: center;
+            color: white;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .vip-active {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            margin-left: 0.5rem;
+            border: 1px solid gold;
+        }
+
+        .vip-active i {
+            color: gold;
+        }
+
+        .inactive-badge {
+            background: #ef4444;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* زر Stripe المحسن */
+        .stripe-button {
+            background: linear-gradient(135deg, #6772e5, #32325d);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-decoration: none;
+            margin-bottom: 1rem;
+            min-width: 250px;
+            box-shadow: 0 10px 20px -5px rgba(50, 50, 93, 0.3);
+        }
+
+        .stripe-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(50, 50, 93, 0.4);
+            background: linear-gradient(135deg, #5a67d8, #2a2a4a);
+        }
+
+        .stripe-button i {
+            margin-right: 8px;
+            font-size: 1.4rem;
+        }
+
+        .test-card-info {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            color: white;
+            font-size: 0.95rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .test-card-number {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin: 5px 0;
+        }
+
+        @media (max-width: 1024px) {
+            .header-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .welcome-banner h1 {
+                font-size: 1.8rem;
+            }
+            
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-bottom {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .auth-card {
+                padding: 1.5rem;
+                max-width: 95%;
+            }
+            
+            .premium-offer {
+                padding: 2rem;
+            }
+            
+            .premium-offer h2 {
+                font-size: 2rem;
+            }
+            
+            .premium-offer .price {
+                font-size: 3rem;
+            }
+            
+            .stripe-button {
+                padding: 0.8rem 2rem;
+                font-size: 1rem;
+                min-width: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 1.25rem;
+            }
+            
+            .form-control {
+                padding: 0.875rem 1rem;
+            }
+            
+            .vip-badge {
+                padding: 0.875rem;
+                font-size: 1rem;
+            }
+            
+            .auth-tab {
+                padding: 0.6rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loader">
+            <div class="spinner"></div>
+            <h2 style="font-size: 2rem; margin-bottom: 0.5rem;">TCF Master</h2>
+            <p style="opacity: 0.9;">Préparation à l'excellence...</p>
+        </div>
+    </div>
+
+    <header class="modern-header" id="mainHeader" style="display: none;">
+        <div class="header-container">
+            <div class="logo-container" onclick="showDashboard()">
+                <div class="logo-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="logo-text">
+                    TCF <span>Master</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu" id="navMenu">
+                <div class="nav-item active" onclick="showDashboard()">
+                    <i class="fas fa-home"></i> Accueil
+                </div>
+                <div class="nav-item" onclick="scrollToSection('orale')">
+                    <i class="fas fa-headphones"></i> Orale
+                </div>
+                <div class="nav-item" onclick="scrollToSection('ecrite')">
+                    <i class="fas fa-book-open"></i> Écrite
+                </div>
+                <div class="nav-item" onclick="scrollToSection('simulations')">
+                    <i class="fas fa-chalkboard-teacher"></i> Simulations
+                </div>
+                <div class="nav-item premium" onclick="showSubscriptionPage()">
+                    <i class="fas fa-crown"></i> Premium VIP
+                </div>
+                <div class="nav-item" onclick="showContactPage()">
+                    <i class="fas fa-envelope"></i> Contact
+                </div>
+            </nav>
+
+            <div class="user-menu" id="userMenu"></div>
+        </div>
+    </header>
+
+    <main class="main-container" id="mainContent">
+        <div id="dashboardPage">
+            <div class="welcome-banner" id="welcomeBanner"></div>
+            <div class="stats-grid" id="statsGrid"></div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; margin: 2rem 0;">
+                <div class="modern-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-headphones"></i> Compréhension Orale
+                        </div>
+                        <span class="stat-label" id="oraleCount">0/39</span>
+                    </div>
+                    <div class="tests-grid" id="oraleTests"></div>
+                </div>
+
+                <div class="modern-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-book-open"></i> Compréhension Écrite
+                        </div>
+                        <span class="stat-label" id="ecriteCount">0/40</span>
+                    </div>
+                    <div class="tests-grid" id="ecriteTests"></div>
+                </div>
+            </div>
+
+            <div class="modern-card" style="margin: 2rem 0;">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-chalkboard-teacher"></i> Simulations d'examen
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                    <div class="stat-card" style="text-align: center;">
+                        <i class="fas fa-comments" style="font-size: 2.5rem; color: var(--secondary); margin-bottom: 1rem;"></i>
+                        <h3 style="margin-bottom: 0.5rem;">Expression Orale</h3>
+                        <p style="color: var(--gray-600); margin-bottom: 1.5rem;">Simulation complète avec auto-correction</p>
+                        <button class="nav-item premium" id="simulationOraleBtn" style="border: none; width: 100%; justify-content: center;">
+                            <i class="fas fa-play"></i> Commencer
+                        </button>
+                    </div>
+                    <div class="stat-card" style="text-align: center;">
+                        <i class="fas fa-edit" style="font-size: 2.5rem; color: var(--premium); margin-bottom: 1rem;"></i>
+                        <h3 style="margin-bottom: 0.5rem;">Expression Écrite</h3>
+                        <p style="color: var(--gray-600); margin-bottom: 1.5rem;">Simulation complète avec auto-correction</p>
+                        <button class="nav-item premium" id="simulationEcriteBtn" style="border: none; width: 100%; justify-content: center;">
+                            <i class="fas fa-play"></i> Commencer
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="progress-section">
+                <h2 style="font-size: 1.8rem; margin-bottom: 2rem;">📊 Votre Progression</h2>
+                
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span>Compréhension Orale</span>
+                        <span id="oraleProgressText">0%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="oraleProgress" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span>Compréhension Écrite</span>
+                        <span id="ecriteProgressText">0%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="ecriteProgress" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span>Simulations</span>
+                        <span id="simProgressText">0%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="simProgress" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="subscriptionPage" style="display: none;">
+            <div class="premium-offer">
+                <h2>👑 Premium VIP 3 Mois</h2>
+                <p style="font-size: 1.2rem; opacity: 0.9;">Débloquez tous les tests avec le statut VIP</p>
+                
+                <div class="price">
+                    $96.90 CAD <small>/3 mois</small>
+                </div>
+
+                <div class="benefits-list">
+                    <div class="benefit-item"><i class="fas fa-crown" style="color: gold;"></i> <span>Statut VIP avec badge doré</span></div>
+                    <div class="benefit-item"><i class="fas fa-check-circle"></i> <span>39 tests de compréhension orale</span></div>
+                    <div class="benefit-item"><i class="fas fa-check-circle"></i> <span>40 tests de compréhension écrite</span></div>
+                    <div class="benefit-item"><i class="fas fa-check-circle"></i> <span>2 simulations d'examen complètes</span></div>
+                    <div class="benefit-item"><i class="fas fa-check-circle"></i> <span>Suivi de progression détaillé</span></div>
+                    <div class="benefit-item"><i class="fas fa-check-circle"></i> <span>Support prioritaire</span></div>
+                </div>
+
+                <!-- قسم الدفع - زر مباشر لـ Stripe -->
+                <div style="margin-top: 2rem;">
+                    <!-- زر الدفع المباشر -->
+                    <a href="https://buy.stripe.com/test_4gMfZgdGk6wPcd24KOfYY00" 
+                       target="_blank" 
+                       class="stripe-button">
+                        <i class="fab fa-stripe"></i> Payer avec Stripe
+                    </a>
+                    
+                    <div style="margin: 1rem 0; color: rgba(255,255,255,0.7);">ou</div>
+                    
+                    <!-- زر الاتصال بالدعم -->
+                    <button class="nav-item" onclick="showContactPage()" style="border: none; padding: 0.8rem 2rem; background: rgba(255,255,255,0.2);">
+                        <i class="fas fa-envelope"></i> Contacter le support
+                    </button>
+                </div>
+
+                <!-- معلومات بطاقة الاختبار -->
+                <div class="test-card-info">
+                    <i class="fas fa-info-circle" style="color: #fbbf24; margin-left: 8px;"></i>
+                    <strong>Mode test:</strong> Utilisez cette carte pour essayer
+                    <div style="margin-top: 8px;">
+                        <span class="test-card-number">4242 4242 4242 4242</span>
+                    </div>
+                    <div style="margin-top: 5px; font-size: 0.85rem; opacity: 0.8;">
+                        Date: 12/34 • CVC: 123 • Nom: n'importe quoi
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="contactPage" style="display: none;">
+            <div class="contact-page">
+                <div class="modern-card" style="margin-bottom: 2rem;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-envelope"></i> Contactez-nous
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                        <div class="stat-card" style="text-align: center;">
+                            <i class="fas fa-envelope" style="font-size: 2rem; color: var(--secondary); margin-bottom: 0.5rem;"></i>
+                            <h3 style="margin-bottom: 0.25rem;">Email</h3>
+                            <p style="color: var(--gray-600);">siwarbouhoula@gmail.com</p>
+                        </div>
+                        <div class="stat-card" style="text-align: center;">
+                            <i class="fas fa-clock" style="font-size: 2rem; color: var(--success); margin-bottom: 0.5rem;"></i>
+                            <h3 style="margin-bottom: 0.25rem;">Temps de réponse</h3>
+                            <p style="color: var(--gray-600);">24-48 heures</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-form">
+                    <h3 style="margin-bottom: 2rem;">Envoyez-nous un message</h3>
+                    
+                    <div id="contactMessage" class="auth-message"></div>
+
+                    <div class="form-group">
+                        <label class="form-label">Nom complet</label>
+                        <input type="text" class="form-control" id="contactName" placeholder="Votre nom">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="contactEmail" placeholder="votre@email.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Sujet</label>
+                        <select class="form-control" id="contactSubject">
+                            <option value="">Sélectionnez un sujet</option>
+                            <option value="technical">Problème technique</option>
+                            <option value="content">Question sur le contenu</option>
+                            <option value="subscription">Question sur l'abonnement</option>
+                            <option value="other">Autre</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Message</label>
+                        <textarea class="form-control" id="contactMessageText" rows="5" placeholder="Votre message..."></textarea>
+                    </div>
+
+                    <button class="nav-item premium" onclick="sendContactMessage()" style="border: none; width: 100%; justify-content: center;">
+                        <i class="fas fa-paper-plane"></i> Envoyer le message
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="modern-footer" id="mainFooter" style="display: none;">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-logo">
+                        <div class="footer-logo-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <span style="font-weight: 700; font-size: 1.2rem;">TCF Master</span>
+                    </div>
+                    <p class="footer-description">
+                        La plateforme complète pour une préparation optimale au Test de Connaissance du Français.
+                    </p>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Navigation</h4>
+                    <ul class="footer-links">
+                        <li><a onclick="showDashboard()"><i class="fas fa-home"></i> Accueil</a></li>
+                        <li><a onclick="scrollToSection('orale')"><i class="fas fa-headphones"></i> Compréhension Orale</a></li>
+                        <li><a onclick="scrollToSection('ecrite')"><i class="fas fa-book-open"></i> Compréhension Écrite</a></li>
+                        <li><a onclick="scrollToSection('simulations')"><i class="fas fa-chalkboard-teacher"></i> Simulations</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Ressources</h4>
+                    <ul class="footer-links">
+                        <li><a onclick="showSubscriptionPage()"><i class="fas fa-crown"></i> Offre Premium VIP</a></li>
+                        <li><a onclick="showDetailedProgress()"><i class="fas fa-chart-line"></i> Ma progression</a></li>
+                        <li><a onclick="showPrivacyPolicy()"><i class="fas fa-shield-alt"></i> Confidentialité</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Compte</h4>
+                    <ul class="footer-links">
+                        <li><a onclick="showContactPage()"><i class="fas fa-envelope"></i> Support</a></li>
+                        <li><a href="mailto:siwarbouhoula@gmail.com"><i class="fas fa-headset"></i> Aide</a></li>
+                        <li><a onclick="logoutUser()" class="danger"><i class="fas fa-sign-out-alt"></i> Déconnexion</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© 2024 TCF Master. Tous droits réservés.</p>
+                <div class="social-links">
+                    <a href="mailto:siwarbouhoula@gmail.com"><i class="fas fa-envelope"></i></a>
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- FIXED AUTH MODAL WITH PROPER DIMENSIONS -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-card">
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <div class="logo-icon" style="margin: 0 auto 1rem; width: 50px; height: 50px;">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h2 style="color: var(--primary); font-size: 1.5rem;">Bienvenue sur TCF Master</h2>
+                <p style="color: var(--gray-600); font-size: 0.9rem;">Connectez-vous pour accéder à votre préparation</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')">Connexion</button>
+                <button class="auth-tab" onclick="switchAuthTab('register')">Inscription</button>
+            </div>
+
+            <div id="authMessage" class="auth-message"></div>
+
+            <div id="loginForm" class="auth-form active">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="loginEmail" placeholder="votre@email.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mot de passe</label>
+                    <input type="password" class="form-control" id="loginPassword" placeholder="••••••••">
+                </div>
+                <button class="nav-item premium" onclick="loginUser()" style="border: none; width: 100%; justify-content: center; margin-bottom: 1rem; padding: 0.75rem;">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter
+                </button>
+                <p style="text-align: center;">
+                    <a href="#" onclick="showResetPassword()" style="color: var(--secondary); text-decoration: none;">Mot de passe oublié ?</a>
+                </p>
+            </div>
+
+            <div id="registerForm" class="auth-form">
+                <div class="form-group">
+                    <label class="form-label">Nom complet</label>
+                    <input type="text" class="form-control" id="registerName" placeholder="Jean Dupont">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="registerEmail" placeholder="votre@email.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mot de passe</label>
+                    <input type="password" class="form-control" id="registerPassword" placeholder="Minimum 6 caractères">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirmer le mot de passe</label>
+                    <input type="password" class="form-control" id="registerConfirmPassword" placeholder="••••••••">
+                </div>
+
+                <!-- VIP 1-minute trial badge -->
+                <div class="vip-badge">
+                    <i class="fas fa-crown"></i>
+                    <strong>1 minute de statut PREMIUM VIP offerte !</strong>
+                    <div style="font-size: 0.9rem; margin-top: 0.5rem; opacity: 0.9;">Testez tous les tests en tant que VIP pendant 60 secondes</div>
+                </div>
+
+                <button class="nav-item premium" onclick="registerUser()" style="border: none; width: 100%; justify-content: center; padding: 0.75rem;">
+                    <i class="fas fa-user-plus"></i> Créer mon compte VIP
+                </button>
+            </div>
+
+            <div id="resetPasswordForm" class="auth-form">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="resetEmail" placeholder="votre@email.com">
+                </div>
+                <button class="nav-item premium" onclick="sendPasswordReset()" style="border: none; width: 100%; justify-content: center; margin-bottom: 1rem; padding: 0.75rem;">
+                    <i class="fas fa-paper-plane"></i> Envoyer
+                </button>
+                <p style="text-align: center;">
+                    <a href="#" onclick="switchAuthTab('login')" style="color: var(--secondary);">Retour à la connexion</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-modal" id="privacyModal" style="display: none;">
+        <div class="auth-card">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+                <i class="fas fa-shield-alt" style="font-size: 2rem; color: var(--secondary);"></i>
+                <h2>Politique de Confidentialité</h2>
+            </div>
+            <div style="margin: 2rem 0;">
+                <h3 style="margin-bottom: 1rem;">1. Collecte des données</h3>
+                <p style="color: var(--gray-600); margin-bottom: 1.5rem;">Nous collectons uniquement les informations nécessaires : nom, email et progression d'apprentissage.</p>
+                
+                <h3 style="margin-bottom: 1rem;">2. Sécurité</h3>
+                <p style="color: var(--gray-600); margin-bottom: 1.5rem;">Toutes vos données sont cryptées et protégées. Maximum 2 appareils peuvent être connectés simultanément.</p>
+                
+                <h3 style="margin-bottom: 1rem;">3. Contact</h3>
+                <p style="color: var(--gray-600);">Pour toute question : siwarbouhoula@gmail.com</p>
+            </div>
+            <button class="nav-item premium" onclick="closeModal('privacyModal')" style="border: none; width: 100%; justify-content: center;">
+                J'ai compris
+            </button>
+        </div>
+    </div>
+
+    <div class="auth-modal" id="successModal" style="display: none;">
+        <div class="auth-card">
+            <div style="text-align: center;">
+                <i class="fas fa-check-circle" style="font-size: 4rem; color: var(--success); margin-bottom: 1rem;"></i>
+                <h2 id="successModalTitle">Félicitations !</h2>
+                <p id="successModalMessage" style="margin: 1rem 0; color: var(--gray-600);">Votre abonnement a été activé.</p>
+                <button class="nav-item premium" onclick="closeModal('successModal'); showDashboard()" style="border: none; width: 100%; justify-content: center;">
+                    Continuer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIP Timer Modal -->
+    <div class="auth-modal" id="vipTimerModal" style="display: none;">
+        <div class="auth-card" style="text-align: center;">
+            <i class="fas fa-crown" style="font-size: 4rem; color: gold; margin-bottom: 1rem;"></i>
+            <h2 style="color: var(--primary); margin-bottom: 1rem;">👑 Mode VIP Actif !</h2>
+            <p style="color: var(--gray-600); margin-bottom: 1.5rem;">Vous avez 1 minute pour découvrir tous les tests en tant que VIP.</p>
+            
+            <div style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; padding: 1.5rem; border-radius: 20px; margin: 1.5rem 0; border: 2px solid gold;">
+                <div style="font-size: 1rem; opacity: 0.9;">Temps VIP restant</div>
+                <div id="vipTimer" style="font-size: 3.5rem; font-weight: 800; font-family: monospace;">01:00</div>
+            </div>
+            
+            <p style="color: var(--gray-600); margin-bottom: 1.5rem;">Après cette minute, les tests seront verrouillés. Devenez VIP pour 3 mois et accédez à tout !</p>
+            
+            <button class="nav-item premium" onclick="closeModal('vipTimerModal')" style="border: none; width: 100%; justify-content: center; margin-bottom: 1rem;">
+                Découvrir les tests maintenant
+            </button>
+            <button class="nav-item" onclick="closeModal('vipTimerModal'); showSubscriptionPage()" style="border: none; width: 100%; justify-content: center; background: var(--gray-200);">
+                Devenir VIP 3 mois
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ==================== FIREBASE CONFIGURATION ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAhGVA4vr3pISonxvccIMCxZZOE5bkynRQ",
+            authDomain: "platformtcf.firebaseapp.com",
+            projectId: "platformtcf",
+            storageBucket: "platformtcf.firebasestorage.app",
+            messagingSenderId: "779352652301",
+            appId: "1:779352652301:web:41ca6b1dbcc42739b47344"
+        };
+
+        // ==================== GLOBAL VARIABLES ====================
+        let currentUser = null;
+        let firebaseApp = null;
+        let firebaseAuth = null;
+        let firestore = null;
+        let currentDeviceId = null;
+        const MAX_DEVICES = 2;
+        let vipTimerInterval = null;
+
+        // Permanent VIP emails list - These users get permanent VIP access
+        const PERMANENT_VIP_EMAILS = [
+            'bouhoula_mohamedhedi@yahoo.fr',
+            'admin@tcfmaster.com',
+            'vip@test.com',
+            'siwarbouhoula@gmail.com'
+        ];
+
+        // ==================== INITIALIZATION ====================
+        async function initializeApp() {
+            try {
+                firebaseApp = firebase.initializeApp(firebaseConfig);
+                firebaseAuth = firebase.auth();
+                firestore = firebase.firestore();
+
+                currentDeviceId = generateDeviceId();
+
+                firebaseAuth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        await handleUserSignedIn(user);
+                    } else {
+                        handleUserSignedOut();
+                    }
+                    
+                    setTimeout(() => {
+                        document.getElementById('loadingScreen').style.opacity = '0';
+                        setTimeout(() => {
+                            document.getElementById('loadingScreen').style.display = 'none';
+                        }, 500);
+                    }, 1000);
+                });
+
+            } catch (error) {
+                console.error('Init error:', error);
+                document.getElementById('loadingScreen').style.display = 'none';
+            }
+        }
+
+        function generateDeviceId() {
+            let storedId = localStorage.getItem('tcf_device_id');
+            if (storedId) return storedId;
+
+            const components = [
+                navigator.userAgent,
+                navigator.platform,
+                screen.width + 'x' + screen.height,
+                Date.now()
+            ];
+            
+            let hash = 0;
+            components.join('|').split('').forEach(char => {
+                hash = ((hash << 5) - hash) + char.charCodeAt(0);
+                hash = hash & hash;
+            });
+            
+            const deviceId = 'device_' + Math.abs(hash).toString(36);
+            localStorage.setItem('tcf_device_id', deviceId);
+            return deviceId;
+        }
+
+        // ==================== AUTHENTICATION HANDLERS ====================
+        async function handleUserSignedIn(user) {
+            try {
+                const userDoc = await firestore.collection('users').doc(user.uid).get();
+                
+                if (userDoc.exists) {
+                    currentUser = {
+                        uid: user.uid,
+                        ...userDoc.data()
+                    };
+                    
+                    // Check if user is in permanent VIP emails list
+                    if (PERMANENT_VIP_EMAILS.includes(user.email) && !currentUser.isPermanentVIP) {
+                        await activatePermanentVIP(user.uid);
+                    }
+                    
+                    // Check subscription expiry
+                    if (currentUser.subscription) {
+                        const now = new Date();
+                        const endDate = new Date(currentUser.subscription.endDate);
+                        
+                        if (endDate < now && currentUser.subscription.isActive) {
+                            currentUser.subscription.isActive = false;
+                            await updateUserData({
+                                subscription: { ...currentUser.subscription, isActive: false }
+                            });
+                            
+                            // Show notification that VIP expired
+                            if (currentUser.subscription.type === 'vip-1min-trial') {
+                                showNotification('⏰ Votre minute VIP est terminée. Devenez VIP 3 mois pour continuer !', 'warning');
+                            }
+                        }
+                    }
+                    
+                    await updateDeviceInfo(user.uid);
+                    
+                } else {
+                    // Create new user with 1-minute VIP trial
+                    await createNewUser(user);
+                }
+
+                showPlatform();
+                showNotification(`Bienvenue ${currentUser.name || currentUser.email}!`, 'success');
+                
+                // Show VIP timer modal if user has active 1-minute trial
+                if (currentUser.subscription && 
+                    currentUser.subscription.type === 'vip-1min-trial' && 
+                    currentUser.subscription.isActive) {
+                    setTimeout(() => {
+                        showVIPTimerModal();
+                        startVIPTimer();
+                    }, 1000);
+                }
+                
+            } catch (error) {
+                console.error('Sign in error:', error);
+                showAuthMessage('Erreur de chargement', 'error');
+            }
+        }
+
+        async function activatePermanentVIP(userId) {
+            if (!currentUser) return;
+            
+            const now = new Date();
+            const endDate = new Date(now);
+            endDate.setFullYear(endDate.getFullYear() + 10); // 10 years (practically permanent)
+            
+            const vipSubscription = {
+                type: 'vip-permanent',
+                startDate: now.toISOString(),
+                endDate: endDate.toISOString(),
+                isActive: true,
+                plan: 'permanent-vip',
+                activationMethod: 'auto_email',
+                activationDate: now.toISOString()
+            };
+            
+            currentUser.subscription = vipSubscription;
+            currentUser.isPermanentVIP = true;
+            
+            await firestore.collection('users').doc(userId).update({
+                subscription: vipSubscription,
+                lastSubscriptionUpdate: firebase.firestore.FieldValue.serverTimestamp(),
+                isVIP: true,
+                vipType: 'permanent',
+                isPermanentVIP: true
+            });
+            
+            showNotification('👑 Compte VIP Permanent activé automatiquement! Tous les tests sont débloqués.', 'vip');
+        }
+
+        async function createNewUser(user) {
+            const now = new Date();
+            // Set 1-minute VIP trial
+            const trialEnd = new Date(now);
+            trialEnd.setMinutes(trialEnd.getMinutes() + 1); // 1 minute VIP trial
+
+            let subscription = {
+                type: 'vip-1min-trial',
+                startDate: now.toISOString(),
+                endDate: trialEnd.toISOString(),
+                isActive: true,
+                plan: '1-minute-vip-trial'
+            };
+            
+            // Auto-activate permanent VIP for special emails
+            if (PERMANENT_VIP_EMAILS.includes(user.email)) {
+                const vipEnd = new Date(now);
+                vipEnd.setFullYear(vipEnd.getFullYear() + 10); // 10 years
+                
+                subscription = {
+                    type: 'vip-permanent',
+                    startDate: now.toISOString(),
+                    endDate: vipEnd.toISOString(),
+                    isActive: true,
+                    plan: 'permanent-vip',
+                    activationMethod: 'auto',
+                    activationDate: now.toISOString()
+                };
+            }
+
+            currentUser = {
+                uid: user.uid,
+                email: user.email,
+                name: user.displayName || user.email.split('@')[0],
+                subscription: subscription,
+                progress: {
+                    orale: Array(39).fill(false),
+                    ecrite: Array(40).fill(false),
+                    simulations: [false, false]
+                },
+                devices: [{
+                    deviceId: currentDeviceId,
+                    userAgent: navigator.userAgent,
+                    platform: navigator.platform,
+                    lastActive: now.toISOString(),
+                    isActive: true,
+                    firstSeen: now.toISOString()
+                }],
+                activeDevice: currentDeviceId,
+                lastLogin: now.toISOString(),
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                isVIP: PERMANENT_VIP_EMAILS.includes(user.email),
+                vipType: PERMANENT_VIP_EMAILS.includes(user.email) ? 'permanent' : 'trial',
+                isPermanentVIP: PERMANENT_VIP_EMAILS.includes(user.email),
+                hasUsedTrial: true
+            };
+
+            await firestore.collection('users').doc(user.uid).set(currentUser);
+        }
+
+        async function updateDeviceInfo(userId) {
+            try {
+                const userDoc = await firestore.collection('users').doc(userId).get();
+                let devices = userDoc.data().devices || [];
+
+                const existingIndex = devices.findIndex(d => d.deviceId === currentDeviceId);
+                
+                if (existingIndex >= 0) {
+                    devices[existingIndex] = {
+                        ...devices[existingIndex],
+                        lastActive: new Date().toISOString(),
+                        isActive: true
+                    };
+                } else {
+                    const activeDevices = devices.filter(d => d.isActive);
+                    if (activeDevices.length >= MAX_DEVICES) {
+                        const oldest = activeDevices.reduce((a, b) => 
+                            new Date(a.lastActive) < new Date(b.lastActive) ? a : b
+                        );
+                        const oldestIndex = devices.findIndex(d => d.deviceId === oldest.deviceId);
+                        if (oldestIndex >= 0) {
+                            devices[oldestIndex].isActive = false;
+                        }
+                    }
+
+                    devices.push({
+                        deviceId: currentDeviceId,
+                        userAgent: navigator.userAgent,
+                        platform: navigator.platform,
+                        lastActive: new Date().toISOString(),
+                        isActive: true,
+                        firstSeen: new Date().toISOString()
+                    });
+                }
+
+                await firestore.collection('users').doc(userId).update({
+                    devices: devices,
+                    lastSync: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                if (currentUser) {
+                    currentUser.devices = devices;
+                }
+
+            } catch (error) {
+                console.error('Device update error:', error);
+            }
+        }
+
+        function handleUserSignedOut() {
+            currentUser = null;
+            document.getElementById('authModal').style.display = 'flex';
+            document.getElementById('mainHeader').style.display = 'none';
+            document.getElementById('mainFooter').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'none';
+            
+            if (vipTimerInterval) {
+                clearInterval(vipTimerInterval);
+                vipTimerInterval = null;
+            }
+        }
+
+        // ==================== VIP TIMER FUNCTIONS ====================
+        function showVIPTimerModal() {
+            document.getElementById('vipTimerModal').style.display = 'flex';
+            updateVIPTimerDisplay();
+        }
+
+        function startVIPTimer() {
+            if (vipTimerInterval) {
+                clearInterval(vipTimerInterval);
+            }
+            
+            vipTimerInterval = setInterval(updateVIPTimerDisplay, 1000);
+        }
+
+        function updateVIPTimerDisplay() {
+            if (!currentUser || !currentUser.subscription || !currentUser.subscription.endDate) {
+                if (vipTimerInterval) {
+                    clearInterval(vipTimerInterval);
+                    vipTimerInterval = null;
+                }
+                return;
+            }
+
+            const now = new Date();
+            const endDate = new Date(currentUser.subscription.endDate);
+            const timeLeft = endDate - now;
+
+            if (timeLeft <= 0) {
+                // Timer expired - deactivate subscription
+                document.getElementById('vipTimer').textContent = '00:00';
+                
+                currentUser.subscription.isActive = false;
+                updateUserData({
+                    subscription: { ...currentUser.subscription, isActive: false }
+                });
+                
+                closeModal('vipTimerModal');
+                
+                showNotification('⏰ Votre minute VIP est terminée. Devenez VIP 3 mois pour continuer !', 'warning');
+                
+                generateTests();
+                updateUserInterface();
+                
+                if (vipTimerInterval) {
+                    clearInterval(vipTimerInterval);
+                    vipTimerInterval = null;
+                }
+                
+                return;
+            }
+
+            const seconds = Math.floor(timeLeft / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            
+            const timerDisplay = document.getElementById('vipTimer');
+            if (timerDisplay) {
+                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+            }
+            
+            // Update user menu timer if visible
+            updateUserInterface();
+        }
+
+        // ==================== ACCESS CONTROL ====================
+        function checkTestAccess() {
+            if (!currentUser || !currentUser.subscription) return false;
+            
+            // Permanent VIP always have access
+            if (PERMANENT_VIP_EMAILS.includes(currentUser.email) || currentUser.isPermanentVIP) {
+                return true;
+            }
+            
+            const now = new Date();
+            const endDate = new Date(currentUser.subscription.endDate);
+            
+            // Check if subscription is active and not expired
+            return currentUser.subscription.isActive && endDate >= now;
+        }
+
+        function isVIPUser() {
+            if (!currentUser) return false;
+            
+            // Check if user is in permanent VIP list
+            if (PERMANENT_VIP_EMAILS.includes(currentUser.email) || currentUser.isPermanentVIP) {
+                return true;
+            }
+            
+            // Check subscription status for trial VIP
+            if (currentUser.subscription) {
+                const now = new Date();
+                const endDate = new Date(currentUser.subscription.endDate);
+                
+                // For 1-minute trial, they are VIP if active
+                if (currentUser.subscription.type === 'vip-1min-trial') {
+                    return currentUser.subscription.isActive && endDate >= now;
+                }
+                
+                // For paid VIP 3 months
+                return currentUser.subscription.isActive && 
+                       endDate >= now && 
+                       currentUser.subscription.type === 'vip-3months';
+            }
+            
+            return false;
+        }
+
+        // ==================== UI FUNCTIONS ====================
+        function showPlatform() {
+            document.getElementById('authModal').style.display = 'none';
+            document.getElementById('mainHeader').style.display = 'block';
+            document.getElementById('mainFooter').style.display = 'block';
+            document.getElementById('mainContent').style.display = 'block';
+            showDashboard();
+            updateUserInterface();
+            generateTests();
+            updateProgress();
+        }
+
+        function showDashboard() {
+            document.getElementById('dashboardPage').style.display = 'block';
+            document.getElementById('subscriptionPage').style.display = 'none';
+            document.getElementById('contactPage').style.display = 'none';
+            
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.nav-item')[0].classList.add('active');
+            
+            updateUserInterface();
+            generateTests();
+            updateProgress();
+        }
+
+        function showSubscriptionPage() {
+            if (!currentUser) {
+                document.getElementById('authModal').style.display = 'flex';
+                return;
+            }
+            document.getElementById('dashboardPage').style.display = 'none';
+            document.getElementById('subscriptionPage').style.display = 'block';
+            document.getElementById('contactPage').style.display = 'none';
+            
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.nav-item')[4].classList.add('active');
+        }
+
+        function showContactPage() {
+            if (!currentUser) {
+                document.getElementById('authModal').style.display = 'flex';
+                return;
+            }
+            document.getElementById('dashboardPage').style.display = 'none';
+            document.getElementById('subscriptionPage').style.display = 'none';
+            document.getElementById('contactPage').style.display = 'block';
+            
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.nav-item')[5].classList.add('active');
+            
+            if (currentUser) {
+                document.getElementById('contactName').value = currentUser.name || '';
+                document.getElementById('contactEmail').value = currentUser.email || '';
+            }
+        }
+
+        function scrollToSection(section) {
+            showDashboard();
+            setTimeout(() => {
+                if (section === 'orale') {
+                    document.querySelector('.tests-grid').scrollIntoView({ behavior: 'smooth' });
+                } else if (section === 'ecrite') {
+                    document.getElementById('ecriteTests').scrollIntoView({ behavior: 'smooth' });
+                } else if (section === 'simulations') {
+                    document.querySelector('.modern-card:last-of-type').scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 100);
+        }
+
+        function updateUserInterface() {
+            if (!currentUser) return;
+
+            const userMenu = document.getElementById('userMenu');
+            const welcomeBanner = document.getElementById('welcomeBanner');
+            const statsGrid = document.getElementById('statsGrid');
+
+            const name = currentUser.name || currentUser.email.split('@')[0];
+            const initial = name.charAt(0).toUpperCase();
+            const hasVIP = isVIPUser();
+            const hasAccess = checkTestAccess();
+
+            let statusHtml = '';
+            let vipIcon = '';
+
+            if (hasVIP) {
+                if (currentUser.subscription && currentUser.subscription.type === 'vip-1min-trial') {
+                    // Show timer for 1-minute trial
+                    const now = new Date();
+                    const endDate = new Date(currentUser.subscription.endDate);
+                    const timeLeft = Math.max(0, Math.floor((endDate - now) / 1000));
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    
+                    statusHtml = `
+                        <div class="user-status">
+                            <span class="status-badge" style="background: #8b5cf6;"></span>
+                            VIP Trial - <span class="timer-badge"><i class="fas fa-clock"></i> ${minutes}:${seconds.toString().padStart(2, '0')}</span>
+                        </div>
+                    `;
+                    vipIcon = '<span class="vip-active"><i class="fas fa-crown"></i> VIP Trial</span>';
+                } else if (currentUser.subscription && currentUser.subscription.type === 'vip-3months') {
+                    statusHtml = `
+                        <div class="user-status">
+                            <span class="status-badge" style="background: #8b5cf6;"></span>
+                            VIP 3 Mois - Tous les tests débloqués
+                        </div>
+                    `;
+                    vipIcon = '<span class="vip-active"><i class="fas fa-crown"></i> VIP 3 Mois</span>';
+                } else if (PERMANENT_VIP_EMAILS.includes(currentUser.email) || currentUser.isPermanentVIP) {
+                    statusHtml = `
+                        <div class="user-status">
+                            <span class="status-badge" style="background: gold;"></span>
+                            VIP Permanent - Accès illimité
+                        </div>
+                    `;
+                    vipIcon = '<span class="vip-active"><i class="fas fa-crown" style="color: gold;"></i> VIP Permanent</span>';
+                }
+            } else {
+                statusHtml = `
+                    <div class="user-status">
+                        <span class="status-badge" style="background: #ef4444;"></span>
+                        Inactif - Devenez VIP
+                    </div>
+                `;
+            }
+
+            userMenu.innerHTML = `
+                <div class="user-badge">
+                    <div class="user-avatar">${initial}</div>
+                    <div class="user-info">
+                        <div class="user-name">${name} ${vipIcon}</div>
+                        ${statusHtml}
+                    </div>
+                </div>
+            `;
+
+            let welcomeMessage = '';
+            if (hasVIP) {
+                if (currentUser.subscription && currentUser.subscription.type === 'vip-1min-trial') {
+                    welcomeMessage = '<p style="margin-top: 10px;"><i class="fas fa-crown" style="color: gold;"></i> <strong>Mode VIP Actif - 1 minute offerte !</strong> Découvrez tous les tests.</p>';
+                } else if (currentUser.subscription && currentUser.subscription.type === 'vip-3months') {
+                    welcomeMessage = '<p style="margin-top: 10px;"><i class="fas fa-crown" style="color: gold;"></i> Compte VIP 3 Mois - <strong>Tous les tests débloqués!</strong></p>';
+                } else {
+                    welcomeMessage = '<p style="margin-top: 10px;"><i class="fas fa-crown" style="color: gold;"></i> Compte VIP Permanent - <strong>Accès illimité à vie!</strong></p>';
+                }
+            } else {
+                welcomeMessage = '<p style="margin-top: 10px;"><i class="fas fa-lock" style="color: #ef4444;"></i> Compte inactif - <strong>Devenez VIP 3 mois pour accéder à tous les tests</strong></p>';
+            }
+
+            welcomeBanner.innerHTML = `
+                <h1>Bonjour, ${name.split(' ')[0]} ! 👋</h1>
+                <p>Préparez-vous efficacement au TCF</p>
+                ${welcomeMessage}
+            `;
+
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">79</div>
+                    <div class="stat-label">Tests totaux</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">39</div>
+                    <div class="stat-label">Compréhension Orale</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">40</div>
+                    <div class="stat-label">Compréhension Écrite</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">2</div>
+                    <div class="stat-label">Simulations</div>
+                </div>
+            `;
+        }
+
+        // ==================== TEST GENERATION ====================
+        function generateTests() {
+            if (!currentUser) return;
+            
+            const hasAccess = checkTestAccess();
+            const isVIP = isVIPUser();
+            const progress = currentUser.progress || {
+                orale: Array(39).fill(false),
+                ecrite: Array(40).fill(false)
+            };
+
+            // Generate Oral Tests (39 tests)
+            const oraleContainer = document.getElementById('oraleTests');
+            if (!oraleContainer) return;
+            oraleContainer.innerHTML = '';
+            
+            for (let i = 1; i <= 39; i++) {
+                const test = document.createElement('div');
+                
+                if (isVIP && hasAccess) {
+                    test.className = `test-btn ${progress.orale && progress.orale[i-1] ? 'completed' : ''}`;
+                    test.innerHTML = `${i}`;
+                    test.onclick = () => {
+                        if (progress.orale && !progress.orale[i-1]) {
+                            markTestComplete('orale', i-1);
+                        }
+                        window.open(`comprehension_orale_test_${i}.html`, '_blank');
+                    };
+                } 
+                else {
+                    test.className = 'test-btn locked';
+                    test.innerHTML = `${i} <i class="fas fa-lock"></i>`;
+                    test.onclick = () => showNotification('Devenez VIP 3 mois pour accéder aux tests', 'warning');
+                }
+                
+                oraleContainer.appendChild(test);
+            }
+
+            // Generate Written Tests (40 tests)
+            const ecriteContainer = document.getElementById('ecriteTests');
+            if (!ecriteContainer) return;
+            ecriteContainer.innerHTML = '';
+            
+            for (let i = 1; i <= 40; i++) {
+                const test = document.createElement('div');
+                
+                if (isVIP && hasAccess) {
+                    test.className = `test-btn ${progress.ecrite && progress.ecrite[i-1] ? 'completed' : ''}`;
+                    test.innerHTML = `${i}`;
+                    test.onclick = () => {
+                        if (progress.ecrite && !progress.ecrite[i-1]) {
+                            markTestComplete('ecrite', i-1);
+                        }
+                        window.open(`comprehension_ecrite_test_${i}.html`, '_blank');
+                    };
+                } 
+                else {
+                    test.className = 'test-btn locked';
+                    test.innerHTML = `${i} <i class="fas fa-lock"></i>`;
+                    test.onclick = () => showNotification('Devenez VIP 3 mois pour accéder aux tests', 'warning');
+                }
+                
+                ecriteContainer.appendChild(test);
+            }
+
+            // Update Simulation Buttons
+            const simOrale = document.getElementById('simulationOraleBtn');
+            const simEcrite = document.getElementById('simulationEcriteBtn');
+
+            if (isVIP && hasAccess) {
+                simOrale.innerHTML = '<i class="fas fa-play"></i> Commencer';
+                simOrale.onclick = () => {
+                    markSimulationComplete(0);
+                    window.open('auto_corrector_eo.html', '_blank');
+                };
+                
+                simEcrite.innerHTML = '<i class="fas fa-play"></i> Commencer';
+                simEcrite.onclick = () => {
+                    markSimulationComplete(1);
+                    window.open('auto_corrector_ee.html', '_blank');
+                };
+            } else {
+                simOrale.innerHTML = '<i class="fas fa-lock"></i> VIP requis';
+                simOrale.onclick = () => showNotification('Devenez VIP 3 mois pour les simulations', 'warning');
+                
+                simEcrite.innerHTML = '<i class="fas fa-lock"></i> VIP requis';
+                simEcrite.onclick = () => showNotification('Devenez VIP 3 mois pour les simulations', 'warning');
+            }
+
+            // Update counters
+            const oraleCompleted = progress.orale ? progress.orale.filter(Boolean).length : 0;
+            const ecriteCompleted = progress.ecrite ? progress.ecrite.filter(Boolean).length : 0;
+            document.getElementById('oraleCount').textContent = `${oraleCompleted}/39`;
+            document.getElementById('ecriteCount').textContent = `${ecriteCompleted}/40`;
+        }
+
+        async function markTestComplete(type, index) {
+            if (!currentUser || !currentUser.progress) return;
+            
+            currentUser.progress[type][index] = true;
+            await updateUserData({
+                progress: currentUser.progress
+            });
+            
+            updateProgress();
+            generateTests();
+        }
+
+        async function markSimulationComplete(index) {
+            if (!currentUser || !currentUser.progress) return;
+            
+            currentUser.progress.simulations[index] = true;
+            await updateUserData({
+                progress: currentUser.progress
+            });
+            
+            updateProgress();
+        }
+
+        function updateProgress() {
+            if (!currentUser || !currentUser.progress) return;
+
+            const progress = currentUser.progress;
+            
+            const oraleCompleted = progress.orale ? progress.orale.filter(Boolean).length : 0;
+            const ecriteCompleted = progress.ecrite ? progress.ecrite.filter(Boolean).length : 0;
+            const simCompleted = progress.simulations ? progress.simulations.filter(Boolean).length : 0;
+
+            const oralePercent = Math.round((oraleCompleted/39)*100);
+            const ecritePercent = Math.round((ecriteCompleted/40)*100);
+            const simPercent = Math.round((simCompleted/2)*100);
+
+            document.getElementById('oraleProgress').style.width = `${oralePercent}%`;
+            document.getElementById('ecriteProgress').style.width = `${ecritePercent}%`;
+            document.getElementById('simProgress').style.width = `${simPercent}%`;
+
+            document.getElementById('oraleProgressText').textContent = `${oralePercent}%`;
+            document.getElementById('ecriteProgressText').textContent = `${ecritePercent}%`;
+            document.getElementById('simProgressText').textContent = `${simPercent}%`;
+
+            document.getElementById('oraleCount').textContent = `${oraleCompleted}/39`;
+            document.getElementById('ecriteCount').textContent = `${ecriteCompleted}/40`;
+        }
+
+        // ==================== AUTHENTICATION FUNCTIONS ====================
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            
+            if (tab === 'login') {
+                document.querySelectorAll('.auth-tab')[0].classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
+            } else {
+                document.querySelectorAll('.auth-tab')[1].classList.add('active');
+                document.getElementById('registerForm').classList.add('active');
+            }
+            
+            document.getElementById('authMessage').className = 'auth-message';
+            document.getElementById('authMessage').style.display = 'none';
+        }
+
+        function showResetPassword() {
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            document.getElementById('resetPasswordForm').classList.add('active');
+        }
+
+        async function loginUser() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showAuthMessage('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            try {
+                await firebaseAuth.signInWithEmailAndPassword(email, password);
+            } catch (error) {
+                let message = 'Erreur de connexion';
+                if (error.code === 'auth/user-not-found') message = 'Utilisateur non trouvé';
+                else if (error.code === 'auth/wrong-password') message = 'Mot de passe incorrect';
+                else if (error.code === 'auth/invalid-email') message = 'Email invalide';
+                else if (error.code === 'auth/too-many-requests') message = 'Trop de tentatives. Réessayez plus tard';
+                showAuthMessage(message, 'error');
+            }
+        }
+
+        async function registerUser() {
+            const name = document.getElementById('registerName').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const confirm = document.getElementById('registerConfirmPassword').value;
+
+            if (!name || !email || !password || !confirm) {
+                showAuthMessage('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showAuthMessage('Le mot de passe doit contenir au moins 6 caractères', 'error');
+                return;
+            }
+
+            if (password !== confirm) {
+                showAuthMessage('Les mots de passe ne correspondent pas', 'error');
+                return;
+            }
+
+            if (!validateEmail(email)) {
+                showAuthMessage('Email invalide', 'error');
+                return;
+            }
+
+            try {
+                const userCredential = await firebaseAuth.createUserWithEmailAndPassword(email, password);
+                await userCredential.user.updateProfile({ displayName: name });
+                
+                showAuthMessage('Compte VIP créé avec succès ! 1 minute d\'accès offerte.', 'success');
+            } catch (error) {
+                let message = 'Erreur lors de la création du compte';
+                if (error.code === 'auth/email-already-in-use') {
+                    message = 'Cet email est déjà utilisé';
+                } else if (error.code === 'auth/weak-password') {
+                    message = 'Mot de passe trop faible';
+                }
+                showAuthMessage(message, 'error');
+            }
+        }
+
+        async function sendPasswordReset() {
+            const email = document.getElementById('resetEmail').value.trim();
+
+            if (!email) {
+                showAuthMessage('Veuillez entrer votre email', 'error');
+                return;
+            }
+
+            try {
+                await firebaseAuth.sendPasswordResetEmail(email);
+                showAuthMessage('Email de réinitialisation envoyé !', 'success');
+                setTimeout(() => switchAuthTab('login'), 3000);
+            } catch (error) {
+                showAuthMessage('Erreur lors de l\'envoi', 'error');
+            }
+        }
+
+        async function logoutUser() {
+            if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
+                try {
+                    await firebaseAuth.signOut();
+                } catch (error) {
+                    console.error('Logout error:', error);
+                }
+            }
+        }
+
+        // ==================== UTILITY FUNCTIONS ====================
+        async function updateUserData(data) {
+            if (!currentUser || !currentUser.uid) return false;
+
+            try {
+                Object.assign(currentUser, data);
+                
+                await firestore.collection('users').doc(currentUser.uid).update({
+                    ...data,
+                    lastSync: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                return true;
+            } catch (error) {
+                console.error('Update error:', error);
+                return false;
+            }
+        }
+
+        function validateEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        function showAuthMessage(message, type) {
+            const msgDiv = document.getElementById('authMessage');
+            msgDiv.textContent = message;
+            msgDiv.className = `auth-message ${type}`;
+            msgDiv.style.display = 'block';
+        }
+
+        function showContactMessage(message, type) {
+            const msgDiv = document.getElementById('contactMessage');
+            msgDiv.textContent = message;
+            msgDiv.className = `auth-message ${type}`;
+            msgDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                msgDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function showNotification(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 500);
+            }, 4000);
+        }
+
+        function showSuccessModal(title, message) {
+            document.getElementById('successModalTitle').textContent = title;
+            document.getElementById('successModalMessage').textContent = message;
+            document.getElementById('successModal').style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function showDetailedProgress() {
+            if (!currentUser || !currentUser.progress) return;
+
+            const progress = currentUser.progress;
+            const oraleCompleted = progress.orale ? progress.orale.filter(Boolean).length : 0;
+            const ecriteCompleted = progress.ecrite ? progress.ecrite.filter(Boolean).length : 0;
+            const simCompleted = progress.simulations ? progress.simulations.filter(Boolean).length : 0;
+
+            let message = "📊 PROGRESSION DÉTAILLÉE\n\n";
+            message += `Compréhension Orale: ${oraleCompleted}/39 (${Math.round((oraleCompleted/39)*100)}%)\n`;
+            message += `Compréhension Écrite: ${ecriteCompleted}/40 (${Math.round((ecriteCompleted/40)*100)}%)\n`;
+            message += `Simulations: ${simCompleted}/2\n\n`;
+
+            if (oraleCompleted > 0) {
+                message += "Tests oraux complétés: ";
+                const completed = [];
+                if (progress.orale) {
+                    progress.orale.forEach((val, idx) => {
+                        if (val) completed.push(idx + 1);
+                    });
+                }
+                message += completed.join(', ') + "\n\n";
+            }
+
+            if (ecriteCompleted > 0) {
+                message += "Tests écrits complétés: ";
+                const completed = [];
+                if (progress.ecrite) {
+                    progress.ecrite.forEach((val, idx) => {
+                        if (val) completed.push(idx + 1);
+                    });
+                }
+                message += completed.join(', ') + "\n\n";
+            }
+
+            if (currentUser.subscription) {
+                let subType = '';
+                if (currentUser.subscription.type === 'vip-3months') {
+                    subType = 'VIP 3 Mois';
+                } else if (currentUser.subscription.type === 'vip-1min-trial') {
+                    subType = 'VIP Trial 1 minute';
+                } else if (currentUser.subscription.type === 'vip-permanent') {
+                    subType = 'VIP Permanent';
+                }
+                
+                message += `📅 Abonnement: ${subType}\n`;
+                message += `Statut: ${currentUser.subscription.isActive ? 'Actif' : 'Inactif'}\n`;
+                if (currentUser.subscription.endDate) {
+                    message += `Expire le: ${formatDate(currentUser.subscription.endDate)}`;
+                }
+            }
+
+            alert(message);
+        }
+
+        async function sendContactMessage() {
+            const name = document.getElementById('contactName').value.trim();
+            const email = document.getElementById('contactEmail').value.trim();
+            const subject = document.getElementById('contactSubject').value;
+            const message = document.getElementById('contactMessageText').value.trim();
+
+            if (!name || !email || !subject || !message) {
+                showContactMessage('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            if (!validateEmail(email)) {
+                showContactMessage('Email invalide', 'error');
+                return;
+            }
+
+            try {
+                await firestore.collection('contactMessages').add({
+                    name,
+                    email,
+                    subject,
+                    message,
+                    userId: currentUser ? currentUser.uid : null,
+                    timestamp: new Date().toISOString(),
+                    deviceId: currentDeviceId,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                showContactMessage('Message envoyé avec succès !', 'success');
+                
+                document.getElementById('contactName').value = currentUser ? currentUser.name || '' : '';
+                document.getElementById('contactEmail').value = currentUser ? currentUser.email || '' : '';
+                document.getElementById('contactSubject').value = '';
+                document.getElementById('contactMessageText').value = '';
+
+                const mailtoLink = `mailto:siwarbouhoula@gmail.com?subject=[TCF] ${subject}&body=Nom: ${name}%0D%0AEmail: ${email}%0D%0A%0D%0A${message}`;
+                window.open(mailtoLink, '_blank');
+
+            } catch (error) {
+                console.error('Contact error:', error);
+                showContactMessage('Erreur lors de l\'envoi', 'error');
+            }
+        }
+
+        function showPrivacyPolicy() {
+            document.getElementById('privacyModal').style.display = 'flex';
+        }
+
+        // ==================== EXPOSE FUNCTIONS TO WINDOW ====================
+        document.addEventListener('DOMContentLoaded', initializeApp);
+
+        window.showDashboard = showDashboard;
+        window.showSubscriptionPage = showSubscriptionPage;
+        window.showContactPage = showContactPage;
+        window.scrollToSection = scrollToSection;
+        window.switchAuthTab = switchAuthTab;
+        window.showResetPassword = showResetPassword;
+        window.loginUser = loginUser;
+        window.registerUser = registerUser;
+        window.sendPasswordReset = sendPasswordReset;
+        window.logoutUser = logoutUser;
+        window.sendContactMessage = sendContactMessage;
+        window.showDetailedProgress = showDetailedProgress;
+        window.showPrivacyPolicy = showPrivacyPolicy;
+        window.closeModal = closeModal;
+    </script>
+</body>
+</html>

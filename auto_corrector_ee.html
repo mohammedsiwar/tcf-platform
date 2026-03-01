@@ -1,0 +1,2170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <title>TCF Canada · Expression Écrite · Évaluation Complète · PREMIUM</title>
+    
+    <!-- Font Awesome 6 & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+    <style>
+        /* === MODERN RESET & VARIABLES === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --secondary: #3b82f6;
+            --secondary-dark: #2563eb;
+            --accent: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --premium: #8b5cf6;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+            --glass-bg: rgba(255,255,255,0.7);
+            --glass-border: rgba(255,255,255,0.5);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #eef2ff 0%, #d9e4ff 100%);
+            min-height: 100vh;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        /* === MAIN GLASS PANEL === */
+        .glass-panel {
+            width: 100%;
+            max-width: 1300px;
+            min-height: 95vh;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 42px;
+            box-shadow: 0 30px 60px -15px rgba(0,20,50,0.3);
+            overflow: hidden;
+            transition: opacity 0.3s ease;
+        }
+        
+        /* === AUTH OVERLAY === */
+        .auth-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10,20,40,0.7);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        
+        .auth-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(8px);
+            border-radius: 48px;
+            padding: 2.5rem 2rem;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 40px 70px -15px #0f172a;
+            border: 1px solid rgba(255,255,255,0.4);
+            animation: modalFloat 0.4s ease;
+        }
+        
+        @keyframes modalFloat {
+            0% { opacity: 0; transform: translateY(25px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        .auth-icon {
+            font-size: 4.2rem;
+            background: linear-gradient(135deg, var(--secondary), var(--premium));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.2rem;
+        }
+        
+        .auth-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.7rem;
+            color: var(--primary);
+        }
+        
+        .auth-subtitle {
+            color: var(--gray-600);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+        
+        .auth-btn {
+            padding: 1rem 2.2rem;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            margin: 0.3rem;
+            transition: 0.2s;
+            background: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border: 1px solid var(--gray-200);
+        }
+        
+        .auth-btn-primary {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            box-shadow: 0 10px 20px -5px #3b82f6;
+        }
+        
+        .auth-btn-primary:hover {
+            background: var(--secondary-dark);
+            transform: scale(1.02);
+        }
+        
+        .auth-btn-secondary:hover {
+            background: var(--gray-100);
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(59,130,246,0.2);
+            border-top: 4px solid var(--secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+        }
+        
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        /* === PREMIUM BADGE === */
+        .premium-badge {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ffd700, #ffb347);
+            color: #333;
+            padding: 0.8rem 1.8rem;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            z-index: 9998;
+            display: none;
+            border: 2px solid white;
+            backdrop-filter: blur(4px);
+        }
+        
+        .premium-badge.active {
+            display: block;
+            animation: pulse 2s infinite;
+        }
+        
+        .premium-badge i {
+            margin-right: 8px;
+            color: #ff6b00;
+        }
+        
+        /* === COPY WARNING === */
+        .copy-warning {
+            position: fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+            background: #ef4444; color: white; padding: 1rem 2.5rem; border-radius: 60px;
+            font-weight: 600; z-index: 10001; display: none; box-shadow:0 10px 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(4px);
+        }
+        
+        /* === MODERN HEADER === */
+        .modern-header {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: white;
+            padding: 2rem 2.5rem;
+            text-align: center;
+            border-bottom: 2px solid rgba(59,130,246,0.3);
+        }
+        
+        .modern-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            color: #cbd5e1;
+        }
+        
+        /* === PROGRESS ROW === */
+        .progress-row-modern {
+            background: rgba(255,255,255,0.5);
+            backdrop-filter: blur(8px);
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0,0,0,0.03);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .progress-bar-modern {
+            flex: 1;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 20px;
+            overflow: hidden;
+            max-width: 400px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border-radius: 20px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .timer-card {
+            background: var(--primary);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1.4rem;
+            font-family: 'Monaco', monospace;
+            border: 1px solid var(--secondary);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        
+        .timer-card.warning { background: #f59e0b; color: #1e293b; }
+        .timer-card.danger { background: #ef4444; animation: pulse 1s infinite; }
+        
+        /* === NAVIGATION TABS === */
+        .tabs-modern {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1.5rem 2rem 0 2rem;
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .tab-btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 60px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            background: var(--gray-100);
+            color: var(--gray-700);
+            font-size: 0.95rem;
+        }
+        
+        .tab-btn:hover { background: var(--gray-200); transform: translateY(-2px); }
+        .tab-btn.active { background: var(--secondary); color: white; box-shadow: 0 5px 15px rgba(59,130,246,0.3); }
+        
+        /* === MAIN CONTENT === */
+        .main-content {
+            padding: 2rem;
+            background: rgba(255,255,255,0.4);
+        }
+        
+        .step {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .step.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* === INSTRUCTION CARD === */
+        .instruction-card {
+            background: white;
+            border-radius: 30px;
+            padding: 1.8rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--gray-200);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+        }
+        
+        .instruction-card h4 {
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .instruction-card p {
+            color: var(--gray-600);
+            line-height: 1.6;
+        }
+        
+        /* === TASK CARD === */
+        .task-card {
+            background: white;
+            border-radius: 32px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 2px solid var(--gray-200);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.02);
+        }
+        
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .task-number {
+            background: var(--secondary);
+            color: white;
+            padding: 0.4rem 1.5rem;
+            border-radius: 60px;
+            font-weight: 700;
+        }
+        
+        .task-requirements {
+            color: var(--gray-500);
+            font-size: 0.95rem;
+        }
+        
+        /* === SELECTION AREA === */
+        .selection-area {
+            background: var(--gray-50);
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-bottom: 1.8rem;
+            border: 1px solid var(--gray-200);
+        }
+        
+        .selection-area label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .modern-select {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 30px;
+            font-size: 1rem;
+            background: white;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        
+        .modern-select:hover { border-color: var(--secondary); }
+        .modern-select:focus { outline: none; border-color: var(--secondary); }
+        
+        /* === SUBJECT AREA === */
+        .subject-area {
+            margin-bottom: 2rem;
+        }
+        
+        .subject-label {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.8rem;
+            display: block;
+        }
+        
+        .subject-textarea {
+            width: 100%;
+            padding: 1.2rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 24px;
+            font-size: 1rem;
+            line-height: 1.6;
+            resize: vertical;
+            min-height: 100px;
+            background: var(--gray-50);
+            transition: 0.2s;
+        }
+        
+        .subject-textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+        
+        /* === RESPONSE AREA === */
+        .response-area {
+            margin-bottom: 1.5rem;
+        }
+        
+        .response-textarea {
+            width: 100%;
+            padding: 1.2rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 24px;
+            font-size: 1rem;
+            line-height: 1.6;
+            resize: vertical;
+            min-height: 200px;
+            transition: 0.2s;
+        }
+        
+        .response-textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+        
+        .word-counter {
+            text-align: right;
+            margin-top: 0.8rem;
+            color: var(--gray-600);
+            font-size: 0.95rem;
+        }
+        
+        .word-counter span {
+            font-weight: 700;
+        }
+        
+        /* === PROGRESS INDICATOR === */
+        .progress-indicator-container {
+            margin: 1rem 0;
+        }
+        
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--gray-600);
+        }
+        
+        .progress-bar-small {
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-indicator {
+            height: 100%;
+            background: var(--success);
+            border-radius: 20px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        /* === DOCUMENTS AREA === */
+        .documents-area {
+            background: #f0f9ff;
+            border-radius: 24px;
+            padding: 1.8rem;
+            margin: 1.8rem 0;
+            border-left: 6px solid var(--secondary);
+        }
+        
+        .documents-area h4 {
+            color: var(--primary);
+            margin-bottom: 1.2rem;
+            font-size: 1.2rem;
+        }
+        
+        .document-item {
+            background: white;
+            border-radius: 18px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--gray-200);
+        }
+        
+        .document-item h5 {
+            color: var(--secondary-dark);
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+        }
+        
+        /* === BUTTONS === */
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .modern-btn {
+            padding: 1rem 2.2rem;
+            border-radius: 60px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .modern-btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .modern-btn-primary:hover {
+            background: var(--secondary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .modern-btn-secondary {
+            background: var(--gray-100);
+            color: var(--gray-800);
+            border: 1px solid var(--gray-300);
+        }
+        
+        .modern-btn-secondary:hover {
+            background: var(--gray-200);
+            transform: translateY(-2px);
+        }
+        
+        .modern-btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .modern-btn-success:hover {
+            background: #0d9488;
+            transform: translateY(-2px);
+        }
+        
+        .modern-btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .modern-btn-warning:hover {
+            background: #e07c0b;
+            transform: translateY(-2px);
+        }
+        
+        /* === RESULTS === */
+        .results-container {
+            padding: 2rem;
+        }
+        
+        .level-badge {
+            display: inline-block;
+            font-size: 3rem;
+            font-weight: 800;
+            padding: 1.5rem 3rem;
+            border-radius: 60px;
+            margin: 1rem 0;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        
+        .level-a0 { background: #ef4444; }
+        .level-a1 { background: #f97316; }
+        .level-a2 { background: #f59e0b; }
+        .level-b1 { background: #10b981; }
+        .level-b2 { background: #3b82f6; }
+        .level-c1 { background: #8b5cf6; }
+        .level-c2 { background: #7c3aed; }
+        
+        .feedback-card {
+            background: white;
+            border-radius: 32px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            border: 1px solid var(--gray-200);
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .result-item {
+            background: var(--gray-50);
+            border-radius: 28px;
+            padding: 1.5rem;
+            border: 1px solid var(--gray-200);
+        }
+        
+        .result-item h4 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .result-level {
+            display: inline-block;
+            padding: 0.3rem 1.2rem;
+            border-radius: 60px;
+            font-weight: 700;
+            margin: 0.5rem 0;
+            color: white;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.2rem;
+            text-align: center;
+            border: 1px solid var(--gray-200);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 0.3rem;
+        }
+        
+        .stat-label {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+        
+        .improvement-card {
+            background: #eef2ff;
+            border-radius: 28px;
+            padding: 1.8rem;
+            margin-top: 2rem;
+            border-left: 6px solid var(--secondary);
+        }
+        
+        .improvement-card h5 {
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .improvement-card ul {
+            padding-left: 1.5rem;
+        }
+        
+        .improvement-card li {
+            margin-bottom: 0.8rem;
+            color: var(--gray-700);
+        }
+        
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .modern-header h1 { font-size: 2rem; }
+            .progress-row-modern { flex-direction: column; align-items: stretch; }
+            .progress-bar-modern { max-width: 100%; }
+            .timer-card { align-self: flex-end; }
+            .tabs-modern { flex-wrap: wrap; }
+            .button-group { flex-direction: column; }
+            .modern-btn { width: 100%; justify-content: center; }
+            .level-badge { font-size: 2rem; padding: 1rem 2rem; }
+        }
+        
+        /* hide quiz until auth */
+        #mainContainer { display: none; }
+    </style>
+</head>
+<body>
+
+<!-- AUTH OVERLAY -->
+<div class="auth-overlay" id="authOverlay">
+    <div class="auth-card" id="authMessage">
+        <div class="auth-icon"><i class="fas fa-lock"></i></div>
+        <div class="auth-title">Authentification</div>
+        <div class="auth-subtitle">Vérification de votre accès premium...</div>
+        <div class="loading-spinner"></div>
+    </div>
+</div>
+
+<!-- PREMIUM BADGE -->
+<div class="premium-badge" id="premiumBadge">
+    <i class="fas fa-crown"></i> Accès Premium Actif
+</div>
+
+<!-- COPY WARNING -->
+<div class="copy-warning" id="copyWarning">
+    <i class="fas fa-ban"></i> Copie interdite
+</div>
+
+<!-- MAIN GLASS PANEL -->
+<div class="glass-panel" id="mainContainer">
+    <!-- MODERN HEADER -->
+    <div class="modern-header">
+        <h1>Évaluation Expression Écrite TCF</h1>
+        <p class="subtitle">Évaluez votre niveau de français écrit (A0 à C2) en complétant les 3 tâches</p>
+    </div>
+
+    <!-- PROGRESS ROW -->
+    <div class="progress-row-modern">
+        <div class="progress-bar-modern">
+            <div class="progress-fill" id="progression"></div>
+        </div>
+        <div class="timer-card" id="chronometre">01:00:00</div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs-modern">
+        <button class="tab-btn active" onclick="allerA('etape1')"><i class="fas fa-pen"></i> Tâche 1</button>
+        <button class="tab-btn" onclick="allerA('etape2')"><i class="fas fa-book"></i> Tâche 2</button>
+        <button class="tab-btn" onclick="allerA('etape3')"><i class="fas fa-comment"></i> Tâche 3</button>
+        <button class="tab-btn" onclick="allerA('etape4')"><i class="fas fa-chart-bar"></i> Résultats</button>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <!-- Étape 1 : Tâche 1 -->
+        <div class="step active" id="etape1">
+            <h2 style="color: var(--primary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+                <i class="fas fa-pen" style="color: var(--secondary);"></i> Tâche 1 : Message Simple
+            </h2>
+            
+            <div class="instruction-card">
+                <h4><i class="fas fa-info-circle" style="color: var(--secondary);"></i> Instructions</h4>
+                <p><strong>Objectif :</strong> Rédiger un message simple adapté au destinataire.</p>
+                <p><strong>Longueur :</strong> 60 à 120 mots • <strong>Temps recommandé :</strong> 15 minutes</p>
+                <p><strong>Critères :</strong> Formules de politesse, ton cohérent, clarté du message</p>
+                <p><strong>Niveaux :</strong> A1 à C2 (A0 si moins de 20 mots)</p>
+            </div>
+            
+            <!-- Sélecteur de combinaison -->
+            <div class="selection-area">
+                <label for="select-combinaison"><i class="fas fa-layer-group" style="color: var(--secondary); margin-right: 0.5rem;"></i> Choisissez une combinaison complète :</label>
+                <select id="select-combinaison" class="modern-select" onchange="selectionnerCombinaison(JSON.parse(this.value))">
+                    <option value="">-- Sélectionnez une combinaison --</option>
+                </select>
+                <p style="margin-top: 0.8rem; font-size: 0.9rem; color: var(--gray-500);">
+                    <i class="fas fa-info-circle"></i> En sélectionnant une combinaison, tous les sujets des 3 tâches seront automatiquement remplis.
+                </p>
+            </div>
+            
+            <div class="task-card">
+                <div class="task-header">
+                    <span class="task-number">Tâche 1</span>
+                    <span class="task-requirements"><i class="fas fa-file-alt"></i> 60 à 120 mots • Niveau A1-C2 • 15 min</span>
+                </div>
+                
+                <div class="selection-area" style="background: white;">
+                    <label for="select-sujet-tache1"><i class="fas fa-list"></i> Choisissez un sujet pour la Tâche 1 :</label>
+                    <select id="select-sujet-tache1" class="modern-select" onchange="selectionnerSujet(1, this.value)">
+                        <option value="">-- Sélectionnez un sujet --</option>
+                    </select>
+                </div>
+                
+                <div class="subject-area">
+                    <span class="subject-label"><i class="fas fa-question-circle" style="color: var(--secondary);"></i> 1. Sujet de votre Tâche 1 :</span>
+                    <textarea id="sujet-tache1" class="subject-textarea" placeholder="Exemple : Écrivez une note à votre voisin pour lui demander de faire moins de bruit le soir"></textarea>
+                </div>
+                
+                <div class="response-area">
+                    <span class="subject-label"><i class="fas fa-edit" style="color: var(--secondary);"></i> 2. Rédigez votre réponse :</span>
+                    <textarea id="reponse-tache1" class="response-textarea" placeholder="Tapez votre message ici... Utilisez des formules de politesse adaptées et un ton approprié."></textarea>
+                    <div class="word-counter">Nombre de mots : <span id="compteur-mots-tache1">0</span> / Objectif : 60-120 mots</div>
+                    <div class="progress-indicator-container">
+                        <div class="progress-labels">
+                            <span>60 mots</span>
+                            <span>Objectif: 60-120</span>
+                            <span>120 mots</span>
+                        </div>
+                        <div class="progress-bar-small">
+                            <div id="progress-indicator-t1" class="progress-indicator" style="width:0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button class="modern-btn modern-btn-warning" onclick="suspendreChronometre()"><i class="fas fa-pause"></i> Suspendre le temps</button>
+                <button class="modern-btn modern-btn-primary" onclick="allerA('etape2')">Suivant → Tâche 2 <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+        
+        <!-- Étape 2 : Tâche 2 -->
+        <div class="step" id="etape2">
+            <h2 style="color: var(--primary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+                <i class="fas fa-book" style="color: var(--secondary);"></i> Tâche 2 : Récit Personnel
+            </h2>
+            
+            <div class="instruction-card">
+                <h4><i class="fas fa-info-circle" style="color: var(--secondary);"></i> Instructions</h4>
+                <p><strong>Objectif :</strong> Raconter une expérience personnelle avec des détails.</p>
+                <p><strong>Longueur :</strong> 120 à 150 mots • <strong>Temps recommandé :</strong> 20 minutes</p>
+                <p><strong>Critères :</strong> Chronologie claire, détails pertinents, expression des émotions</p>
+                <p><strong>Niveaux :</strong> A2 à C2 (A1 si moins de 80 mots, A0 si moins de 40 mots)</p>
+            </div>
+            
+            <div class="task-card">
+                <div class="task-header">
+                    <span class="task-number">Tâche 2</span>
+                    <span class="task-requirements"><i class="fas fa-file-alt"></i> 120 à 150 mots • Niveau A2-C2 • 20 min</span>
+                </div>
+                
+                <div class="selection-area" style="background: white;">
+                    <label for="select-sujet-tache2"><i class="fas fa-list"></i> Choisissez un sujet pour la Tâche 2 :</label>
+                    <select id="select-sujet-tache2" class="modern-select" onchange="selectionnerSujet(2, this.value)">
+                        <option value="">-- Sélectionnez un sujet --</option>
+                    </select>
+                </div>
+                
+                <div class="subject-area">
+                    <span class="subject-label"><i class="fas fa-question-circle" style="color: var(--secondary);"></i> 1. Sujet de votre Tâche 2 :</span>
+                    <textarea id="sujet-tache2" class="subject-textarea" placeholder="Exemple : Racontez un voyage qui vous a particulièrement marqué"></textarea>
+                </div>
+                
+                <div class="response-area">
+                    <span class="subject-label"><i class="fas fa-edit" style="color: var(--secondary);"></i> 2. Rédigez votre réponse :</span>
+                    <textarea id="reponse-tache2" class="response-textarea" placeholder="Tapez votre récit personnel ici... Décrivez les événements, vos impressions et sentiments."></textarea>
+                    <div class="word-counter">Nombre de mots : <span id="compteur-mots-tache2">0</span> / Objectif : 120-150 mots</div>
+                    <div class="progress-indicator-container">
+                        <div class="progress-labels">
+                            <span>120 mots</span>
+                            <span>Objectif: 120-150</span>
+                            <span>150 mots</span>
+                        </div>
+                        <div class="progress-bar-small">
+                            <div id="progress-indicator-t2" class="progress-indicator" style="width:0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button class="modern-btn modern-btn-secondary" onclick="allerA('etape1')"><i class="fas fa-arrow-left"></i> ← Tâche 1</button>
+                <button class="modern-btn modern-btn-warning" onclick="suspendreChronometre()"><i class="fas fa-pause"></i> Suspendre le temps</button>
+                <button class="modern-btn modern-btn-primary" onclick="allerA('etape3')">Suivant → Tâche 3 <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+        
+        <!-- Étape 3 : Tâche 3 -->
+        <div class="step" id="etape3">
+            <h2 style="color: var(--primary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+                <i class="fas fa-comment" style="color: var(--secondary);"></i> Tâche 3 : Texte Argumentatif
+            </h2>
+            
+            <div class="instruction-card">
+                <h4><i class="fas fa-info-circle" style="color: var(--secondary);"></i> Instructions</h4>
+                <p><strong>Objectif :</strong> Développer une argumentation structurée sur un sujet donné.</p>
+                <p><strong>Longueur :</strong> 120 à 150 mots • <strong>Temps recommandé :</strong> 25 minutes</p>
+                <p><strong>Critères :</strong> Structure claire, arguments pertinents, prise en compte des contre-arguments</p>
+                <p><strong>Niveaux :</strong> B1 à C2 (A2 si moins de 80 mots, A0/A1 si moins de 40 mots)</p>
+            </div>
+            
+            <div class="task-card">
+                <div class="task-header">
+                    <span class="task-number">Tâche 3</span>
+                    <span class="task-requirements"><i class="fas fa-file-alt"></i> 120 à 150 mots • Niveau B1-C2 • 25 min</span>
+                </div>
+                
+                <div class="selection-area" style="background: white;">
+                    <label for="select-sujet-tache3"><i class="fas fa-list"></i> Choisissez un sujet pour la Tâche 3 :</label>
+                    <select id="select-sujet-tache3" class="modern-select" onchange="selectionnerSujet(3, this.value)">
+                        <option value="">-- Sélectionnez un sujet --</option>
+                    </select>
+                </div>
+                
+                <!-- Question affichée -->
+                <div id="question-tache3" class="selection-area" style="display: none; background: #eef2ff;">
+                    <p style="font-weight: 600; color: var(--primary);"><i class="fas fa-question-circle"></i> <span id="question-text"></span></p>
+                </div>
+                
+                <div class="subject-area">
+                    <span class="subject-label"><i class="fas fa-question-circle" style="color: var(--secondary);"></i> 1. Sujet de votre Tâche 3 :</span>
+                    <textarea id="sujet-tache3" class="subject-textarea" placeholder="Exemple : Pensez-vous que le télétravail devrait devenir la norme ? Justifiez votre réponse"></textarea>
+                </div>
+                
+                <!-- Container pour les documents -->
+                <div id="documents-tache3" class="documents-area" style="display: none;">
+                    <h4><i class="fas fa-file-pdf"></i> Documents à consulter</h4>
+                    <div id="document1" class="document-item" style="display: none;">
+                        <h5>Document 1</h5>
+                        <p id="texte-document1"></p>
+                    </div>
+                    <div id="document2" class="document-item" style="display: none;">
+                        <h5>Document 2</h5>
+                        <p id="texte-document2"></p>
+                    </div>
+                </div>
+                
+                <div class="response-area">
+                    <span class="subject-label"><i class="fas fa-edit" style="color: var(--secondary);"></i> 2. Rédigez votre réponse :</span>
+                    <textarea id="reponse-tache3" class="response-textarea" placeholder="Tapez votre texte argumentatif ici... Développez une argumentation structurée avec des exemples pertinents."></textarea>
+                    <div class="word-counter">Nombre de mots : <span id="compteur-mots-tache3">0</span> / Objectif : 120-150 mots</div>
+                    <div class="progress-indicator-container">
+                        <div class="progress-labels">
+                            <span>120 mots</span>
+                            <span>Objectif: 120-150</span>
+                            <span>150 mots</span>
+                        </div>
+                        <div class="progress-bar-small">
+                            <div id="progress-indicator-t3" class="progress-indicator" style="width:0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button class="modern-btn modern-btn-secondary" onclick="allerA('etape2')"><i class="fas fa-arrow-left"></i> ← Tâche 2</button>
+                <button class="modern-btn modern-btn-warning" onclick="suspendreChronometre()"><i class="fas fa-pause"></i> Suspendre le temps</button>
+                <button class="modern-btn modern-btn-success" onclick="soumettreEvaluations()"><i class="fas fa-check-circle"></i> Soumettre & Évaluer</button>
+            </div>
+        </div>
+        
+        <!-- Étape 4 : Résultats -->
+        <div class="step" id="etape4">
+            <div class="results-container">
+                <h2 style="color: var(--primary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+                    <i class="fas fa-chart-bar" style="color: var(--secondary);"></i> Résultats de votre évaluation
+                </h2>
+                
+                <div id="resultat-niveau-global" style="text-align: center;"></div>
+                
+                <div class="feedback-card">
+                    <h3 style="color: var(--primary); margin-bottom: 1rem;">Évaluation Globale</h3>
+                    <div id="texte-feedback-global"></div>
+                    
+                    <!-- Grille d'Évaluation Détaillée -->
+                    <div class="documents-area" style="margin-top: 1.5rem;">
+                        <h4 style="text-align: center;">📊 Grille d'Évaluation Détaillée</h4>
+                        <div id="grille-evaluation-detaille"></div>
+                    </div>
+                    
+                    <div class="stats-grid" id="statistiques-globales"></div>
+                </div>
+                
+                <div class="results-grid" id="resultats-taches"></div>
+                
+                <!-- Conseils d'Amélioration -->
+                <div class="improvement-card" id="conseils-amelioration"></div>
+                
+                <div class="button-group" style="justify-content: center;">
+                    <button class="modern-btn modern-btn-success" onclick="recommencerEvaluation()"><i class="fas fa-redo-alt"></i> Nouvelle Évaluation</button>
+                    <button class="modern-btn modern-btn-secondary" onclick="exporterResultats()"><i class="fas fa-download"></i> Exporter les Résultats</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAhGVA4vr3pISonxvccIMCxZZOE5bkynRQ",
+            authDomain: "platformtcf.firebaseapp.com",
+            projectId: "platformtcf",
+            storageBucket: "platformtcf.firebasestorage.app",
+            messagingSenderId: "779352652301",
+            appId: "1:779352652301:web:41ca6b1dbcc42739b47344"
+        };
+
+        let currentUser = null;
+        let isPremium = false;
+        let firebaseApp, firebaseAuth, firestore;
+
+        // DOM elements
+        const authOverlay = document.getElementById('authOverlay');
+        const authMessage = document.getElementById('authMessage');
+        const mainContainer = document.getElementById('mainContainer');
+        const premiumBadge = document.getElementById('premiumBadge');
+        const copyWarning = document.getElementById('copyWarning');
+
+        // ========== FIREBASE AUTHENTICATION ==========
+        async function initFirebase() {
+            try {
+                firebaseApp = firebase.initializeApp(firebaseConfig);
+                firebaseAuth = firebase.auth();
+                firestore = firebase.firestore();
+
+                firebaseAuth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        await handleAuthenticatedUser(user);
+                    } else {
+                        showAuthMessage('not_logged_in', 'Non connecté', 'Vous devez être connecté avec un compte premium pour accéder à ce test.');
+                    }
+                });
+            } catch (e) {
+                showAuthMessage('error', 'Erreur Firebase', 'Impossible de contacter le serveur.');
+            }
+        }
+
+        async function handleAuthenticatedUser(user) {
+            try {
+                showAuthMessage('loading', 'Vérification', 'Vérification de votre statut premium...');
+                const doc = await firestore.collection('users').doc(user.uid).get();
+                if (!doc.exists) {
+                    showAuthMessage('error', 'Utilisateur inconnu', 'Aucun profil trouvé.');
+                    return;
+                }
+                const data = doc.data();
+                currentUser = { uid: user.uid, email: user.email, ...data };
+
+                // Premium check
+                isPremium = false;
+                if (data.premiumActive === true) isPremium = true;
+                if (data.premium === true) isPremium = true;
+                if (data.premiumType && data.premiumType !== "none") isPremium = true;
+                if (data.status === "premium" || data.status === "active") isPremium = true;
+                if (data.subscriptionStatus === "active") isPremium = true;
+                if (data.premiumExpiry) {
+                    const now = new Date(), expiry = new Date(data.premiumExpiry);
+                    if (expiry > now) isPremium = true;
+                }
+                // hardcoded premium
+                if (user.uid === "a0fPHv3JniRr55uJJjJggSMFKGY2") isPremium = true;
+                if (user.email === "bouhoula_mohamedhedi@yahoo.fr") isPremium = true;
+                if (data.role === "admin" || data.isAdmin) isPremium = true;
+
+                if (!isPremium) {
+                    showAuthMessage('premium_required', 'Accès premium requis', 'Ce test nécessite un abonnement premium actif.');
+                    return;
+                }
+
+                // Access granted
+                authOverlay.style.display = 'none';
+                mainContainer.style.display = 'block';
+                premiumBadge.classList.add('active');
+                
+                // Start the test
+                startOriginalTest();
+
+            } catch (err) {
+                showAuthMessage('error', 'Erreur', 'Impossible de récupérer vos données.');
+            }
+        }
+
+        function showAuthMessage(type, title, message) {
+            let icon = '';
+            let content = '';
+            if (type === 'loading') {
+                icon = '<div class="loading-spinner"></div>';
+                content = `<div class="auth-icon">⏳</div><div class="auth-title">${title}</div><div class="auth-subtitle">${message}</div>${icon}`;
+            } else if (type === 'not_logged_in' || type === 'premium_required') {
+                icon = '🔒';
+                content = `<div class="auth-icon">${icon}</div><div class="auth-title">${title}</div><div class="auth-subtitle">${message}</div>
+                <div style="margin-top:2rem;"><button class="auth-btn auth-btn-primary" onclick="redirectToLogin()">Se connecter</button>
+                <button class="auth-btn auth-btn-secondary" onclick="closePage()">Fermer</button></div>`;
+            } else {
+                icon = '❌';
+                content = `<div class="auth-icon">${icon}</div><div class="auth-title">${title}</div><div class="auth-subtitle">${message}</div>
+                <button class="auth-btn auth-btn-primary" onclick="location.reload()">Réessayer</button>`;
+            }
+            authMessage.innerHTML = content;
+            authOverlay.style.display = 'flex';
+        }
+
+        window.redirectToLogin = function() {
+            window.location.href = 'index.html';
+        };
+        window.closePage = function() { window.close(); };
+
+        // ========== COPY PROTECTION ==========
+        function setupCopyProtection() {
+            document.addEventListener('copy', (e) => {
+                const selection = window.getSelection().toString();
+                if (selection.length > 100) {
+                    e.preventDefault();
+                    showCopyWarning();
+                }
+            });
+            
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+                    const selection = window.getSelection().toString();
+                    if (selection.length > 100) {
+                        e.preventDefault();
+                        showCopyWarning();
+                    }
+                }
+                if (e.key === 'PrintScreen') {
+                    e.preventDefault();
+                    showCopyWarning();
+                }
+            });
+        }
+
+        function showCopyWarning() {
+            copyWarning.style.display = 'block';
+            setTimeout(() => {
+                copyWarning.style.display = 'none';
+            }, 2000);
+        }
+
+        // ========== ORIGINAL TCF FUNCTIONS ==========
+        // All original data and functions preserved exactly as in the original script
+        const sessionsTCF = [
+            { id: "janvier2024", nom: "Janvier 2024", combinaisons: [9, 8, 7, 6, 5, 4, 3, 2, 1] },
+            { id: "fevrier2024", nom: "Février 2024", combinaisons: [13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1] },
+            { id: "mars2024", nom: "Mars 2024", combinaisons: [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1] },
+            { id: "avril2024", nom: "Avril 2024", combinaisons: [11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1] },
+            { id: "mai2024", nom: "Mai 2024", combinaisons: [5, 4, 3, 2, 1] },
+            { id: "juin2024", nom: "Juin 2024", combinaisons: [5, 4, 3, 2, 1] },
+            { id: "juillet2024", nom: "Juillet 2024", combinaisons: [4, 3, 2, 1] },
+            { id: "aout2024", nom: "Août 2024", combinaisons: [6, 5, 4, 3, 2, 1] },
+            { id: "septembre2024", nom: "Septembre 2024", combinaisons: [5, 4, 3, 2, 1] },
+            { id: "octobre2024", nom: "Octobre 2024", combinaisons: [5, 4, 3, 2, 1] },
+            { id: "novembre2024", nom: "Novembre 2024", combinaisons: [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1] },
+            { id: "decembre2024", nom: "Décembre 2024", combinaisons: [4, 3, 2, 1] },
+            { id: "janvier2025", nom: "Janvier 2025", combinaisons: [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1] },
+            { id: "fevrier2025", nom: "Février 2025", combinaisons: [13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1] },
+            { id: "mars2025", nom: "Mars 2025", combinaisons: [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1] },
+            { id: "avril2025", nom: "Avril 2025", combinaisons: [11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1] },
+            { id: "mai2025", nom: "Mai 2025", combinaisons: [5, 4, 3, 2, 1] },
+            { id: "juin2025", nom: "Juin 2025", combinaisons: [5, 4, 3, 2, 1] },
+            { id: "juillet2025", nom: "Juillet 2025", combinaisons: [4, 3, 2, 1] },
+            { id: "aout2025", nom: "Août 2025", combinaisons: [6, 5, 4, 3, 2, 1] },
+            { id: "septembre2025", nom: "Septembre 2025", combinaisons: [5, 4, 3, 2, 1] },
+            { id: "octobre2025", nom: "Octobre 2025", combinaisons: [5, 4, 3, 2, 1] },
+            { id: "novembre2025", nom: "Novembre 2025", combinaisons: [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1] },
+            { id: "decembre2025", nom: "Décembre 2025", combinaisons: [4, 3, 2, 1] },
+            { id: "janvier2026", nom: "Janvier 2026", combinaisons: [3, 2, 1] },
+            { id: "aout2022", nom: "Août 2022", combinaisons: [2, 1] },
+            { id: "septembre2022", nom: "Septembre 2022", combinaisons: [1] },
+            { id: "octobre2022", nom: "Octobre 2022", combinaisons: [1] },
+            { id: "novembre2022", nom: "Novembre 2022", combinaisons: [1] },
+            { id: "janvier2023", nom: "Janvier 2023", combinaisons: [1] },
+            { id: "fevrier2023", nom: "Février 2023", combinaisons: [1] },
+            { id: "mars2023", nom: "Mars 2023", combinaisons: [1] },
+            { id: "avril2023", nom: "Avril 2023", combinaisons: [1] },
+            { id: "mai2023", nom: "Mai 2023", combinaisons: [15] },
+            { id: "juin2023", nom: "Juin 2023", combinaisons: [17] },
+            { id: "juillet2023", nom: "Juillet 2023", combinaisons: [1] },
+            { id: "aout2023", nom: "Août 2023", combinaisons: [1] },
+            { id: "septembre2023", nom: "Septembre 2023", combinaisons: [1] },
+            { id: "octobre2023", nom: "Octobre 2023", combinaisons: [1] },
+            { id: "novembre2023", nom: "Novembre 2023", combinaisons: [1] },
+            { id: "decembre2023", nom: "Décembre 2023", combinaisons: [17] }
+        ];
+
+        const testData = {
+            teste_1: {
+                nom: "Teste 1",
+                combinaisons: [
+                    {
+                        id: "combinaison-9-janvier2024",
+                        nom: "Combinaison 9 - Janvier 2024",
+                        tache1: "France Télévisions prépare un reportage sur le sport amateur. Et vous, quel sportif êtes-vous ? Envoyez-nous vos témoignages sur francetelevisions.fr.",
+                        tache2: "Vous avez passé des vacances formidables dans une belle région de votre pays. Vous écrivez un message à vos amis dans lequel vous racontez votre expérience. Vous expliquez pourquoi vous avez beaucoup aimé ce séjour.",
+                        tache3: {
+                            question: "Les écoles privées ou publiques ?",
+                            document1: "À la rentrée, le nombre d'élèves inscrits dans des écoles privées a augmenté en France. Le succès des établissements privés n'est pas directement lié aux bons résultats scolaires de leurs élèves. C'est la réputation de ces lieux qui explique un tel enthousiasme. Aux yeux de nombreux parents, les élèves y sont mieux encadrés, mieux surveillés et les professeurs sont plus présents. Les parents sont aussi rassurés parce que les classes sont homogènes: elles accueillent généralement des élèves de milieux sociaux favorisés. En effet, les études dans ces établissements sont payantes, ce qui n'est pas le cas dans les écoles publiques.",
+                            document2: "Dans les collèges privés, il y a peu d'élèves de milieux sociaux défavorisés. Comme les études dans ces établissements sont payantes, certaines catégories de population en sont exclues. Ce système qui oppose écoles publiques et écoles privées ne facilite pas la mixité sociale. Ainsi, les élèves du privé ont rarement l'occasion de rencontrer d'autres jeunes issus de milieux sociaux moins favorisés qu'eux et inversement. Ce modèle scolaire reproduit les inégalités sociales et renforce le sentiment d'exclusion de certains jeunes."
+                        }
+                    },
+                    {
+                        id: "combinaison-8-janvier2024",
+                        nom: "Combinaison 8 - Janvier 2024",
+                        tache1: "Vous avez mis en ligne une annonce pour la location de votre appartement. Écrivez un courriel à une personne intéressée pour lui donner les informations sur l'appartement et le quartier.",
+                        tache2: "Vous venez de commencer les cours à l'université à Montréal, écrivez un message à votre ami pour lui raconter votre première semaine à l'université.",
+                        tache3: {
+                            question: "Le télétravail : avantages et inconvénients ?",
+                            document1: "Le télétravail permet une meilleure conciliation vie professionnelle/vie personnelle et réduit les temps de transport. Les employés sont souvent plus productifs et moins stressés.",
+                            document2: "Le télétravail peut entraîner un sentiment d'isolement et une difficulté à séparer vie professionnelle et vie personnelle. La communication avec les collègues devient plus complexe."
+                        }
+                    }
+                ],
+                sujets: {
+                    1: [
+                        {id: "t1-1", titre: "France Télévisions - Reportage sport amateur", question: "France Télévisions prépare un reportage sur le sport amateur. Et vous, quel sportif êtes-vous ? Envoyez-nous vos témoignages sur francetelevisions.fr."},
+                        {id: "t1-2", titre: "Location appartement - Informations", question: "Vous avez mis en ligne une annonce pour la location de votre appartement. Écrivez un courriel à une personne intéressée pour lui donner les informations sur l'appartement et le quartier."},
+                        {id: "t1-7", titre: "Invitation anniversaire", question: "Vous organisez une fête pour votre anniversaire. Écrivez un message à vos amis pour les inviter et leur demander de confirmer leur présence."},
+                        {id: "t1-8", titre: "Demande de conseil", question: "Vous cherchez un cadeau pour votre mère. Écrivez un message à votre meilleur ami pour lui demander conseil."},
+                        {id: "t1-9", titre: "Remerciements", question: "Vous avez reçu un cadeau de votre collègue. Écrivez un message pour le remercier."},
+                        {id: "t1-10", titre: "Information voisinage", question: "Vous organisez une petite fête chez vous samedi soir. Écrivez une note à vos voisins pour les prévenir et vous excuser du bruit éventuel."}
+                    ],
+                    2: [
+                        {id: "t2-1", titre: "Vacances formidables - Récit", question: "Vous avez passé des vacances formidables dans une belle région de votre pays. Vous écrivez un message à vos amis dans lequel vous racontez votre expérience. Vous expliquez pourquoi vous avez beaucoup aimé ce séjour."},
+                        {id: "t2-2", titre: "Première semaine à l'université", question: "Vous venez de commencer les cours à l'université à Montréal, écrivez un message à votre ami pour lui raconter votre première semaine à l'université."},
+                        {id: "t2-7", titre: "Premier jour de travail", question: "Vous avez commencé un nouveau travail la semaine dernière. Écrivez à un ami pour lui raconter votre premier jour et vos impressions."},
+                        {id: "t2-8", titre: "Déménagement", question: "Vous venez de déménager dans une nouvelle ville. Écrivez à votre famille pour décrire votre nouveau quartier et votre nouvelle vie."},
+                        {id: "t2-9", titre: "Rencontre inspirante", question: "Vous avez rencontré une personne qui vous a beaucoup inspiré récemment. Racontez cette rencontre et expliquez pourquoi elle vous a marqué."}
+                    ],
+                    3: [
+                        {
+                            id: "t3-1", 
+                            titre: "Écoles privées ou publiques ?", 
+                            question: "Les écoles privées ou publiques ?",
+                            document1: "À la rentrée, le nombre d'élèves inscrits dans des écoles privées a augmenté en France. Le succès des établissements privés n'est pas directement lié aux bons résultats scolaires de leurs élèves. C'est la réputation de ces lieux qui explique un tel enthousiasme. Aux yeux de nombreux parents, les élèves y sont mieux encadrés, mieux surveillés et les professeurs sont plus présents. Les parents sont aussi rassurés parce que les classes sont homogènes: elles accueillent généralement des élèves de milieux sociaux favorisés. En effet, les études dans ces établissements sont payantes, ce qui n'est pas le cas dans les écoles publiques.",
+                            document2: "Dans les collèges privés, il y a peu d'élèves de milieux sociaux défavorisés. Comme les études dans ces établissements sont payantes, certaines catégories de population en sont exclues. Ce système qui oppose écoles publiques et écoles privées ne facilite pas la mixité sociale. Ainsi, les élèves du privé ont rarement l'occasion de rencontrer d'autres jeunes issus de milieux sociaux moins favorisés qu'eux et inversement. Ce modèle scolaire reproduit les inégalités sociales et renforce le sentiment d'exclusion de certains jeunes."
+                        },
+                        {
+                            id: "t3-4", 
+                            titre: "Télétravail", 
+                            question: "Le télétravail : avantages et inconvénients ?",
+                            document1: "Le télétravail permet une meilleure conciliation vie professionnelle/vie personnelle et réduit les temps de transport. Les employés sont souvent plus productifs et moins stressés.",
+                            document2: "Le télétravail peut entraîner un sentiment d'isolement et une difficulté à séparer vie professionnelle et vie personnelle. La communication avec les collègues devient plus complexe."
+                        },
+                        {
+                            id: "t3-5", 
+                            titre: "Réseaux sociaux", 
+                            question: "Les réseaux sociaux : chance ou danger pour notre société ?",
+                            document1: "Les réseaux sociaux permettent de rester en contact avec ses proches, de découvrir de nouvelles cultures et de s'informer rapidement. Ils favorisent les échanges et la solidarité.",
+                            document2: "Les réseaux sociaux peuvent créer une addiction, favoriser la désinformation et nuire à la santé mentale, particulièrement chez les jeunes. La vie privée y est souvent mal protégée."
+                        }
+                    ]
+                }
+            },
+            teste_2: {
+                nom: "Teste 2",
+                combinaisons: [
+                    {
+                        id: "combinaison-aout2022-1",
+                        nom: "Août 2022 - Combinaison 1",
+                        tache1: "Vous voulez organiser une fête, écrivez un message à vos amis pour demander leur coup de main. (programme, taches, etc).",
+                        tache2: "Vous avez participé à une compétition sportive, écrivez un article de blog pour raconter cette expérience.",
+                        tache3: {
+                            question: "Menus Sans Viande",
+                            document1: "Les enfants peuvent tout à fait se passer de viande. 'On peut sans aucun souci la remplacer par d'autres protéines animales, comme les œufs ou le poisson, ça ne pose aucun problème pour la santé', Patrick",
+                            document2: "Un régime sans viande met en danger la santé des enfants 'La viande est une source incontournable de protéines de qualité. Ces protéines ont divers intérêts pour l'homme : elles interviennent dans la croissance, le renforcement des muscles, de la peau...' Michel Nadeau"
+                        }
+                    },
+                    {
+                        id: "combinaison-aout2022-2",
+                        nom: "Août 2022 - Combinaison 2",
+                        tache1: "Vous allez partir en voyage. Votre ami Cédric a accepté de s'occuper de votre maison. Écrivez un mail pour lui dire ce qu'il doit faire.",
+                        tache2: "Vous avez fait des études pendant 6 mois à l'étranger. Dans votre blog, rédigez un article pour raconter cette expérience.",
+                        tache3: {
+                            question: "Menus Sans Viande (Variante)",
+                            document1: "Les enfants peuvent tout à fait se passer de viande. 'On peut sans aucun souci la remplacer par d'autres protéines animales, comme les œufs ou le poisson, ça ne pose aucun problème pour la santé', Patrick",
+                            document2: "Un régime sans viande met en danger la santé des enfants 'La viande est une source incontournable de protéines de qualité. Ces protéines ont divers intérêts pour l'homme : elles interviennent dans la croissance, le renforcement des muscles, de la peau...' Michel Nadeau"
+                        }
+                    }
+                ],
+                sujets: {
+                    1: [
+                        {id: "t1-3", titre: "Organiser une fête - Demande d'aide", question: "Vous voulez organiser une fête, écrivez un message à vos amis pour demander leur coup de main. (programme, taches, etc)."},
+                        {id: "t1-4", titre: "Voyage - Instructions maison", question: "Vous allez partir en voyage. Votre ami Cédric a accepté de s'occuper de votre maison. Écrivez un mail pour lui dire ce qu'il doit faire."},
+                        {id: "t1-11", titre: "Conseil jardinage", question: "Vous partez en vacances et votre voisin propose de s'occuper de vos plantes. Écrivez-lui un mot pour le remercier et lui donner des instructions."}
+                    ],
+                    2: [
+                        {id: "t2-3", titre: "Compétition sportive - Article blog", question: "Vous avez participé à une compétition sportive, écrivez un article de blog pour raconter cette expérience."},
+                        {id: "t2-4", titre: "Études à l'étranger - Blog", question: "Vous avez fait des études pendant 6 mois à l'étranger. Dans votre blog, rédigez un article pour raconter cette expérience."},
+                        {id: "t2-10", titre: "Bénévolat", question: "Vous avez participé à une action humanitaire. Racontez cette expérience dans votre blog."}
+                    ],
+                    3: [
+                        {
+                            id: "t3-2", 
+                            titre: "Menus Sans Viande", 
+                            question: "Menus Sans Viande : Pour ou contre l'alimentation sans viande pour les enfants ?",
+                            document1: "Les enfants peuvent tout à fait se passer de viande. 'On peut sans aucun souci la remplacer par d'autres protéines animales, comme les œufs ou le poisson, ça ne pose aucun problème pour la santé', Patrick",
+                            document2: "Un régime sans viande met en danger la santé des enfants 'La viande est une source incontournable de protéines de qualité. Ces protéines ont divers intérêts pour l'homme : elles interviennent dans la croissance, le renforcement des muscles, de la peau...' Michel Nadeau"
+                        },
+                        {
+                            id: "t3-6", 
+                            titre: "École à la maison", 
+                            question: "L'école à la maison : une bonne alternative ?",
+                            document1: "L'instruction en famille permet un rythme adapté à l'enfant, renforce les liens familiaux et évite le harcèlement scolaire.",
+                            document2: "L'école à la maison prive l'enfant de socialisation et d'apprentissage de la vie en collectivité. Tous les parents n'ont pas les compétences pédagogiques nécessaires."
+                        }
+                    ]
+                }
+            },
+            teste_3: {
+                nom: "Teste 3",
+                combinaisons: [
+                    {
+                        id: "exemple-combinaison-1",
+                        nom: "Exemple - Combinaison 1",
+                        tache1: "Salut, je vais venir en vacances dans ton pays tu peux me conseiller un endroit à visiter ? Merci !",
+                        tache2: "Vous avez participé à une émission de télévision. Vous souhaitez partager votre expérience. Vous rédigez un article sur votre site internet.",
+                        tache3: {
+                            question: "Les Quotas Hommes/Femmes : Pour ou Contre ?",
+                            document1: "Dans de nombreux pays, les femmes ont plus difficilement accès que les hommes au travail et à la politique. Pour réduire ces inégalités et favoriser la parité, certains états ont mis en place des quotas hommes/femmes...",
+                            document2: "Choisir une personne pour son sexe peut dévaloriser les femmes nommées à des postes importants... Finalement, ces quotas qui ont pour objective de faire disparaître une discrimination, renforcent les stéréotypes de genre."
+                        }
+                    },
+                    {
+                        id: "combinaison-12-novembre2024",
+                        nom: "Combinaison 12 - Novembre 2024",
+                        tache1: "Vous cherchez un emploi saisonnier pour l'été. Écrivez une lettre de motivation pour postuler dans un camp de vacances.",
+                        tache2: "Racontez votre meilleur souvenir d'enfance. Décrivez ce moment, les personnes présentes et pourquoi il est important pour vous.",
+                        tache3: {
+                            question: "Faut-il interdire les portables dans les écoles ?",
+                            document1: "L'interdiction des portables à l'école permet aux élèves de se concentrer sur leurs études et favorise les interactions sociales réelles.",
+                            document2: "Le portable peut être un outil pédagogique utile. Plutôt que de l'interdire, il faut apprendre aux élèves à bien l'utiliser."
+                        }
+                    }
+                ],
+                sujets: {
+                    1: [
+                        {id: "t1-5", titre: "Conseil visite touristique", question: "Salut, je vais venir en vacances dans ton pays tu peux me conseiller un endroit à visiter ? Merci !"},
+                        {id: "t1-6", titre: "Recherche marché local", question: "Je vais bientôt vivre dans ton quartier. Je cherche un endroit sympathique pour faire mes courses. Est-ce que tu connais un marché intéressant ? Merci d'avance et à bientôt ! Bernard."},
+                        {id: "t1-12", titre: "Lettre de motivation", question: "Vous cherchez un emploi saisonnier pour l'été. Écrivez une lettre de motivation pour postuler dans un camp de vacances."},
+                        {id: "t1-13", titre: "Carte postale", question: "Vous êtes en vacances dans un endroit magnifique. Écrivez une carte postale à vos grands-parents pour leur décrire l'endroit et ce que vous faites."}
+                    ],
+                    2: [
+                        {id: "t2-5", titre: "Émission de télévision", question: "Vous avez participé à une émission de télévision. Vous souhaitez partager votre expérience. Vous rédigez un article sur votre site internet."},
+                        {id: "t2-6", titre: "Association de quartier", question: "Vous faites partie d'une association de quartier qui propose des activités aux enfants (aide aux devoirs, sorties, jeux, etc.). Sur votre site internet, vous racontez votre expérience."},
+                        {id: "t2-11", titre: "Souvenir d'enfance", question: "Racontez votre meilleur souvenir d'enfance. Décrivez ce moment, les personnes présentes et pourquoi il est important pour vous."}
+                    ],
+                    3: [
+                        {
+                            id: "t3-3", 
+                            titre: "Quotas Hommes/Femmes", 
+                            question: "Les Quotas Hommes/Femmes : Pour ou Contre ?",
+                            document1: "Dans de nombreux pays, les femmes ont plus difficilement accès que les hommes au travail et à la politique. Pour réduire ces inégalités et favoriser la parité, certains états ont mis en place des quotas hommes/femmes...",
+                            document2: "Choisir une personne pour son sexe peut dévaloriser les femmes nommées à des postes importants... Finalement, ces quotas qui ont pour objective de faire disparaître une discrimination, renforcent les stéréotypes de genre."
+                        },
+                        {
+                            id: "t3-7", 
+                            titre: "Portables à l'école", 
+                            question: "Faut-il interdire les portables dans les écoles ?",
+                            document1: "L'interdiction des portables à l'école permet aux élèves de se concentrer sur leurs études et favorise les interactions sociales réelles.",
+                            document2: "Le portable peut être un outil pédagogique utile. Plutôt que de l'interdire, il faut apprendre aux élèves à bien l'utiliser."
+                        },
+                        {
+                            id: "t3-8", 
+                            titre: "Semaine de 4 jours", 
+                            question: "La semaine de 4 jours à l'école : bonne ou mauvaise idée ?",
+                            document1: "La semaine de 4 jours permet aux enfants de passer plus de temps en famille et de se reposer. Les journées sont moins chargées.",
+                            document2: "La semaine de 4 jours allonge les journées et peut fatiguer les enfants. Les pauses trop longues favorisent l'oubli des apprentissages."
+                        }
+                    ]
+                }
+            }
+        };
+
+        const criteresParNiveau = {
+            'A0': {
+                description: 'Niveau Pré-débutant',
+                tache1: { exigences: ['Peut écrire des mots isolés', 'Peut recopier des phrases simples'], criteres: ['Orthographe approximative', 'Vocabulaire limité aux mots courants'] },
+                tache2: { exigences: ['Peut écrire des phrases très simples avec aide', 'Utilisation de structures stéréotypées'], criteres: ['Phrases de 3-4 mots maximum', 'Erreurs systématiques de grammaire'] },
+                tache3: { exigences: ['Niveau insuffisant pour cette tâche'], criteres: ['Texte incohérent ou très court'] }
+            },
+            'A1': {
+                description: 'Niveau Introductif',
+                tache1: { exigences: ['Peut écrire un message simple de 60-120 mots', 'Utilise des formules de politesse basiques'], criteres: ['Vocabulaire élémentaire', 'Structures simples (présent)', 'Phrases courtes'] },
+                tache2: { exigences: ['Peut décrire des événements simples', 'Utilise des connecteurs basiques (et, mais, ou)'], criteres: ['Récit chronologique simple', 'Peu de détails', 'Erreurs fréquentes'] },
+                tache3: { exigences: ['Peut exprimer une opinion simple'], criteres: ['Argumentation limitée', 'Structure basique'] }
+            },
+            'A2': {
+                description: 'Niveau Intermédiaire',
+                tache1: { exigences: ['Message clair et adapté', 'Formules de politesse appropriées'], criteres: ['Vocabulaire quotidien', 'Phrases plus variées', 'Peu d\'erreurs gênantes'] },
+                tache2: { exigences: ['Récit cohérent avec quelques détails', 'Exprime des sentiments simples'], criteres: ['Utilisation du passé composé', 'Connecteurs variés', 'Descriptions basiques'] },
+                tache3: { exigences: ['Peut développer une opinion avec quelques arguments'], criteres: ['Structure perceptible', 'Arguments simples mais pertinents'] }
+            },
+            'B1': {
+                description: 'Niveau Seuil',
+                tache1: { exigences: ['Message bien structuré', 'Ton adapté au destinataire'], criteres: ['Vocabulaire varié', 'Grammaire généralement correcte', 'Style fluide'] },
+                tache2: { exigences: ['Récit détaillé et personnel', 'Exprime clairement émotions et impressions'], criteres: ['Utilisation de plusieurs temps verbaux', 'Descriptions vivantes', 'Bon enchaînement'] },
+                tache3: { exigences: ['Argumentation structurée avec introduction et conclusion'], criteres: ['Arguments développés', 'Exemples pertinents', 'Prise en compte d\'autres points de vue'] }
+            },
+            'B2': {
+                description: 'Niveau Avancé',
+                tache1: { exigences: ['Message précis et nuancé', 'Adaptation fine au contexte'], criteres: ['Vocabulaire riche et précis', 'Syntaxe complexe maîtrisée', 'Style élégant'] },
+                tache2: { exigences: ['Récit détaillé avec réflexion personnelle', 'Style vivant et imagé'], criteres: ['Maîtrise des temps verbaux', 'Figures de style', 'Rythme varié'] },
+                tache3: { exigences: ['Argumentation solide et nuancée', 'Analyse approfondie'], criteres: ['Argumentation convaincante', 'Réfutation des contre-arguments', 'Style persuasif'] }
+            },
+            'C1': {
+                description: 'Niveau Autonome',
+                tache1: { exigences: ['Message parfaitement adapté au contexte', 'Nuances subtiles'], criteres: ['Langue fluide et naturelle', 'Humour ou ironie maîtrisés', 'Culture adaptée'] },
+                tache2: { exigences: ['Récit littéraire', 'Style personnel marqué'], criteres: ['Créativité linguistique', 'Jouissance de la langue', 'Originalité'] },
+                tache3: { exigences: ['Argumentation d\'expert', 'Vision critique approfondie'], criteres: ['Argumentation sophistiquée', 'Références culturelles', 'Style académique'] }
+            },
+            'C2': {
+                description: 'Niveau Maîtrise',
+                tache1: { exigences: ['Message d\'excellence professionnelle ou littéraire'], criteres: ['Perfection linguistique', 'Créativité exceptionnelle', 'Style remarquable'] },
+                tache2: { exigences: ['Œuvre littéraire personnelle'], criteres: ['Virtuosité linguistique', 'Originalité totale', 'Profondeur réflexive'] },
+                tache3: { exigences: ['Texte de référence académique ou littéraire'], criteres: ['Maîtrise absolue', 'Contribution originale', 'Style unique'] }
+            }
+        };
+
+        let etapeActuelle = 1;
+        const totalEtapes = 4;
+        let tempsRestant = 60 * 60;
+        let chronometreInterval;
+        let chronometreEnCours = true;
+        let testActuel = 'teste_2';
+
+        const taches = {
+            '1': { nom: 'Tâche 1 : Message Simple', description: 'Rédiger un message simple (courriel, note, carte postale)', motsMin: 60, motsMax: 120, niveauMin: 'A1', niveauMax: 'C2', tempsRecommande: 15 },
+            '2': { nom: 'Tâche 2 : Récit Personnel', description: 'Raconter une expérience personnelle ou décrire un événement', motsMin: 120, motsMax: 150, niveauMin: 'A2', niveauMax: 'C2', tempsRecommande: 20 },
+            '3': { nom: 'Tâche 3 : Texte Argumentatif', description: 'Exprimer une opinion personnelle sur un sujet donné', motsMin: 120, motsMax: 150, niveauMin: 'B1', niveauMax: 'C2', tempsRecommande: 25 }
+        };
+
+        function startOriginalTest() {
+            initialiserInterface();
+            demarrerChronometre();
+            setupCopyProtection();
+        }
+
+        function initialiserInterface() {
+            initialiserSelecteursSujets();
+            initialiserSelecteurCombinaisons();
+            configurerCompteursMots();
+            configurerNavigation();
+            initialiserIndicateursProgression();
+        }
+
+        function initialiserSelecteurCombinaisons() {
+            const selectCombinaison = document.getElementById('select-combinaison');
+            if (!selectCombinaison) return;
+            
+            selectCombinaison.innerHTML = '<option value="">-- Sélectionnez une combinaison --</option>';
+            
+            const test = testData[testActuel];
+            if (test.combinaisons) {
+                test.combinaisons.forEach(combinaison => {
+                    const option = document.createElement('option');
+                    option.value = JSON.stringify(combinaison);
+                    option.textContent = combinaison.nom;
+                    selectCombinaison.appendChild(option);
+                });
+            }
+        }
+
+        function selectionnerCombinaison(combinaison) {
+            if (!combinaison) return;
+            
+            document.getElementById('sujet-tache1').value = combinaison.tache1;
+            document.getElementById('sujet-tache2').value = combinaison.tache2;
+            document.getElementById('sujet-tache3').value = combinaison.tache3.question;
+            
+            const questionElement = document.getElementById('question-tache3');
+            const questionText = document.getElementById('question-text');
+            if (questionElement && questionText) {
+                questionText.textContent = combinaison.tache3.question;
+                questionElement.style.display = 'block';
+            }
+            
+            if (combinaison.tache3.document1 && combinaison.tache3.document2) {
+                const doc1Element = document.getElementById('texte-document1');
+                const doc2Element = document.getElementById('texte-document2');
+                const doc1Container = document.getElementById('document1');
+                const doc2Container = document.getElementById('document2');
+                const docsContainer = document.getElementById('documents-tache3');
+                
+                if (doc1Element) doc1Element.textContent = combinaison.tache3.document1;
+                if (doc2Element) doc2Element.textContent = combinaison.tache3.document2;
+                if (doc1Container) doc1Container.style.display = 'block';
+                if (doc2Container) doc2Container.style.display = 'block';
+                if (docsContainer) docsContainer.style.display = 'block';
+            }
+            
+            showNotification('Combinaison chargée avec succès!', 'success');
+        }
+
+        function initialiserSelecteursSujets() {
+            for (let tacheNum = 1; tacheNum <= 3; tacheNum++) {
+                const selectElement = document.getElementById(`select-sujet-tache${tacheNum}`);
+                if (!selectElement) continue;
+                
+                const test = testData[testActuel];
+                if (!test.sujets[tacheNum]) continue;
+                
+                selectElement.innerHTML = '<option value="">-- Sélectionnez un sujet --</option>';
+                
+                test.sujets[tacheNum].forEach(sujet => {
+                    const option = document.createElement('option');
+                    option.value = JSON.stringify(sujet);
+                    option.textContent = `${sujet.id}. ${sujet.titre}`;
+                    selectElement.appendChild(option);
+                });
+            }
+        }
+
+        function selectionnerSujet(tacheNum, valeur) {
+            if (!valeur) return;
+            
+            try {
+                const sujet = JSON.parse(valeur);
+                
+                if (sujet) {
+                    const sujetInput = document.getElementById(`sujet-tache${tacheNum}`);
+                    if (sujetInput) {
+                        sujetInput.value = sujet.question;
+                    }
+                    
+                    if (tacheNum == 3) {
+                        const questionElement = document.getElementById('question-tache3');
+                        const questionText = document.getElementById('question-text');
+                        if (questionElement && questionText) {
+                            questionText.textContent = sujet.question;
+                            questionElement.style.display = 'block';
+                        }
+                        
+                        if (sujet.document1 && sujet.document2) {
+                            const doc1Element = document.getElementById('texte-document1');
+                            const doc2Element = document.getElementById('texte-document2');
+                            const doc1Container = document.getElementById('document1');
+                            const doc2Container = document.getElementById('document2');
+                            const docsContainer = document.getElementById('documents-tache3');
+                            
+                            if (doc1Element) doc1Element.textContent = sujet.document1;
+                            if (doc2Element) doc2Element.textContent = sujet.document2;
+                            if (doc1Container) doc1Container.style.display = 'block';
+                            if (doc2Container) doc2Container.style.display = 'block';
+                            if (docsContainer) docsContainer.style.display = 'block';
+                        }
+                    } else {
+                        const questionElement = document.getElementById('question-tache3');
+                        const docsContainer = document.getElementById('documents-tache3');
+                        const doc1Container = document.getElementById('document1');
+                        const doc2Container = document.getElementById('document2');
+                        
+                        if (questionElement) questionElement.style.display = 'none';
+                        if (docsContainer) docsContainer.style.display = 'none';
+                        if (doc1Container) doc1Container.style.display = 'none';
+                        if (doc2Container) doc2Container.style.display = 'none';
+                    }
+                    
+                    const selectCombinaison = document.getElementById('select-combinaison');
+                    if (selectCombinaison) selectCombinaison.selectedIndex = 0;
+                }
+            } catch (error) {
+                console.error('Erreur lors du parsing des données du sujet:', error);
+            }
+        }
+
+        function demarrerChronometre() {
+            if (chronometreInterval) clearInterval(chronometreInterval);
+            
+            chronometreInterval = setInterval(function() {
+                if (chronometreEnCours) {
+                    tempsRestant--;
+                    
+                    const minutes = Math.floor(tempsRestant / 60);
+                    const secondes = tempsRestant % 60;
+                    const chronometreElement = document.getElementById('chronometre');
+                    
+                    if (chronometreElement) {
+                        chronometreElement.textContent = `${minutes.toString().padStart(2, '0')}:${secondes.toString().padStart(2, '0')}`;
+                        
+                        if (tempsRestant <= 10 * 60) {
+                            chronometreElement.classList.add('warning');
+                        }
+                        
+                        if (tempsRestant <= 5 * 60) {
+                            chronometreElement.classList.add('danger');
+                        }
+                    }
+                    
+                    if (tempsRestant <= 0) {
+                        clearInterval(chronometreInterval);
+                        if (chronometreElement) chronometreElement.textContent = '00:00';
+                        alert('Le temps est écoulé ! Votre évaluation sera automatiquement soumise.');
+                        soumettreEvaluations();
+                    }
+                }
+            }, 1000);
+        }
+
+        function suspendreChronometre() {
+            chronometreEnCours = !chronometreEnCours;
+            
+            const suspendreBtn = document.querySelector('.modern-btn-warning');
+            if (!suspendreBtn) return;
+            
+            if (chronometreEnCours) {
+                suspendreBtn.innerHTML = '<i class="fas fa-pause"></i> Suspendre le temps';
+            } else {
+                suspendreBtn.innerHTML = '<i class="fas fa-play"></i> Reprendre le temps';
+            }
+        }
+
+        function configurerNavigation() {
+            const btnPrec = document.querySelector('.modern-btn-secondary');
+            const btnSuiv = document.querySelector('.modern-btn-primary');
+            const btnSoumettre = document.querySelector('.modern-btn-success');
+            
+            if (btnPrec) {
+                btnPrec.addEventListener('click', function() {
+                    if (etapeActuelle > 1) {
+                        allerA(`etape${etapeActuelle - 1}`);
+                    }
+                });
+            }
+            
+            if (btnSuiv) {
+                btnSuiv.addEventListener('click', function() {
+                    if (etapeActuelle < 4) {
+                        allerA(`etape${etapeActuelle + 1}`);
+                    }
+                });
+            }
+            
+            if (btnSoumettre) {
+                btnSoumettre.addEventListener('click', soumettreEvaluations);
+            }
+        }
+
+        function allerA(etapeId) {
+            const nouvelleEtape = parseInt(etapeId.replace('etape', ''));
+            
+            if (nouvelleEtape > etapeActuelle) {
+                for (let i = 1; i < nouvelleEtape; i++) {
+                    if (i <= 3) {
+                        const sujet = document.getElementById(`sujet-tache${i}`)?.value.trim();
+                        const reponse = document.getElementById(`reponse-tache${i}`)?.value.trim();
+                        
+                        if (!sujet) {
+                            alert(`Veuillez sélectionner ou saisir un sujet pour la Tâche ${i} avant de continuer.`);
+                            document.getElementById(`sujet-tache${i}`)?.focus();
+                            return;
+                        }
+                        
+                        if (!reponse) {
+                            alert(`Veuillez rédiger une réponse pour la Tâche ${i} avant de continuer.`);
+                            document.getElementById(`reponse-tache${i}`)?.focus();
+                            return;
+                        }
+                    }
+                }
+            }
+            
+            etapeActuelle = nouvelleEtape;
+            
+            const progression = document.getElementById('progression');
+            if (progression) {
+                const pourcentage = ((etapeActuelle - 1) / (totalEtapes - 1)) * 100;
+                progression.style.width = `${pourcentage}%`;
+            }
+            
+            document.querySelectorAll('.step').forEach(etape => {
+                etape.classList.remove('active');
+            });
+            
+            const etapeActive = document.getElementById(etapeId);
+            if (etapeActive) {
+                etapeActive.classList.add('active');
+            }
+            
+            document.querySelectorAll('.tab-btn').forEach((bouton, index) => {
+                bouton.classList.remove('active');
+                if (index === etapeActuelle - 1) {
+                    bouton.classList.add('active');
+                }
+            });
+            
+            if (etapeId === 'etape4') {
+                evaluerToutesTaches();
+            }
+        }
+
+        function configurerCompteursMots() {
+            for (let i = 1; i <= 3; i++) {
+                const textarea = document.getElementById(`reponse-tache${i}`);
+                const compteur = document.getElementById(`compteur-mots-tache${i}`);
+                
+                if (textarea && compteur) {
+                    textarea.addEventListener('input', function() {
+                        const texte = this.value.trim();
+                        const mots = texte === '' ? 0 : texte.split(/\s+/).length;
+                        compteur.textContent = mots;
+                        
+                        const tacheInfo = taches[i];
+                        if (mots < tacheInfo.motsMin) {
+                            compteur.style.color = '#ef4444';
+                        } else if (mots > tacheInfo.motsMax) {
+                            compteur.style.color = '#f59e0b';
+                        } else {
+                            compteur.style.color = '#10b981';
+                        }
+                        
+                        updateProgressIndicator(i, mots);
+                    });
+                    
+                    const texteInitial = textarea.value.trim();
+                    const motsInitiaux = texteInitial === '' ? 0 : texteInitial.split(/\s+/).length;
+                    compteur.textContent = motsInitiaux;
+                    updateProgressIndicator(i, motsInitiaux);
+                }
+            }
+        }
+
+        function updateProgressIndicator(tacheNum, mots) {
+            const tacheInfo = taches[tacheNum];
+            const progressBar = document.getElementById(`progress-indicator-t${tacheNum}`);
+            
+            if (progressBar) {
+                let pourcentage;
+                if (mots < tacheInfo.motsMin) {
+                    pourcentage = (mots / tacheInfo.motsMin) * 50;
+                } else if (mots > tacheInfo.motsMax) {
+                    pourcentage = 50 + 50;
+                } else {
+                    pourcentage = 50 + ((mots - tacheInfo.motsMin) / (tacheInfo.motsMax - tacheInfo.motsMin)) * 50;
+                }
+                
+                progressBar.style.width = `${Math.min(pourcentage, 100)}%`;
+                
+                if (mots < tacheInfo.motsMin) {
+                    progressBar.style.backgroundColor = '#ef4444';
+                } else if (mots > tacheInfo.motsMax) {
+                    progressBar.style.backgroundColor = '#f59e0b';
+                } else {
+                    progressBar.style.backgroundColor = '#10b981';
+                }
+            }
+        }
+
+        function initialiserIndicateursProgression() {
+            // Already in HTML
+        }
+
+        function evaluerToutesTaches() {
+            let evaluations = [];
+            let scores = {A0: 0, A1: 0, A2: 0, B1: 0, B2: 0, C1: 0, C2: 0};
+            
+            for (let i = 1; i <= 3; i++) {
+                const reponse = document.getElementById(`reponse-tache${i}`)?.value.trim();
+                const sujet = document.getElementById(`sujet-tache${i}`)?.value.trim();
+                
+                if (!reponse || !sujet) {
+                    alert(`Veuillez compléter la Tâche ${i} avant de procéder à l'évaluation.`);
+                    allerA(`etape${i}`);
+                    return;
+                }
+                
+                const evaluation = evaluerTache(i, reponse);
+                evaluations.push(evaluation);
+                
+                scores[evaluation.niveau] += evaluation.score;
+            }
+            
+            const niveauGlobal = determinerNiveauGlobal(scores);
+            afficherResultats(evaluations, niveauGlobal);
+        }
+
+        function evaluerTache(tacheNum, texte) {
+            const mots = texte.split(/\s+/).length;
+            const caracteres = texte.length;
+            const analyse = analyserTexte(texte);
+            const niveau = determinerNiveauTache(tacheNum, analyse, mots);
+            const score = calculerScore(analyse, niveau, mots, tacheNum);
+            const commentaires = genererCommentaires(analyse, niveau, tacheNum, mots);
+            
+            return {
+                tache: tacheNum,
+                niveau: niveau,
+                score: score,
+                mots: mots,
+                caracteres: caracteres,
+                analyse: analyse,
+                commentaires: commentaires
+            };
+        }
+
+        function analyserTexte(texte) {
+            const mots = texte.split(/\s+/);
+            const phrases = texte.split(/[.!?]+/).filter(p => p.trim().length > 0);
+            
+            const connecteurs = ['et', 'mais', 'ou', 'donc', 'car', 'cependant', 'toutefois', 
+                                'néanmoins', 'par conséquent', 'en revanche', 'd\'ailleurs', 
+                                'notamment', 'par ailleurs', 'de plus', 'en outre'];
+            
+            const connecteursTrouves = connecteurs.filter(c => texte.toLowerCase().includes(c));
+            
+            const tempsVerbaux = [];
+            if (texte.match(/ai\s+\w+é|est\s+\w+é|ont\s+\w+é/i)) tempsVerbaux.push('passé composé');
+            if (texte.match(/avais|était|avait|étaient/i)) tempsVerbaux.push('imparfait');
+            if (texte.match(/serai|irai|fera|aura/i)) tempsVerbaux.push('futur');
+            
+            const erreurs = estimerErreurs(texte);
+            
+            return {
+                longueurPhrases: phrases.length > 0 ? mots.length / phrases.length : 0,
+                vocabulaire: new Set(mots.map(m => m.toLowerCase())).size,
+                connecteurs: connecteursTrouves,
+                tempsVerbaux: tempsVerbaux,
+                erreurs: erreurs,
+                structure: evaluerStructure(texte)
+            };
+        }
+
+        function determinerNiveauTache(tacheNum, analyse, mots) {
+            const infoTache = taches[tacheNum];
+            const motsMin = infoTache.motsMin;
+            
+            if (analyse.erreurs > 30 || mots < motsMin * 0.5) return 'A0';
+            if (analyse.vocabulaire < 50 && mots < motsMin * 0.7) return 'A1';
+            if (analyse.vocabulaire < 100 && analyse.tempsVerbaux.length <= 1) return 'A2';
+            if (analyse.vocabulaire < 200 && analyse.connecteurs.length <= 3) return 'B1';
+            if (analyse.vocabulaire < 300 && analyse.structure < 0.7) return 'B2';
+            if (analyse.vocabulaire < 400) return 'C1';
+            return 'C2';
+        }
+
+        function determinerNiveauGlobal(scores) {
+            const niveaux = ['A0', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+            let meilleurNiveau = 'A0';
+            let meilleurScore = 0;
+            
+            for (const niveau of niveaux) {
+                if (scores[niveau] > meilleurScore) {
+                    meilleurScore = scores[niveau];
+                    meilleurNiveau = niveau;
+                }
+            }
+            
+            return meilleurNiveau;
+        }
+
+        function afficherResultats(evaluations, niveauGlobal) {
+            const resultatNiveau = document.getElementById('resultat-niveau-global');
+            if (resultatNiveau) {
+                resultatNiveau.innerHTML = `
+                    <div class="level-badge level-${niveauGlobal.toLowerCase()}">
+                        ${niveauGlobal}
+                    </div>
+                    <p style="font-size: 1.2rem; margin-top: 0.5rem;"><strong>${criteresParNiveau[niveauGlobal]?.description || 'Niveau estimé'}</strong></p>
+                `;
+            }
+            
+            const feedbackGlobal = document.getElementById('texte-feedback-global');
+            if (feedbackGlobal) {
+                feedbackGlobal.innerHTML = `
+                    <p style="font-size: 1.1rem; line-height: 1.6;">Votre niveau global en expression écrite est <strong>${niveauGlobal}</strong>.</p>
+                    <p style="font-size: 1rem; color: var(--gray-600); margin-top: 0.8rem;">Ce niveau correspond à: ${criteresParNiveau[niveauGlobal]?.description || ''}</p>
+                `;
+            }
+            
+            const resultatsTaches = document.getElementById('resultats-taches');
+            if (resultatsTaches) {
+                let html = '';
+                evaluations.forEach(eval => {
+                    const tacheInfo = taches[eval.tache];
+                    html += `
+                        <div class="result-item">
+                            <h4>${tacheInfo.nom}</h4>
+                            <span class="result-level level-${eval.niveau.toLowerCase()}" style="background: ${getNiveauColor(eval.niveau)};">
+                                Niveau: ${eval.niveau}
+                            </span>
+                            <p style="margin-top: 1rem;"><strong>Nombre de mots:</strong> ${eval.mots}</p>
+                            <p><strong>Score:</strong> ${Math.round(eval.score)}/100</p>
+                            <p><strong>Commentaires:</strong></p>
+                            <ul style="padding-left: 1.2rem; margin-top: 0.5rem;">
+                                ${eval.commentaires.map(comment => `<li style="margin-bottom: 0.3rem;">${comment}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                });
+                resultatsTaches.innerHTML = html;
+            }
+            
+            const conseils = document.getElementById('conseils-amelioration');
+            if (conseils) {
+                conseils.innerHTML = `
+                    <h5>Pour progresser vers le niveau supérieur :</h5>
+                    <ul>
+                        <li>${criteresParNiveau[niveauGlobal]?.tache1?.exigences?.[0] || 'Continuez à pratiquer régulièrement l\'écriture en français.'}</li>
+                        <li>Lisez des textes variés (articles, romans, blogs) pour enrichir votre vocabulaire.</li>
+                        <li>Pratiquez l'écriture quotidiennement, même de courts textes.</li>
+                    </ul>
+                `;
+            }
+            
+            const statsGrid = document.getElementById('statistiques-globales');
+            if (statsGrid) {
+                statsGrid.innerHTML = `
+                    <div class="stat-card"><div class="stat-value">${evaluations.reduce((acc, e) => acc + e.mots, 0)}</div><div class="stat-label">Total mots</div></div>
+                    <div class="stat-card"><div class="stat-value">${Math.round(evaluations.reduce((acc, e) => acc + e.score, 0) / 3)}</div><div class="stat-label">Score moyen</div></div>
+                    <div class="stat-card"><div class="stat-value">${formatTime(tempsRestant)}</div><div class="stat-label">Temps restant</div></div>
+                `;
+            }
+        }
+
+        function getNiveauColor(niveau) {
+            const colors = {
+                'A0': '#ef4444',
+                'A1': '#f97316',
+                'A2': '#f59e0b',
+                'B1': '#10b981',
+                'B2': '#3b82f6',
+                'C1': '#8b5cf6',
+                'C2': '#7c3aed'
+            };
+            return colors[niveau] || '#6b7280';
+        }
+
+        function formatTime(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = seconds % 60;
+            return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+
+        function estimerErreurs(texte) {
+            const erreursCourantes = ['sa va', 'comme même', 'malgré que', 'au jour d\'aujourd\'hui'];
+            let compte = 0;
+            
+            erreursCourantes.forEach(erreur => {
+                const regex = new RegExp(erreur, 'gi');
+                const matches = texte.match(regex);
+                if (matches) compte += matches.length;
+            });
+            
+            return compte;
+        }
+
+        function evaluerStructure(texte) {
+            const phrases = texte.split(/[.!?]+/).filter(p => p.trim().length > 0);
+            if (phrases.length < 3) return 0.3;
+            
+            const paragraphes = texte.split(/\n\s*\n/).filter(p => p.trim().length > 0);
+            let score = 0;
+            
+            if (paragraphes.length >= 2) score += 0.3;
+            if (phrases.length >= 5) score += 0.3;
+            if (texte.includes('premièrement') || texte.includes('deuxièmement') || texte.includes('en conclusion')) {
+                score += 0.4;
+            }
+            
+            return Math.min(score, 1);
+        }
+
+        function genererCommentaires(analyse, niveau, tacheNum, mots) {
+            const commentaires = [];
+            const tacheInfo = taches[tacheNum];
+            
+            if (analyse.erreurs > 5) {
+                commentaires.push('Attention aux erreurs courantes de français.');
+            }
+            
+            if (analyse.vocabulaire < 100 && tacheNum == 3) {
+                commentaires.push('Le vocabulaire pourrait être plus varié pour une tâche argumentative.');
+            }
+            
+            if (analyse.connecteurs.length < 3 && tacheNum > 1) {
+                commentaires.push('Utilisez davantage de connecteurs pour structurer votre texte.');
+            }
+            
+            if (mots < tacheInfo.motsMin) {
+                commentaires.push(`Le texte est trop court (${mots} mots sur ${tacheInfo.motsMin} minimum).`);
+            } else if (mots > tacheInfo.motsMax) {
+                commentaires.push(`Le texte dépasse la limite recommandée (${mots} mots sur ${tacheInfo.motsMax} maximum).`);
+            }
+            
+            commentaires.push(`Niveau correspondant: ${niveau}`);
+            
+            return commentaires;
+        }
+
+        function calculerScore(analyse, niveau, mots, tacheNum) {
+            let score = 50;
+            const tacheInfo = taches[tacheNum];
+            
+            if (mots >= tacheInfo.motsMin && mots <= tacheInfo.motsMax) {
+                score += 20;
+            } else if (mots >= tacheInfo.motsMin * 0.8 && mots <= tacheInfo.motsMax * 1.2) {
+                score += 10;
+            }
+            
+            score += Math.min(analyse.vocabulaire / 10, 20);
+            score += Math.min(analyse.connecteurs.length * 3, 15);
+            score -= Math.min(analyse.erreurs * 3, 30);
+            score += analyse.structure * 10;
+            
+            return Math.min(Math.max(score, 0), 100);
+        }
+
+        function soumettreEvaluations() {
+            clearInterval(chronometreInterval);
+            chronometreEnCours = false;
+            allerA('etape4');
+        }
+
+        function recommencerEvaluation() {
+            if (confirm('Voulez-vous vraiment recommencer ? Toutes vos réponses seront perdues.')) {
+                etapeActuelle = 1;
+                
+                const progression = document.getElementById('progression');
+                if (progression) progression.style.width = '0%';
+                
+                tempsRestant = 60 * 60;
+                chronometreEnCours = true;
+                const chronometreElement = document.getElementById('chronometre');
+                if (chronometreElement) {
+                    chronometreElement.textContent = '01:00:00';
+                    chronometreElement.classList.remove('warning', 'danger');
+                }
+                
+                for (let i = 1; i <= 3; i++) {
+                    const sujetInput = document.getElementById(`sujet-tache${i}`);
+                    const reponseInput = document.getElementById(`reponse-tache${i}`);
+                    const compteur = document.getElementById(`compteur-mots-tache${i}`);
+                    const progressBar = document.getElementById(`progress-indicator-t${i}`);
+                    const selectSujet = document.getElementById(`select-sujet-tache${i}`);
+                    
+                    if (sujetInput) sujetInput.value = '';
+                    if (reponseInput) reponseInput.value = '';
+                    if (compteur) {
+                        compteur.textContent = '0';
+                        compteur.style.color = '#64748b';
+                    }
+                    if (progressBar) {
+                        progressBar.style.width = '0%';
+                        progressBar.style.backgroundColor = '#10b981';
+                    }
+                    if (selectSujet) selectSujet.selectedIndex = 0;
+                }
+                
+                const selectCombinaison = document.getElementById('select-combinaison');
+                if (selectCombinaison) selectCombinaison.selectedIndex = 0;
+                
+                const questionElement = document.getElementById('question-tache3');
+                const docsContainer = document.getElementById('documents-tache3');
+                const doc1Container = document.getElementById('document1');
+                const doc2Container = document.getElementById('document2');
+                
+                if (questionElement) questionElement.style.display = 'none';
+                if (docsContainer) docsContainer.style.display = 'none';
+                if (doc1Container) doc1Container.style.display = 'none';
+                if (doc2Container) doc2Container.style.display = 'none';
+                
+                const resultatNiveau = document.getElementById('resultat-niveau-global');
+                const feedbackGlobal = document.getElementById('texte-feedback-global');
+                const resultatsTaches = document.getElementById('resultats-taches');
+                const conseils = document.getElementById('conseils-amelioration');
+                const statsGrid = document.getElementById('statistiques-globales');
+                
+                if (resultatNiveau) resultatNiveau.innerHTML = '';
+                if (feedbackGlobal) feedbackGlobal.innerHTML = '';
+                if (resultatsTaches) resultatsTaches.innerHTML = '';
+                if (conseils) conseils.innerHTML = '';
+                if (statsGrid) statsGrid.innerHTML = '';
+                
+                document.querySelectorAll('.tab-btn').forEach((bouton, index) => {
+                    if (index === 0) {
+                        bouton.classList.add('active');
+                    } else {
+                        bouton.classList.remove('active');
+                    }
+                });
+                
+                document.querySelectorAll('.step').forEach(etape => {
+                    etape.classList.remove('active');
+                });
+                document.getElementById('etape1')?.classList.add('active');
+                
+                demarrerChronometre();
+            }
+        }
+
+        function exporterResultats() {
+            const date = new Date().toLocaleDateString('fr-FR');
+            const heure = new Date().toLocaleTimeString('fr-FR');
+            
+            let rapport = `RAPPORT TCF EXPRESSION ÉCRITE\n`;
+            rapport += `Date: ${date} à ${heure}\n`;
+            rapport += `Test: ${testData[testActuel].nom}\n\n`;
+            
+            const niveauElement = document.querySelector('.level-badge');
+            if (niveauElement) {
+                rapport += `NIVEAU GLOBAL: ${niveauElement.textContent}\n\n`;
+            }
+            
+            rapport += `RÉPONSES:\n`;
+            
+            for (let i = 1; i <= 3; i++) {
+                const sujet = document.getElementById(`sujet-tache${i}`)?.value || '';
+                const reponse = document.getElementById(`reponse-tache${i}`)?.value || '';
+                
+                rapport += `TÂCHE ${i}:\n`;
+                rapport += `Sujet: ${sujet.substring(0, 200)}${sujet.length > 200 ? '...' : ''}\n`;
+                rapport += `Réponse: ${reponse.substring(0, 500)}${reponse.length > 500 ? '...' : ''}\n\n`;
+            }
+            
+            const blob = new Blob([rapport], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `TCF_Expression_Ecrite_${date.replace(/\//g, '-')}.txt`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                border-radius: 60px;
+                background: ${type === 'success' ? '#10b981' : '#3b82f6'};
+                color: white;
+                font-weight: 600;
+                z-index: 10000;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+                animation: slideIn 0.3s ease;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Make functions global
+        window.selectionnerCombinaison = selectionnerCombinaison;
+        window.selectionnerSujet = selectionnerSujet;
+        window.suspendreChronometre = suspendreChronometre;
+        window.allerA = allerA;
+        window.soumettreEvaluations = soumettreEvaluations;
+        window.recommencerEvaluation = recommencerEvaluation;
+        window.exporterResultats = exporterResultats;
+
+        // initialize
+        initFirebase();
+    })();
+</script>
+</body>
+</html>

@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <title>TCF Master · Compréhension Orale Test 35</title>
+    
+    <!-- Font Awesome & Google Fonts (modern style) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    
+    <!-- Prevent iOS telephone number detection -->
+    <meta name="format-detection" content="telephone=no">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --secondary: #3b82f6;
+            --secondary-dark: #2563eb;
+            --accent: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --premium: #8b5cf6;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #f1f5f9 0%, #e6eefc 100%);
+            min-height: 100vh;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .glass-panel {
+            width: 100%;
+            max-width: 1300px;
+            height: 95vh;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 42px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* modern header */
+        .modern-header {
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(12px);
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(59,130,246,0.2);
+        }
+        
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo-icon {
+            background: linear-gradient(135deg, var(--secondary), var(--premium));
+            width: 44px;
+            height: 44px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.4rem;
+        }
+        
+        .title-block h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #0f172a, #2563eb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .timer-card {
+            background: #1e293b;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 120px;
+            font-weight: 600;
+            font-size: 1.5rem;
+            font-family: 'Monaco', monospace;
+            border: 1px solid #3b82f6;
+        }
+        
+        .timer-card.warning { background: #f59e0b; color: black; }
+        .timer-card.danger { background: #ef4444; animation: pulse 1s infinite; }
+        
+        @keyframes pulse { 50% { opacity: 0.7; } }
+        
+        /* navigation */
+        .nav-section {
+            background: white;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .question-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .q-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 18px;
+            border: 1.5px solid var(--gray-200);
+            background: white;
+            font-weight: 600;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            line-height: 1;
+            padding: 0;
+        }
+        
+        .q-btn.active { background: var(--secondary); border-color: var(--secondary); color: white; transform: scale(1.05); }
+        .q-btn.answered { background: var(--success); border-color: var(--success); color: white; }
+        .q-btn.review { background: var(--warning); border-color: var(--warning); color: white; }
+        
+        .progress-legende {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .progress-bar-bg {
+            flex: 1;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 20px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border-radius: 20px;
+            width: 0%;
+        }
+        
+        .legend i { margin-right: 0.2rem; color: var(--gray-600); }
+        
+        /* main scroll */
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+        
+        .question-header-card {
+            display: flex;
+            justify-content: space-between;
+            background: white;
+            padding: 1.2rem 2rem;
+            border-radius: 30px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(59,130,246,0.2);
+        }
+        
+        .badge-points {
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            padding: 0.4rem 1.2rem;
+            border-radius: 60px;
+            color: white;
+            font-weight: 700;
+        }
+        
+        /* Audio player */
+        .audio-player {
+            background: #f8fafc;
+            border-radius: 32px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--gray-200);
+        }
+        
+        .audio-title {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .audio-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .audio-btn {
+            background: white;
+            border: 2px solid var(--gray-200);
+            border-radius: 60px;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .audio-btn:hover { border-color: var(--secondary); background: #f0f9ff; }
+        .audio-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .time-display {
+            font-family: monospace;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            background: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 60px;
+            border: 1px solid var(--gray-200);
+        }
+        
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 20px;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        
+        .audio-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--premium));
+            width: 0%;
+            transition: width 0.1s;
+        }
+        
+        /* Image container */
+        .image-container {
+            background: #f8fafc;
+            border-radius: 32px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            border: 1px solid var(--gray-200);
+        }
+        
+        .image-container h3 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+        
+        .question-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 24px;
+            margin-bottom: 1rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .image-caption {
+            color: var(--gray-500);
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+        
+        /* Instructions */
+        .instructions {
+            background: linear-gradient(135deg, #eef2ff, #ffffff);
+            padding: 1.5rem;
+            border-radius: 30px;
+            margin: 1.5rem 0;
+            border-left: 6px solid var(--secondary);
+            font-size: 1.1rem;
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        /* options */
+        .options-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .option-item {
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 2px solid var(--gray-200);
+            border-radius: 30px;
+            padding: 1.2rem 2rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .option-item:hover { border-color: var(--secondary); background: #f0f9ff; }
+        .option-item.selected { border-color: var(--secondary); background: #eef2ff; }
+        
+        .option-letter {
+            width: 50px;
+            height: 50px;
+            border-radius: 30px;
+            background: var(--gray-100);
+            border: 2px solid var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-right: 1.5rem;
+            flex-shrink: 0;
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+        
+        .selected .option-letter { background: var(--secondary); color: white; }
+        
+        .option-text {
+            flex: 1;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+        
+        /* footer */
+        .quiz-footer {
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(12px);
+            padding: 1.5rem 2rem;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-foot-btn {
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            border: none;
+            background: white;
+            border: 1px solid var(--gray-300);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            transition: 0.2s;
+            font-size: 1rem;
+        }
+        
+        .nav-foot-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .nav-foot-btn.primary { background: var(--secondary); color: white; border: none; }
+        .nav-foot-btn.primary:hover { background: var(--secondary-dark); }
+        .nav-foot-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        
+        .review-mark-btn {
+            background: #f59e0b;
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 1rem;
+        }
+        
+        .review-mark-btn:hover { background: #e68900; transform: translateY(-2px); }
+        .review-mark-btn.active { background: var(--warning); }
+        
+        /* auth overlay */
+        .auth-overlay {
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .auth-card {
+            background: white;
+            border-radius: 48px;
+            padding: 2.5rem;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .auth-icon { font-size: 4rem; margin-bottom: 1rem; }
+        .auth-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .auth-subtitle { color: var(--gray-600); margin-bottom: 1.5rem; }
+        
+        .auth-btn {
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            margin: 0.3rem;
+        }
+        
+        .auth-btn-primary { background: var(--secondary); color: white; }
+        .auth-btn-secondary { background: var(--gray-200); color: var(--gray-900); }
+        
+        /* modal résultats */
+        .modal-overlay {
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        
+        .modal-card {
+            background: white;
+            border-radius: 48px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .stat-box {
+            background: var(--gray-100);
+            border-radius: 24px;
+            padding: 1.2rem;
+            text-align: center;
+        }
+        
+        .stat-box span:first-of-type {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+        
+        .score-level { 
+            padding: 0.5rem 1.5rem; 
+            border-radius: 60px; 
+            display: inline-block;
+            font-weight: 600;
+        }
+        
+        .score-level.a1 { background: #ef4444; color: white; }
+        .score-level.a2 { background: #f59e0b; color: white; }
+        .score-level.b1 { background: #fbbf24; color: black; }
+        .score-level.b2 { background: #8bc34a; color: white; }
+        .score-level.c1 { background: #4caf50; color: white; }
+        .score-level.c2 { background: #2e7d32; color: white; }
+        
+        .questions-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin: 2rem 0;
+            justify-content: center;
+            padding: 1rem;
+            background: var(--gray-50);
+            border-radius: 30px;
+        }
+        
+        .question-result-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 18px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            line-height: 1;
+            padding: 0;
+            color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .question-result-btn.correct { 
+            background: var(--success); 
+        }
+        
+        .question-result-btn.incorrect { 
+            background: var(--accent); 
+        }
+        
+        .question-result-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .corrections-container {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--gray-50);
+            border-radius: 30px;
+        }
+        
+        .correction-item {
+            background: white;
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .correction-option { 
+            display: flex; 
+            align-items: center; 
+            padding: 0.8rem 1.2rem; 
+            border-radius: 18px; 
+            margin: 0.5rem 0; 
+        }
+        
+        .correction-option.correct-answer { 
+            background: #e6f7e6; 
+            border-left: 6px solid #10b981; 
+        }
+        
+        .correction-option.user-answer { 
+            background: #fee9e9; 
+            border-left: 6px solid #ef4444; 
+        }
+        
+        .correction-letter {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background: var(--gray-100);
+            border: 2px solid var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .copy-warning {
+            position: fixed;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #ef4444; color: white; padding: 1rem 2rem;
+            border-radius: 60px; font-weight: 600; z-index: 10000;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        @media (max-width:768px) {
+            .glass-panel { height: 100vh; border-radius: 24px; }
+            .modern-header { flex-direction: column; align-items: start; gap: 0.5rem; }
+            .timer-card { align-self: flex-end; }
+            .option-item { padding: 1rem; }
+            .audio-controls { flex-direction: column; }
+            .audio-btn { width: 100%; justify-content: center; }
+            .time-display { width: 100%; text-align: center; }
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- AUTH OVERLAY -->
+<div class="auth-overlay" id="authOverlay">
+    <div class="auth-card" id="authMessage">
+        <div class="auth-icon">🔒</div>
+        <div class="auth-title">Vérification</div>
+        <div class="auth-subtitle">Chargement de l'authentification...</div>
+        <div class="auth-loading"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
+    </div>
+</div>
+
+<!-- COPY WARNING -->
+<div class="copy-warning" id="copyWarning">⚠️ La copie est interdite</div>
+
+<!-- MAIN QUIZ PANEL -->
+<div class="glass-panel" id="quizContainer" style="display:none;">
+    <!-- HEADER -->
+    <div class="modern-header">
+        <div class="logo-area">
+            <div class="logo-icon"><i class="fas fa-headphones"></i></div>
+            <div class="title-block"><h1>Compréhension Orale · Test 35</h1></div>
+        </div>
+        <div class="timer-card" id="timerDisplay">01:00:00</div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <div class="nav-section">
+        <div class="question-grid" id="questionGrid"></div>
+        <div class="progress-legende">
+            <div class="progress-bar-bg"><div class="progress-fill" id="globalProgress" style="width:0%"></div></div>
+            <span><i class="fas fa-circle" style="color:#f59e0b;"></i> Révision</span>
+            <span><i class="fas fa-circle" style="color:#10b981;"></i> Répondu</span>
+        </div>
+    </div>
+
+    <!-- SCROLL CONTENT -->
+    <div class="scroll-content" id="mainScroll">
+        <div class="question-header-card">
+            <span id="qNumberDisplay">Question 1 / 39</span>
+            <span class="badge-points" id="pointsDisplay">3 points</span>
+        </div>
+
+        <!-- Media container (image + audio) -->
+        <div id="mediaContainer"></div>
+
+        <!-- Instructions -->
+        <div class="instructions" id="instructionText">
+            Écoutez les 4 propositions, choisissez celle qui correspond à l'image.
+        </div>
+
+        <!-- options -->
+        <div class="options-panel" id="optionsContainer"></div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="quiz-footer">
+        <button class="nav-foot-btn" id="prevBtn"><i class="fas fa-arrow-left"></i> Précédent</button>
+        <button class="review-mark-btn" id="reviewBtn"><i class="fas fa-bookmark"></i> Marquer</button>
+        <button class="nav-foot-btn primary" id="nextBtn">Suivant <i class="fas fa-arrow-right"></i></button>
+    </div>
+</div>
+
+<!-- RESULTS MODAL -->
+<div class="modal-overlay" id="resultsModal">
+    <div class="modal-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+            <h2 style="font-size:1.8rem; font-weight:700;">Résultats</h2>
+            <button onclick="closeResults()" style="background:none; border:none; font-size:2rem; cursor:pointer; width:40px; height:40px; display:flex; align-items:center; justify-content:center;">&times;</button>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-box">
+                <span id="correctCount">0</span>
+                <div>Correctes</div>
+            </div>
+            <div class="stat-box">
+                <span id="timeUsed">00:00</span>
+                <div>Temps</div>
+            </div>
+            <div class="stat-box">
+                <span id="scorePercent">0</span>
+                <div>Score %</div>
+            </div>
+        </div>
+        
+        <div style="background:linear-gradient(135deg,#0f172a,#1e293b); color:white; padding:1.5rem; border-radius:32px; text-align:center; margin:1rem 0;">
+            <span id="cecrLevelDisplay" style="font-weight:700;">NIVEAU A1 NON ATTEINT</span>
+        </div>
+        
+        <div class="questions-list" id="questionsList"></div>
+        
+        <button class="nav-foot-btn primary" style="width:100%; justify-content:center;" onclick="toggleCorrections()">
+            <i class="fas fa-check-circle"></i> Afficher les corrections
+        </button>
+        
+        <div id="correctionsContainer" style="display:none; margin-top:2rem;"></div>
+    </div>
+</div>
+
+<script>
+    // ====================
+    // QUIZ QUESTIONS DATA - TEST 35
+    // ====================
+    const questions = [
+        // QUESTION 1 - Image Question (Correct: C)
+        {
+            id: 1,
+            type: 'image',
+            image: 'oral35_image1.png',
+            audio: 'test35_audio1.mp3',
+            points: 3,
+            options: ['Option A', 'Option B', 'Option C', 'Option D'],
+            correct: 'C',
+            instruction: 'Écoutez les 4 propositions, choisissez celle qui correspond à l\'image.'
+        },
+        
+        // QUESTION 2 - Image Question (Correct: D)
+        {
+            id: 2,
+            type: 'image',
+            image: 'oral35_image2.webp',
+            audio: 'test35_audio2.mp3',
+            points: 3,
+            options: ['Option A', 'Option B', 'Option C', 'Option D'],
+            correct: 'D',
+            instruction: 'Écoutez les 4 propositions, choisissez celle qui correspond à l\'image.'
+        },
+        
+        // QUESTION 3 - Image Question (Correct: B)
+        {
+            id: 3,
+            type: 'image',
+            image: 'oral35_image3.png',
+            audio: 'test35_audio3.mp3',
+            points: 3,
+            options: ['Option A', 'Option B', 'Option C', 'Option D'],
+            correct: 'B',
+            instruction: 'Écoutez les 4 propositions, choisissez celle qui correspond à l\'image.'
+        },
+        
+        // QUESTION 4 - Audio Question (Correct: C)
+        {
+            id: 4,
+            type: 'audio',
+            audio: 'test35_audio4.mp3',
+            points: 3,
+            options: ['Option A', 'Option B', 'Option C', 'Option D'],
+            correct: 'C',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 5 - Audio Question (Correct: D)
+        {
+            id: 5,
+            type: 'audio',
+            audio: 'test35_audio5.mp3',
+            points: 9,
+            options: ['Option A', 'Option B', 'Option C', 'Option D'],
+            correct: 'D',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 6 - Audio Question (Correct: D)
+        {
+            id: 6,
+            type: 'audio',
+            audio: 'test35_audio6.mp3',
+            points: 9,
+            options: ['Option A', 'Option B', 'Option C', 'Option D'],
+            correct: 'D',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 7 - Audio Question (Correct: C)
+        {
+            id: 7,
+            type: 'audio',
+            audio: 'test35_audio7.mp3',
+            points: 9,
+            options: ['Option A', 'Option B', 'Option C', 'Option D'],
+            correct: 'C',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 8 - Audio Question (Correct: A)
+        {
+            id: 8,
+            type: 'audio',
+            audio: 'test35_audio8.mp3',
+            points: 9,
+            options: ['Option A', 'Option B', 'Option C', 'Option D'],
+            correct: 'A',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 9 - Audio Question (Correct: C) - Au cinéma
+        {
+            id: 9,
+            type: 'audio',
+            audio: 'test35_audio9.mp3',
+            points: 9,
+            options: [
+                'À l\'opéra.',
+                'Au cabaret.',
+                'Au cinéma.',
+                'Au théâtre.'
+            ],
+            correct: 'C',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 10 - Audio Question (Correct: C) - Trouver un hôtel
+        {
+            id: 10,
+            type: 'audio',
+            audio: 'test35_audio10.mp3',
+            points: 9,
+            options: [
+                'Acheter un plan.',
+                'Prendre un train.',
+                'Trouver un hôtel.',
+                'Visiter un musée.'
+            ],
+            correct: 'C',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 11 - Audio Question (Correct: C) - Se connecter sur le site Internet
+        {
+            id: 11,
+            type: 'audio',
+            audio: 'test35_audio11.mp3',
+            points: 15,
+            options: [
+                'Avoir un instrument de musique.',
+                'Être âgé de plus de dix ans.',
+                'Se connecter sur le site Internet.',
+                'Se présenter à l\'accueil.'
+            ],
+            correct: 'C',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 12 - Audio Question (Correct: D) - Utiliser la salle informatique
+        {
+            id: 12,
+            type: 'audio',
+            audio: 'test35_audio12.mp3',
+            points: 15,
+            options: [
+                'Faire une photo d\'identité.',
+                'Obtenir sa carte d\'étudiant.',
+                'S\'inscrire à un cours.',
+                'Utiliser la salle informatique.'
+            ],
+            correct: 'D',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 13 - Audio Question (Correct: D) - Pour lui rappeler une chose importante
+        {
+            id: 13,
+            type: 'audio',
+            audio: 'test35_audio13.mp3',
+            points: 15,
+            options: [
+                'Pour lui conseiller d\'aller voir un médecin.',
+                'Pour lui dire qu\'elle sera un peu en retard.',
+                'Pour lui proposer un film qu\'elle veut voir.',
+                'Pour lui rappeler une chose importante.'
+            ],
+            correct: 'D',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 14 - Audio Question (Correct: D) - Il faut être titulaire du baccalauréat
+        {
+            id: 14,
+            type: 'audio',
+            audio: 'test35_audio14.mp3',
+            points: 15,
+            options: [
+                'Il faut être âgé de dix-huit ans.',
+                'Il faut être diplômé en comptabilité.',
+                'Il faut être salarié à temps partiel.',
+                'Il faut être titulaire du baccalauréat.'
+            ],
+            correct: 'D',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 15 - Audio Question (Correct: C) - Au restaurant
+        {
+            id: 15,
+            type: 'audio',
+            audio: 'test35_audio15.mp3',
+            points: 15,
+            options: [
+                'Au bureau.',
+                'Au cinéma.',
+                'Au restaurant.',
+                'Au théâtre.'
+            ],
+            correct: 'C',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 16 - Audio Question (Correct: D) - Pour se plaindre d'une commande non livrée
+        {
+            id: 16,
+            type: 'audio',
+            audio: 'test35_audio16.mp3',
+            points: 15,
+            options: [
+                'Pour commander un nouveau canapé-lit.',
+                'Pour exiger l\'annulation de sa commande.',
+                'Pour demander un échange de marchandise.',
+                'Pour se plaindre d\'une commande non livrée.'
+            ],
+            correct: 'D',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 17 - Audio Question (Correct: C) - Comment la santé est influencée par le calendrier
+        {
+            id: 17,
+            type: 'audio',
+            audio: 'test35_audio17.mp3',
+            points: 15,
+            options: [
+                'Comment diminuer la consommation d\'énergie.',
+                'Comment il faut appliquer les conseils des experts.',
+                'Comment la santé est influencée par le calendrier.',
+                'Comment se protège des maladies contagieuses.'
+            ],
+            correct: 'C',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 18 - Audio Question (Correct: B) - D'informer de son retard
+        {
+            id: 18,
+            type: 'audio',
+            audio: 'test35_audio18.mp3',
+            points: 15,
+            options: [
+                'D\'annuler une réunion.',
+                'D\'informer de son retard.',
+                'De recevoir un client.',
+                'De reporter un entretien.'
+            ],
+            correct: 'B',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 19 - Audio Question (Correct: B) - Les étudiants ignorent le fonctionnement de l'entreprise
+        {
+            id: 19,
+            type: 'audio',
+            audio: 'test35_audio19.mp3',
+            points: 15,
+            options: [
+                'Les conditions de recrutement sont plus difficiles aujourd\'hui.',
+                'Les étudiants ignorent le fonctionnement de l\'entreprise.',
+                'Les jeunes étaient préparés plus sérieusement dans le passé.',
+                'Les patrons actuels ont un degré d\'exigence trop élevé.'
+            ],
+            correct: 'B',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 20 - Audio Question (Correct: A) - Il est possible qu'il soit renvoyé
+        {
+            id: 20,
+            type: 'audio',
+            audio: 'test35_audio20.mp3',
+            points: 21,
+            options: [
+                'Il est possible qu\'il soit renvoyé.',
+                'Il est renvoyé définitivement.',
+                'Il va commencer sa période d\'essai.',
+                'Il va être embauché définitivement.'
+            ],
+            correct: 'A',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 21 - Audio Question (Correct: C) - Les travaux nécessaires ne sont pas encore achevés
+        {
+            id: 21,
+            type: 'audio',
+            audio: 'test35_audio21.mp3',
+            points: 21,
+            options: [
+                'Le promoteur a oublié de prévenir la compagnie de téléphone.',
+                'Le réseau téléphonique du nouvel immeuble est déjà saturé.',
+                'Les travaux nécessaires ne sont pas encore achevés.',
+                'La compagnie de téléphone manque de personnel pour le faire.'
+            ],
+            correct: 'C',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 22 - Audio Question (Correct: D) - Elle ressent une profonde tristesse
+        {
+            id: 22,
+            type: 'audio',
+            audio: 'test35_audio22.mp3',
+            points: 21,
+            options: [
+                'Elle est déçue par la demande de son ami.',
+                'Elle exprime un profond dégoût pour les chiens.',
+                'Elle refuse de garder l\'animal de son ami.',
+                'Elle ressent une profonde tristesse.'
+            ],
+            correct: 'D',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 23 - Audio Question (Correct: D) - Que l'homme se soit mis à faire du sport
+        {
+            id: 23,
+            type: 'audio',
+            audio: 'test35_audio23.mp3',
+            points: 21,
+            options: [
+                'Que l\'homme soit parti seul en vacances.',
+                'Que l\'homme ait progressé au golf.',
+                'Que l\'homme lui ait envoyé une carte.',
+                'Que l\'homme se soit mis à faire du sport.'
+            ],
+            correct: 'D',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 24 - Audio Question (Correct: C) - La sécurité
+        {
+            id: 24,
+            type: 'audio',
+            audio: 'test35_audio24.mp3',
+            points: 21,
+            options: [
+                'L\'écologie.',
+                'La puissance.',
+                'La sécurité.',
+                'Les équipements.'
+            ],
+            correct: 'C',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 25 - Audio Question (Correct: D) - Pour les aider à développer leur personnalité
+        {
+            id: 25,
+            type: 'audio',
+            audio: 'test35_audio25.mp3',
+            points: 21,
+            options: [
+                'Pour accompagner leur travail scolaire.',
+                'Pour détecter des anomalies de comportement.',
+                'Pour empêcher qu\'ils regardent trop la télé.',
+                'Pour les aider à développer leur personnalité.'
+            ],
+            correct: 'D',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 26 - Audio Question (Correct: D) - Il pense qu'il aurait dû être prévenu
+        {
+            id: 26,
+            type: 'audio',
+            audio: 'test35_audio26.mp3',
+            points: 21,
+            options: [
+                'Il trouve que cela lui coûte trop cher.',
+                'Il pense que cela ne lui est plus utile.',
+                'Il trouve que l\'augmentation est injustifiée.',
+                'Il pense qu\'il aurait dû être prévenu.'
+            ],
+            correct: 'D',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 27 - Audio Question (Correct: D) - L'approche identique de la question de l'école
+        {
+            id: 27,
+            type: 'audio',
+            audio: 'test35_audio27.mp3',
+            points: 21,
+            options: [
+                'L\'envie de dénoncer la situation de l\'école.',
+                'La nostalgie de l\'école de leur jeunesse.',
+                'Le constat d\'une école fermée sur elle-même.',
+                'L\'approche identique de la question de l\'école.'
+            ],
+            correct: 'D',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 28 - Audio Question (Correct: B) - Être serviable avec discrétion
+        {
+            id: 28,
+            type: 'audio',
+            audio: 'test35_audio28.mp3',
+            points: 21,
+            options: [
+                'Attendre que le client demande conseil.',
+                'Être serviable avec discrétion.',
+                'Pousser le client à consommer.',
+                'Toujours accompagner le client.'
+            ],
+            correct: 'B',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 29 - Audio Question (Correct: B) - De manger sans compter
+        {
+            id: 29,
+            type: 'audio',
+            audio: 'test35_audio29.mp3',
+            points: 21,
+            options: [
+                'De maigrir plus rapidement.',
+                'De manger sans compter.',
+                'De s\'entraîner moins souvent.',
+                'De vivre plus longtemps.'
+            ],
+            correct: 'B',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 30 - Audio Question (Correct: D) - Ils sont tentés par les dépenses
+        {
+            id: 30,
+            type: 'audio',
+            audio: 'test35_audio30.mp3',
+            points: 26,
+            options: [
+                'Ils habitent plus longtemps en location.',
+                'Ils perçoivent un salaire plus élevé.',
+                'Ils s\'investissent dans des associations.',
+                'Ils sont tentés par les dépenses.'
+            ],
+            correct: 'D',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 31 - Audio Question (Correct: D) - Après le match
+        {
+            id: 31,
+            type: 'audio',
+            audio: 'test35_audio31.mp3',
+            points: 26,
+            options: [
+                'Avant le match.',
+                'Pendant le match.',
+                'À la mi-temps.',
+                'Après le match.'
+            ],
+            correct: 'D',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 32 - Audio Question (Correct: B) - Les copies gratuites de fichiers musicaux sur Internet
+        {
+            id: 32,
+            type: 'audio',
+            audio: 'test35_audio32.mp3',
+            points: 26,
+            options: [
+                'La mise en vente illégale d\'albums musicaux contrefaits.',
+                'Les copies gratuites de fichiers musicaux sur Internet.',
+                'Les détournements de droits d\'auteur sur les disques vendus.',
+                'Les enregistrements clandestins pendant les concerts.'
+            ],
+            correct: 'B',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 33 - Audio Question (Correct: A) - Il a des répercussions jusque dans le quotidien des Québécois
+        {
+            id: 33,
+            type: 'audio',
+            audio: 'test35_audio33.mp3',
+            points: 26,
+            options: [
+                'Il a des répercussions jusque dans le quotidien des Québécois.',
+                'Il modifie le calendrier annuel des compétitions de ski de fond.',
+                'Il présente des bénéfices économiques méconnus des populations.',
+                'Il se ressent surtout dans les régions situées au nord du Canada.'
+            ],
+            correct: 'A',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 34 - Audio Question (Correct: A) - Ils émettent quelques réserves sur leur intégration
+        {
+            id: 34,
+            type: 'audio',
+            audio: 'test35_audio34.mp3',
+            points: 26,
+            options: [
+                'Ils émettent quelques réserves sur leur intégration.',
+                'Ils regrettent les festivités culturelles parisiennes.',
+                'Ils s\'indignent des prix du marché de l\'immobilier.',
+                'Ils se soucient du manque de transports en commun.'
+            ],
+            correct: 'A',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 35 - Audio Question (Correct: C) - Les habitants sont indifférents à l'une des richesses du Québec
+        {
+            id: 35,
+            type: 'audio',
+            audio: 'test35_audio35.mp3',
+            points: 26,
+            options: [
+                'La multiplication des intervenants nuit à l\'efficacité de sa communication.',
+                'Les actions d\'information ont rouvert le dialogue avec les Québécois.',
+                'Les habitants sont indifférents à l\'une des richesses du Québec.',
+                'L\'expansion urbaine contrarie l\'exploitation industrielle du bois.'
+            ],
+            correct: 'C',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 36 - Audio Question (Correct: C) - Encourager la création de projets économiques locaux
+        {
+            id: 36,
+            type: 'audio',
+            audio: 'test35_audio36.mp3',
+            points: 33,
+            options: [
+                'Développer une entreprise nationale de traitement de l\'eau.',
+                'Installer des arrivées d\'eau potable gratuite pour les villageois.',
+                'Encourager la création de projets économiques locaux.',
+                'Lancer un programme d\'irrigation dans des régions isolées.'
+            ],
+            correct: 'C',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 37 - Audio Question (Correct: B) - D'un cuisinier renommé
+        {
+            id: 37,
+            type: 'audio',
+            audio: 'test35_audio37.mp3',
+            points: 33,
+            options: [
+                'D\'un citadin original.',
+                'D\'un cuisinier renommé.',
+                'D\'un historien passionné.',
+                'D\'un homme préhistorique.'
+            ],
+            correct: 'B',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 38 - Audio Question (Correct: B) - Ils répondent à des critères insuffisamment exigeants
+        {
+            id: 38,
+            type: 'audio',
+            audio: 'test35_audio38.mp3',
+            points: 33,
+            options: [
+                'Ils font l\'objet de manipulations douteuses par les pollueurs.',
+                'Ils répondent à des critères insuffisamment exigeants.',
+                'Ils sont destinés à justifier les politiques économiques.',
+                'Ils sont publiés par des organismes liés aux entreprises.'
+            ],
+            correct: 'B',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        },
+        
+        // QUESTION 39 - Audio Question (Correct: D) - Maintenir des tarifs compétitifs
+        {
+            id: 39,
+            type: 'audio',
+            audio: 'test35_audio39.mp3',
+            points: 33,
+            options: [
+                'Améliorer la présentation des produits.',
+                'Augmenter le nombre de clients.',
+                'Multiplier les points de vente.',
+                'Maintenir des tarifs compétitifs.'
+            ],
+            correct: 'D',
+            instruction: 'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.'
+        }
+    ];
+
+    // ====================
+    // FIREBASE CONFIGURATION
+    // ====================
+    const firebaseConfig = {
+        apiKey: "AIzaSyAhGVA4vr3pISonxvccIMCxZZOE5bkynRQ",
+        authDomain: "platformtcf.firebaseapp.com",
+        projectId: "platformtcf",
+        storageBucket: "platformtcf.firebasestorage.app",
+        messagingSenderId: "779352652301",
+        appId: "1:779352652301:web:41ca6b1dbcc42739b47344",
+        measurementId: "G-6TBDXBQ0XN"
+    };
+
+    // ====================
+    // QUIZ STATE VARIABLES
+    // ====================
+    let currentUser = null;
+    let isPremium = false;
+    let firebaseApp = null;
+    let firebaseAuth = null;
+    let firestore = null;
+    
+    let currentIdx = 0;
+    let userAnswers = new Array(39).fill(null);
+    let reviewFlags = new Array(39).fill(false);
+    let timeLeft = 3600; // 60 minutes
+    let timerInterval;
+    let startTime = new Date();
+    let currentAudio = null;
+
+    // DOM Elements
+    const authOverlay = document.getElementById('authOverlay');
+    const authMessage = document.getElementById('authMessage');
+    const quizContainer = document.getElementById('quizContainer');
+
+    // ====================
+    // FIREBASE INITIALIZATION
+    // ====================
+    async function initFirebase() {
+        try {
+            firebaseApp = firebase.initializeApp(firebaseConfig);
+            firebaseAuth = firebase.auth();
+            firestore = firebase.firestore();
+
+            firebaseAuth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    await handleUser(user);
+                } else {
+                    showAuth('not_logged_in', 'Non connecté', 'Vous devez être connecté pour accéder à ce test.');
+                }
+            });
+        } catch (e) {
+            showAuth('error', 'Erreur Firebase', 'Impossible de se connecter au serveur.');
+        }
+    }
+
+    async function handleUser(user) {
+        try {
+            const doc = await firestore.collection('users').doc(user.uid).get();
+            if (!doc.exists) {
+                showAuth('error', 'Compte non trouvé', 'Votre profil utilisateur est introuvable.');
+                return;
+            }
+            
+            const data = doc.data();
+            currentUser = { uid: user.uid, email: user.email, ...data };
+            
+            // VÉRIFICATION PREMIUM
+            isPremium = false;
+            
+            if (data.premiumActive === true) isPremium = true;
+            if (data.premium === true) isPremium = true;
+            if (data.premiumType && data.premiumType !== "none" && data.premiumType !== "free") isPremium = true;
+            if (data.status === "premium" || data.status === "active") isPremium = true;
+            if (data.subscriptionStatus === "active" || data.subscriptionStatus === "premium") isPremium = true;
+            
+            if (data.premiumExpiry) {
+                const now = new Date();
+                const expiry = new Date(data.premiumExpiry);
+                if (expiry > now) isPremium = true;
+            }
+            
+            if (user.uid === "a0fPHv3JniRr55uJJjJggSMFKGY2") isPremium = true;
+            if (user.email === "bouhoula_mohamedhedi@yahoo.fr") isPremium = true;
+            if (data.role === "admin" || data.isAdmin === true) isPremium = true;
+            
+            if (!isPremium) {
+                showAuth('premium_required', 'Accès Premium', 'Ce test nécessite un abonnement premium actif.');
+                return;
+            }
+            
+            // Tout est bon
+            authOverlay.style.display = 'none';
+            quizContainer.style.display = 'flex';
+            startQuiz();
+            
+        } catch (err) {
+            showAuth('error', 'Erreur', 'Impossible de charger les données.');
+        }
+    }
+
+    function showAuth(type, title, msg) {
+        let icon = '🔒';
+        if (type === 'loading') icon = '<i class="fas fa-spinner fa-spin"></i>';
+        else if (type === 'error') icon = '❌';
+        
+        authMessage.innerHTML = `
+            <div class="auth-icon">${icon}</div>
+            <div class="auth-title">${title}</div>
+            <div class="auth-subtitle">${msg}</div>
+        `;
+        authOverlay.style.display = 'flex';
+    }
+
+    // ====================
+    // QUIZ FUNCTIONS
+    // ====================
+    function startQuiz() {
+        createGrid();
+        loadQuestion(0);
+        startTimer();
+        updateProgress();
+        setupCopyProtection();
+    }
+
+    function createGrid() {
+        const grid = document.getElementById('questionGrid');
+        grid.innerHTML = '';
+        for (let i=0; i<39; i++) {
+            let btn = document.createElement('button');
+            btn.className = 'q-btn';
+            btn.textContent = i+1;
+            btn.onclick = () => navigateTo(i);
+            grid.appendChild(btn);
+        }
+        updateGridClasses();
+    }
+
+    function updateGridClasses() {
+        document.querySelectorAll('.q-btn').forEach((btn, idx) => {
+            btn.classList.remove('active','answered','review');
+            if (idx === currentIdx) btn.classList.add('active');
+            if (userAnswers[idx] !== null) btn.classList.add('answered');
+            if (reviewFlags[idx]) btn.classList.add('review');
+        });
+    }
+
+    function loadQuestion(index) {
+        const q = questions[index];
+        document.getElementById('qNumberDisplay').innerText = `Question ${index+1} / 39`;
+        document.getElementById('pointsDisplay').innerText = q.points + ' points';
+        document.getElementById('instructionText').innerText = q.instruction;
+        
+        // Charger média (image + audio)
+        loadMedia(index);
+        
+        // Options
+        const optsDiv = document.getElementById('optionsContainer');
+        optsDiv.innerHTML = '';
+        q.options.forEach((opt, optIdx) => {
+            let letter = String.fromCharCode(65+optIdx);
+            let selectedClass = (userAnswers[index] === letter) ? 'selected' : '';
+            let div = document.createElement('div');
+            div.className = `option-item ${selectedClass}`;
+            div.onclick = () => selectOption(optIdx);
+            div.innerHTML = `<div class="option-letter">${letter}</div><div class="option-text">${opt}</div>`;
+            optsDiv.appendChild(div);
+        });
+
+        document.getElementById('prevBtn').disabled = (index===0);
+        let nextBtn = document.getElementById('nextBtn');
+        nextBtn.innerHTML = (index===38) ? 'Terminer <i class="fas fa-check"></i>' : 'Suivant <i class="fas fa-arrow-right"></i>';
+        
+        let reviewBtn = document.getElementById('reviewBtn');
+        reviewBtn.innerHTML = reviewFlags[index] ? '✓ Révision' : '<i class="fas fa-bookmark"></i> Marquer';
+        
+        updateGridClasses();
+        updateProgress();
+    }
+
+    function loadMedia(index) {
+        const q = questions[index];
+        const mediaContainer = document.getElementById('mediaContainer');
+        
+        if (q.type === 'image' && q.image) {
+            // Image + Audio
+            mediaContainer.innerHTML = `
+                <div class="image-container">
+                    <h3><i class="fas fa-image"></i> Image pour la Question ${q.id}</h3>
+                    <img src="${q.image}" alt="Image Q${q.id}" class="question-image" 
+                         onerror="this.src='https://via.placeholder.com/500x300/3b82f6/ffffff?text=Image+Q${q.id}'; this.nextElementSibling.textContent='Image non trouvée';">
+                    <div class="image-caption">${q.image}</div>
+                </div>
+                <div class="audio-player">
+                    <div class="audio-title"><i class="fas fa-headphones"></i> Audio: ${q.audio}</div>
+                    <audio id="audioPlayer" preload="metadata">
+                        <source src="${q.audio}" type="audio/mpeg">
+                        <source src="${q.audio.replace('.mp3','.wav')}" type="audio/wav">
+                    </audio>
+                    <div class="audio-controls">
+                        <button class="audio-btn" id="playBtn"><i class="fas fa-play"></i> Jouer</button>
+                        <button class="audio-btn" id="pauseBtn" disabled><i class="fas fa-pause"></i> Pause</button>
+                        <button class="audio-btn" id="stopBtn" disabled><i class="fas fa-stop"></i> Stop</button>
+                        <span class="time-display" id="timeDisplay">00:00 / 00:00</span>
+                    </div>
+                    <div class="progress-bar-container" id="progressContainer">
+                        <div class="audio-progress" id="audioProgress"></div>
+                    </div>
+                </div>
+            `;
+        } else {
+            // Audio seulement
+            mediaContainer.innerHTML = `
+                <div class="audio-player">
+                    <div class="audio-title"><i class="fas fa-headphones"></i> Question ${q.id} - ${q.audio}</div>
+                    <audio id="audioPlayer" preload="metadata">
+                        <source src="${q.audio}" type="audio/mpeg">
+                        <source src="${q.audio.replace('.mp3','.wav')}" type="audio/wav">
+                    </audio>
+                    <div class="audio-controls">
+                        <button class="audio-btn" id="playBtn"><i class="fas fa-play"></i> Jouer</button>
+                        <button class="audio-btn" id="pauseBtn" disabled><i class="fas fa-pause"></i> Pause</button>
+                        <button class="audio-btn" id="stopBtn" disabled><i class="fas fa-stop"></i> Stop</button>
+                        <span class="time-display" id="timeDisplay">00:00 / 00:00</span>
+                    </div>
+                    <div class="progress-bar-container" id="progressContainer">
+                        <div class="audio-progress" id="audioProgress"></div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Initialiser l'audio
+        initAudio();
+        document.getElementById('playBtn').onclick = playAudio;
+        document.getElementById('pauseBtn').onclick = pauseAudio;
+        document.getElementById('stopBtn').onclick = stopAudio;
+        document.getElementById('progressContainer').onclick = (e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            if (currentAudio && currentAudio.duration) {
+                currentAudio.currentTime = pos * currentAudio.duration;
+            }
+        };
+    }
+
+    function initAudio() {
+        currentAudio = document.getElementById('audioPlayer');
+        if (currentAudio) {
+            currentAudio.addEventListener('loadedmetadata', () => {
+                document.getElementById('timeDisplay').textContent = `00:00 / ${formatTime(currentAudio.duration)}`;
+            });
+            currentAudio.addEventListener('timeupdate', updateAudioProgress);
+            currentAudio.addEventListener('ended', () => {
+                document.getElementById('playBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = true;
+            });
+        }
+    }
+
+    function playAudio() {
+        if (currentAudio) {
+            currentAudio.play();
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = false;
+        }
+    }
+
+    function pauseAudio() {
+        if (currentAudio) {
+            currentAudio.pause();
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+        }
+    }
+
+    function stopAudio() {
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+            document.getElementById('timeDisplay').textContent = '00:00 / 00:00';
+            document.getElementById('audioProgress').style.width = '0%';
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = true;
+        }
+    }
+
+    function updateAudioProgress() {
+        if (currentAudio && currentAudio.duration) {
+            const progress = (currentAudio.currentTime / currentAudio.duration) * 100;
+            document.getElementById('audioProgress').style.width = `${progress}%`;
+            document.getElementById('timeDisplay').textContent = 
+                `${formatTime(Math.floor(currentAudio.currentTime))} / ${formatTime(Math.floor(currentAudio.duration))}`;
+        }
+    }
+
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function selectOption(optIdx) {
+        let letter = String.fromCharCode(65+optIdx);
+        userAnswers[currentIdx] = letter;
+        loadQuestion(currentIdx);
+    }
+
+    function navigateTo(idx) {
+        if (idx>=0 && idx<39) { 
+            if (currentAudio) stopAudio();
+            currentIdx = idx; 
+            loadQuestion(currentIdx); 
+        }
+    }
+
+    document.getElementById('prevBtn').onclick = () => navigateTo(currentIdx-1);
+    document.getElementById('nextBtn').onclick = () => { 
+        if (currentIdx===38) finishTest(); 
+        else navigateTo(currentIdx+1); 
+    };
+    
+    document.getElementById('reviewBtn').onclick = () => { 
+        reviewFlags[currentIdx] = !reviewFlags[currentIdx]; 
+        loadQuestion(currentIdx); 
+    };
+
+    function updateProgress() {
+        let answered = userAnswers.filter(a=>a!==null).length;
+        document.getElementById('globalProgress').style.width = (answered/39*100)+'%';
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => { 
+            timeLeft--; 
+            if (timeLeft<=0) finishTest(); 
+            updateTimer(); 
+        }, 1000);
+    }
+    
+    function updateTimer() {
+        let h = Math.floor(timeLeft/3600);
+        let m = Math.floor((timeLeft%3600)/60);
+        let s = timeLeft%60;
+        let timer = document.getElementById('timerDisplay');
+        timer.innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        if (timeLeft<300) timer.className = 'timer-card danger';
+        else if (timeLeft<600) timer.className = 'timer-card warning';
+    }
+
+    function finishTest() {
+        if (currentAudio) stopAudio();
+        clearInterval(timerInterval);
+        
+        let correct=0, total=0, earned=0;
+        questions.forEach((q,i) => { 
+            total += q.points; 
+            if (userAnswers[i]===q.correct) { 
+                correct++; 
+                earned += q.points; 
+            } 
+        });
+        
+        let percent = Math.round((earned/total)*100);
+        document.getElementById('correctCount').innerText = correct;
+        document.getElementById('timeUsed').innerText = getTimeUsed();
+        document.getElementById('scorePercent').innerText = percent;
+        
+        let levelElem = document.getElementById('cecrLevelDisplay');
+        if (percent>=85) levelElem.innerText = 'NIVEAU C2 ATTEINT';
+        else if (percent>=75) levelElem.innerText = 'NIVEAU C1 ATTEINT';
+        else if (percent>=60) levelElem.innerText = 'NIVEAU B2 ATTEINT';
+        else if (percent>=40) levelElem.innerText = 'NIVEAU B1 ATTEINT';
+        else if (percent>=20) levelElem.innerText = 'NIVEAU A2 ATTEINT';
+        else levelElem.innerText = 'NIVEAU A1 NON ATTEINT';
+
+        let qlist = document.getElementById('questionsList');
+        qlist.innerHTML = '';
+        for (let i=0; i<39; i++) {
+            let span = document.createElement('span');
+            span.className = `question-result-btn ${userAnswers[i]===questions[i].correct ? 'correct' : 'incorrect'}`;
+            span.innerText = i+1;
+            span.onclick = () => showCorrection(i);
+            qlist.appendChild(span);
+        }
+        
+        document.getElementById('resultsModal').style.display = 'flex';
+    }
+
+    function getTimeUsed() {
+        let diff = (new Date() - startTime)/1000;
+        let h = Math.floor(diff/3600);
+        let m = Math.floor((diff%3600)/60);
+        let s = Math.floor(diff%60);
+        return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    }
+
+    function showCorrection(idx) {
+        let q = questions[idx];
+        let html = `<div class="corrections-container">`;
+        html += `<h3 style="margin-bottom:1rem;">Question ${idx+1} (${q.points} pts)</h3>`;
+        html += `<p style="margin-bottom:1rem; font-style:italic;">${q.instruction}</p>`;
+        
+        q.options.forEach((opt,i) => {
+            let lettre = String.fromCharCode(65+i);
+            let classe = '';
+            if (lettre === q.correct) classe = 'correct-answer';
+            if (userAnswers[idx] === lettre && lettre !== q.correct) classe = 'user-answer';
+            
+            html += `<div class="correction-option ${classe}">`;
+            html += `<div class="correction-letter">${lettre}</div>`;
+            html += `<div style="flex:1;">${opt}</div>`;
+            html += `</div>`;
+        });
+        
+        let correctLetter = q.correct;
+        let correctText = q.options[q.correct.charCodeAt(0)-65];
+        let userLetter = userAnswers[idx] || 'Aucune';
+        let userText = userAnswers[idx] ? q.options[userAnswers[idx].charCodeAt(0)-65] : '';
+        
+        html += `<div style="margin-top:1.5rem; padding:1rem; background:white; border-radius:18px;">`;
+        html += `<p><strong>Votre réponse:</strong> ${userLetter} - ${userText || 'Non répondue'}</p>`;
+        html += `<p><strong>Réponse correcte:</strong> ${correctLetter} - ${correctText}</p>`;
+        html += `</div>`;
+        
+        html += `</div>`;
+        document.getElementById('correctionsContainer').innerHTML = html;
+        document.getElementById('correctionsContainer').style.display = 'block';
+    }
+
+    window.toggleCorrections = function() {
+        let c = document.getElementById('correctionsContainer');
+        if (c.style.display === 'none' || c.style.display === '') { 
+            showCorrection(0); 
+            c.style.display = 'block'; 
+            c.scrollIntoView({ behavior: 'smooth' });
+        } else { 
+            c.style.display = 'none'; 
+        }
+    };
+    
+    window.closeResults = function() { 
+        document.getElementById('resultsModal').style.display = 'none'; 
+    };
+
+    function setupCopyProtection() {
+        document.addEventListener('copy', (e) => {
+            if (window.getSelection().toString().length > 50) { 
+                e.preventDefault(); 
+                showCopyWarning(); 
+            }
+        });
+    }
+    
+    function showCopyWarning() {
+        let w = document.getElementById('copyWarning');
+        w.style.display = 'block';
+        setTimeout(() => w.style.display = 'none', 1500);
+    }
+
+    // Initialize Firebase
+    initFirebase();
+</script>
+</body>
+</html>

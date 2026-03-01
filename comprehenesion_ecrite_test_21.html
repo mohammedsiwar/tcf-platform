@@ -1,0 +1,1792 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compréhension Écrite Test 21 - PREP MON TCF CANADA</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Quiz Container */
+        .quiz-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Header Section - Fixed at top */
+        .quiz-header {
+            background: white;
+            padding: 15px 20px;
+            border-bottom: 2px solid #1a237e;
+            flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left h1 {
+            color: #1a237e;
+            font-size: 20px;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .header-left h2 {
+            color: #666;
+            font-size: 14px;
+            margin: 5px 0 0 0;
+            font-weight: 400;
+        }
+
+        .timer {
+            background: #ff6b6b;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            white-space: nowrap;
+        }
+
+        .timer.warning {
+            background: #ff9800;
+        }
+
+        .timer.danger {
+            background: #ef4444;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        /* Navigation Section - Fixed height */
+        .navigation-section {
+            background: white;
+            border-bottom: 2px solid #e0e0e0;
+            padding: 15px 20px;
+            flex-shrink: 0;
+        }
+
+        /* Question Navigation - Single line */
+        .question-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+
+        .question-btn {
+            padding: 6px 12px;
+            border: 1px solid #e0e0e0;
+            background: white;
+            color: #333;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            border-radius: 3px;
+        }
+
+        .question-btn:hover {
+            border-color: #4caf50;
+        }
+
+        .question-btn.active {
+            background: #1a237e;
+            color: white;
+            border-color: #1a237e;
+        }
+
+        .question-btn.answered {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+        }
+
+        .question-btn.review {
+            background: #ff9800;
+            color: white;
+            border-color: #ff9800;
+        }
+
+        /* Progress and Legend - Single line */
+        .progress-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .progress-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #8bc34a);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 3px;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            color: #666;
+            white-space: nowrap;
+            min-width: 40px;
+        }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            font-size: 13px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        .answered-color {
+            background: #4caf50;
+        }
+
+        .review-color {
+            background: #ff9800;
+        }
+
+        /* Main Content Section - Takes remaining space */
+        .main-content-section {
+            flex: 1;
+            overflow-y: auto;
+            background: white;
+            padding: 30px 30px 10px 30px; /* Reduced bottom padding */
+        }
+
+        /* Question Info - Top of content */
+        .question-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px; /* Reduced margin */
+            padding-bottom: 15px; /* Reduced padding */
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .question-number {
+            font-size: 24px;
+            color: #1a237e;
+            font-weight: 700;
+        }
+
+        .question-points {
+            background: #ff9800;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        /* Question Text - Center of page */
+        .question-text-container {
+            margin-bottom: 30px; /* Reduced margin */
+        }
+
+        .question-text {
+            background: #f8f9fa;
+            padding: 25px; /* Reduced padding */
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 18px;
+            line-height: 1.8;
+            white-space: pre-line;
+            text-align: center;
+            max-height: 400px; /* Added max-height */
+            overflow-y: auto; /* Added scroll if needed */
+        }
+
+        /* Options - Simple list with clear separation */
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px; /* Reduced gap */
+            margin-bottom: 15px; /* Added margin bottom */
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 18px; /* Reduced padding */
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 55px; /* Reduced min-height */
+        }
+
+        .option:hover {
+            border-color: #4caf50;
+            background: #f1f8e9;
+        }
+
+        .option.selected {
+            border-color: #1a237e;
+            background: #e8eaf6;
+        }
+
+        .option-letter {
+            width: 36px; /* Reduced size */
+            min-width: 36px;
+            height: 36px;
+            border-radius: 4px;
+            background: white;
+            border: 2px solid #1a237e;
+            color: #1a237e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 15px; /* Reduced margin */
+            font-size: 15px; /* Reduced font size */
+        }
+
+        .option.selected .option-letter {
+            background: #1a237e;
+            color: white;
+        }
+
+        .option-text {
+            flex: 1;
+            font-size: 17px; /* Reduced font size */
+            line-height: 1.5;
+        }
+
+        /* Footer Navigation */
+        .quiz-footer {
+            background: white;
+            padding: 12px 20px; /* Reduced padding */
+            border-top: 2px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .nav-btn {
+            padding: 10px 25px; /* Reduced padding */
+            border-radius: 4px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px; /* Reduced gap */
+            font-size: 15px; /* Reduced font size */
+        }
+
+        .nav-btn.prev {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+
+        .nav-btn.prev:hover {
+            background: #e0e0e0;
+        }
+
+        .nav-btn.next {
+            background: #1a237e;
+            color: white;
+        }
+
+        .nav-btn.next:hover {
+            background: #283593;
+        }
+
+        .nav-btn.submit {
+            background: #4caf50;
+            color: white;
+        }
+
+        .nav-btn.submit:hover {
+            background: #388e3c;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .review-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px; /* Reduced padding */
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 15px; /* Reduced font size */
+        }
+
+        .review-btn:hover {
+            background: #5a6268;
+        }
+
+        .review-btn.active {
+            background: #ff9800;
+        }
+
+        .review-btn.active:hover {
+            background: #e68900;
+        }
+
+        /* Results Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: modalAppear 0.3s ease;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            background: none;
+            border: none;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-modal:hover {
+            color: #333;
+        }
+
+        /* Results Header */
+        .results-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .results-header h1 {
+            color: #1a237e;
+            font-size: 24px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .results-header h2 {
+            color: #666;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        /* Results Stats */
+        .results-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+        }
+
+        .stat-box h3 {
+            color: #1a237e;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-box .number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #4caf50;
+            margin-bottom: 5px;
+        }
+
+        .stat-box .number.incorrect {
+            color: #ff4444;
+        }
+
+        .stat-box .label {
+            color: #666;
+            font-size: 13px;
+        }
+
+        /* Score Summary */
+        .score-summary {
+            background: linear-gradient(135deg, #1a237e, #283593);
+            color: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .score-percentage {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .score-level {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+        }
+
+        .score-level.a1 {
+            background: #ff4444;
+            color: white;
+        }
+
+        .score-level.a2 {
+            background: #ff9800;
+            color: white;
+        }
+
+        .score-level.b1 {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .score-level.b2 {
+            background: #8bc34a;
+            color: white;
+        }
+
+        .score-level.c1 {
+            background: #4caf50;
+            color: white;
+        }
+
+        .score-level.c2 {
+            background: #2e7d32;
+            color: white;
+        }
+
+        /* Questions List */
+        .questions-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 20px 0;
+            justify-content: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .question-result-btn {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            font-size: 13px;
+        }
+
+        .question-result-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .question-result-btn.correct {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+        }
+
+        .question-result-btn.incorrect {
+            background: #ff4444;
+            color: white;
+            border-color: #ff4444;
+        }
+
+        /* Show Corrections Button */
+        .show-corrections-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+            transition: all 0.3s;
+        }
+
+        .show-corrections-btn:hover {
+            background: #388e3c;
+            transform: translateY(-1px);
+        }
+
+        /* Corrections Container */
+        .corrections-container {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .question-correction {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4caf50;
+        }
+
+        .question-correction.incorrect {
+            border-left-color: #ff4444;
+        }
+
+        .correction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .correction-status {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .correction-status.correct {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .correction-status.incorrect {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .correction-option {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 5px;
+            border-radius: 6px;
+            border: 2px solid transparent;
+        }
+
+        .correction-option.correct-answer {
+            background: #e8f5e9;
+            border-color: #4caf50;
+        }
+
+        .correction-option.user-answer {
+            background: #ffebee;
+            border-color: #ff4444;
+        }
+
+        .correction-option .option-letter {
+            width: 35px;
+            height: 35px;
+            min-width: 35px;
+            border-radius: 4px;
+            background: white;
+            border: 2px solid #1a237e;
+            color: #1a237e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 15px;
+            font-size: 14px;
+        }
+
+        .correction-option.correct-answer .option-letter {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+        }
+
+        .correction-option.user-answer .option-letter {
+            background: #ff4444;
+            color: white;
+            border-color: #ff4444;
+        }
+
+        .correction-option .option-text {
+            flex: 1;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .question-nav {
+                gap: 2px;
+            }
+            
+            .question-btn {
+                padding: 4px 8px;
+                font-size: 12px;
+            }
+            
+            .progress-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .legend {
+                justify-content: center;
+                width: 100%;
+            }
+            
+            .main-content-section {
+                padding: 20px 20px 10px 20px;
+            }
+            
+            .question-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .question-text {
+                padding: 20px;
+                font-size: 16px;
+            }
+            
+            .option {
+                padding: 15px;
+            }
+            
+            .option-letter {
+                width: 32px;
+                min-width: 32px;
+                height: 32px;
+                font-size: 14px;
+                margin-right: 12px;
+            }
+            
+            .option-text {
+                font-size: 16px;
+            }
+            
+            .quiz-footer {
+                flex-direction: column;
+                gap: 8px;
+                padding: 10px 20px;
+            }
+            
+            .nav-btn, .review-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+            
+            .results-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .score-percentage {
+                font-size: 36px;
+            }
+            
+            .score-level {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .questions-list {
+                padding: 10px;
+            }
+            
+            .question-result-btn {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+            
+            .question-correction {
+                padding: 15px;
+            }
+        }
+
+        /* Scrollbar styling */
+        .main-content-section::-webkit-scrollbar,
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .main-content-section::-webkit-scrollbar-track,
+        .modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .main-content-section::-webkit-scrollbar-thumb,
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        .main-content-section::-webkit-scrollbar-thumb:hover,
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <!-- Header -->
+        <div class="quiz-header">
+            <div class="header-left">
+                <h1>Compréhension Écrite Test 21</h1>
+                <h2>Limite de Temps: <span class="timer" id="timer">01:00:00</span></h2>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation-section">
+            <div class="question-nav" id="questionGrid">
+                <!-- Question buttons will be generated by JavaScript -->
+            </div>
+            
+            <div class="progress-row">
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress" id="progress"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">0%</div>
+                </div>
+                
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color review-color"></div>
+                        <span>Révision</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color answered-color"></div>
+                        <span>Répondu</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content-section">
+            <div class="question-info">
+                <span class="question-number" id="questionNumber">Question 1 sur 39</span>
+                <span class="question-points" id="questionPoints">3 point(s)</span>
+            </div>
+
+            <div class="question-text-container">
+                <div class="question-text" id="questionText">
+                    <!-- Question text will be loaded here -->
+                </div>
+            </div>
+
+            <div class="options-container" id="optionsContainer">
+                <!-- Options will be generated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="quiz-footer">
+            <button class="nav-btn prev" id="prevBtn" onclick="prevQuestion()" disabled>
+                ← Précédent
+            </button>
+            
+            <button class="review-btn" id="reviewBtn" onclick="toggleReview()">
+                Marquer pour révision
+            </button>
+            
+            <button class="nav-btn next" id="nextBtn" onclick="nextQuestion()">
+                Suivant →
+            </button>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div class="modal" id="resultsModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+            
+            <div class="results-header">
+                <h1>Compréhension Écrite Test 21</h1>
+                <h2>Résultats</h2>
+            </div>
+
+            <div class="results-stats">
+                <div class="stat-box">
+                    <h3>Questions Correctes</h3>
+                    <div class="number" id="correctCount">0</div>
+                    <div class="label">des 39 Questions</div>
+                </div>
+                
+                <div class="stat-box">
+                    <h3>Votre Temps</h3>
+                    <div class="number" id="timeUsed">00:00:00</div>
+                    <div class="label">Temps total</div>
+                </div>
+                
+                <div class="stat-box">
+                    <h3>Score Obtenu</h3>
+                    <div class="number" id="scoreEarned">0%</div>
+                    <div class="label">Performance</div>
+                </div>
+            </div>
+
+            <div class="score-summary">
+                <div class="score-percentage" id="scorePercentage">0%</div>
+                <div style="margin-bottom: 20px; display: flex; justify-content: center; flex-wrap: wrap; gap: 10px;">
+                    <div style="background: rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 20px;">
+                        <strong>Score requis B2:</strong> 60%
+                    </div>
+                    <div style="background: rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 20px;">
+                        <strong>Votre score:</strong> <span id="yourScore">0%</span>
+                    </div>
+                </div>
+                <div class="score-level a1" id="cecrLevel">NIVEAU A1 NON ATTEINT !</div>
+            </div>
+
+            <div class="questions-list" id="questionsList">
+                <!-- Question buttons will be generated here -->
+            </div>
+
+            <button class="show-corrections-btn" onclick="toggleCorrections()">
+                Afficher la correction des questions
+            </button>
+
+            <div class="corrections-container" id="correctionsContainer">
+                <!-- Question corrections will be loaded here -->
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="nav-btn submit" onclick="restartQuiz()" style="margin-right: 10px;">
+                    Refaire le test
+                </button>
+                <button class="nav-btn" onclick="goToHome()" style="background: #6c757d;">
+                    Retour à l'accueil
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Questions data for Test 21 - Based on the provided content
+        const questions = [
+            {
+                id: 1,
+                text: "Chère Mamie,\n\nCet été, j'ai pris le bateau pour l'île d'Arz, en Bretagne.\nJ'y ai fait du camping, j'ai profité des belles plages et j'ai mangé des crêpes bretonnes délicieuses !\n\nJ'ai rencontré Benjamin et ses copains. Nous avons fait du vélo ensemble, c'était super !\n\nJe t'embrasse !\n\nLaura",
+                question: "Pourquoi est-ce que Laura écrit ?",
+                points: 3,
+                options: ["Pour proposer une promenade en bateau.", "Pour raconter son séjour en Bretagne.", "Pour répondre à son cousin Benjamin.", "Pour réserver une place dans un camping."],
+                correct: "B",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 2,
+                text: "Chers parents,\n\nLes classes de notre école passeront la journée de vendredi à la mer. Le pique-nique de midi (sandwichs et boisson) sera fourni par la cantine. Il va faire très chaud, alors pensez aux casquettes, les manteaux et les pulls sont inutiles.\n\nLa directrice",
+                question: "Qu'est-ce que les parents doivent donner aux enfants ?",
+                points: 3,
+                options: ["Quelque chose à boire.", "Quelque chose à manger.", "Quelque chose pour la pluie.", "Quelque chose pour le soleil."],
+                correct: "D",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 3,
+                text: "Restaurant\nLa bonne fourchette\n\nFormule légère\nSalade au choix 9€\n\nFormule express\nPlat du jour 12,50€\n\nFormule déjeuner 16€\n(1/2 eau minérale et café compris)\nEntrée + plat du jour\n\nPlat du jour + dessert\n\nFormule plaisir 20€\nEntrée + plat du jour + dessert",
+                question: "Combien coûte la formule avec boisson ?",
+                points: 3,
+                options: ["9 euros.", "12,50 euros.", "16 euros.", "20 euros."],
+                correct: "C",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 4,
+                text: "Vous souhaitez repeindre l'intérieur de votre appartement ?\n\nSuivez nos conseils pour réussir et avoir un résultat professionnel. Sur Créadéco.com, nous vous accompagnons aussi pour le choix de la couleur de la peinture de votre cuisine ou votre salon.",
+                question: "Qu'est-ce que ce site internet propose ?",
+                points: 3,
+                options: ["Des adresses d'artisans.", "Des idées de décoration.", "Des leçons de bricolage.", "Des modèles de meubles."],
+                correct: "B",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 5,
+                text: "Salon gastronomique le 17 mars.\nVenez à la rencontre des agriculteurs producteurs et chefs de votre région !\n\nVous pourrez discuter avec eux et goûter leurs délicieux produits: pommes, fromages, beurre, miel, etc. !\n\nParticipez au concours de la meilleure recette !",
+                question: "Qu'est-ce qu'on peut faire dans ce salon ?",
+                points: 9,
+                options: ["Découvrir la nourriture locale.", "Gagner un repas traditionnel.", "Prendre un cours de cuisine.", "Visiter une ferme française."],
+                correct: "A",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 6,
+                text: "Salut Eric !\n\nJ'ai fini les cours et je suis maintenant à Montpellier. Je suis serveuse dans un restaurant depuis une semaine. C'est fatigant, mais j'apprends beaucoup !\n\nJe serai à Paris à la fin des vacances d'été pour te voir avec les copains.\n\nCamille.",
+                question: "Qu'est-ce que Camille explique ?",
+                points: 9,
+                options: ["Elle est en voyage à Montpellier.", "Elle rencontre des amis à Paris.", "Elle suit des cours à l'université.", "Elle travaille dans un restaurant."],
+                correct: "D",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 7,
+                text: "Un cinéma historique en centre-ville, c'est exceptionnel ! La famille propriétaire de ce monument n'a pas changé depuis son ouverture en 1911. Dans ses sept salles, vous trouverez des films internationaux et des événements de qualité chaque semaine.",
+                question: "Qu'est-ce qu'on apprend sur ce cinéma ?",
+                points: 9,
+                options: ["C'est un bâtiment ancien.", "Il se trouve en banlieue.", "On peut y rencontrer des acteurs.", "Ses films sont en noir et blanc."],
+                correct: "A",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 8,
+                text: "Madame Chanmont,\n\nVous avez participé à notre concours et vous avez gagné un séjour d'une semaine tout compris (transport, hébergement, restauration) pour deux personnes en Italie! Prenez contact par courriel avec notre service clientèle pour avoir toutes les informations.\n\nLe service commercial.",
+                question: "Que doit faire madame Chanmont ?",
+                points: 9,
+                options: ["Écrire un message.", "Prendre un billet d'avion.", "Réserver un hôtel.", "S'inscrire à un jeu."],
+                correct: "A",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 9,
+                text: "Le soin d'origine naturelle « Nuit sommeil » est étudié pour les peaux fragiles. Il corrige les signes de fatigue et réveille votre visage.\n\nVotre peau est parfaite, même en plein hiver.",
+                question: "Qu'est-ce que « Nuit Sommeil » ?",
+                points: 9,
+                options: ["Un savon pour le corps.", "Un shampoing aux herbes.", "Une boisson pour dormir.", "Une crème de beauté."],
+                correct: "D",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 10,
+                text: "LE SAVIEZ-VOUS ?\n\nLes Galeries Lafayette sont aujourd'hui le site le plus visité à Paris après le Musée du Louvre ! Vous pouvez y trouver des vêtements à la mode, des objets pour la maison ou encore des articles de cuisine.",
+                question: "Qu'est-ce qu'on apprend sur ce grand magasin ?",
+                points: 9,
+                options: ["Beaucoup de personnes le visitent.", "Il vend des articles bon marché.", "Il y a un célèbre musée à l'intérieur.", "On y donne des cours de cuisine."],
+                correct: "A",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 11,
+                text: "Marché facile est une application pour téléphone portable qui vous conseille les bons fruits et légumes de saison dans les supermarchés. Elle donne aussi des informations sur le fromage, la viande et le poisson.",
+                question: "À quoi sert cette application ?",
+                points: 15,
+                options: ["À acheter sur internet.", "À choisir ses produits.", "À noter les magasins.", "À trouver des recettes."],
+                correct: "B",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 12,
+                text: "Vous êtes une famille parisienne et vous voulez passer vos vacances au Canada ?\nVenez chez nous à Toronto en juillet et nous irons chez vous en France au même moment !\nNotre maison est agréable. Il y a quatre chambres, un jardin et une piscine. Pour plus d'informations, contactez-nous à l'adresse beaulieu.toronto@mail.ca.",
+                question: "Qu'est-ce que la famille Beaulieu veut faire de sa maison en juillet ?",
+                points: 15,
+                options: ["L'agrandir.", "L'échanger.", "La louer.", "La vendre."],
+                correct: "B",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 13,
+                text: "Des chercheurs français viennent d'évaluer la capacité de certaines plantes d'intérieur à purifier l'air de la maison.\n\nPour vérifier l'action « nettoyage de l'air » de certaines plantes d'intérieur, des tests ont été menés dans le cadre d'un programme appelé Phytair. Lancé il y a quelques années, ce programme de recherche est destiné à en apprendre plus sur les différentes plantes connues pour leurs bénéfices sur l'air intérieur des bâtiments.",
+                question: "Quel est le but de cette recherche sur les plantes d'intérieur ?",
+                points: 15,
+                options: ["Analyser leurs effets.", "Augmenter leur résistance.", "Étudier leur développement.", "Multiplier leurs variétés."],
+                correct: "A",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 14,
+                text: "Lundi prochain, en France, les librairies organisent une soirée du livre de jeunesse.\n\nAu programme, des activités pour enfants et des dégustations de desserts. On pourra aussi voir sur grand écran les princes et princesses du cinéma.",
+                question: "Que pourra-t-on faire aux soirées du livre ?",
+                points: 15,
+                options: ["Écouter des chansons.", "Gagner des cadeaux.", "Goûter des recettes.", "Jouer dans un film."],
+                correct: "C",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 15,
+                text: "En Sardaigne (Italie), les piétons qui traversent tout en regardant leur téléphone peuvent recevoir une amende. Cette mesure fait suite à une augmentation du nombre d'accidents entre des véhicules et des piétons inattentifs. En effet, ils n'attendent pas les voitures parce qu'ils sont concentrés sur leur écran au lieu de regarder autour d'eux.",
+                question: "De quoi est-ce qu'on parle dans cet article ?",
+                points: 15,
+                options: ["De l'utilisation du portable.", "De la sécurité au volant.", "Du bruit de la circulation.", "Du vote d'une nouvelle loi."],
+                correct: "A",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 16,
+                text: "Félicitations !\nVous avez gagné une carte cadeau de 50 €.\nVous pouvez l'utiliser pour acheter tous nos produits de beauté.\nAttention, vous ne pouvez pas l'échanger contre de l'argent ou la donner à une autre personne.\n\nSi vous la perdez, vous n'êtes pas remboursé.",
+                question: "Qu'est-ce qu'on peut faire avec cette carte ?",
+                points: 15,
+                options: ["Avoir des réductions sur certains articles.", "Faire des courses dans un magasin.", "Offrir une surprise pour un anniversaire.", "Retirer de l'argent à un distributeur."],
+                correct: "B",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 17,
+                text: "DU 4 AU 26 JUIN venez visiter\nLE SALON DE L'AGRICULTURE\nA STRASBOURG\n\n@ Ateliers pour les adultes, balades avec des animaux pour les enfants.\n\n@ Stands de nourriture et boissons sur place.\n\n@ Tarif spécial pour les groupes et enfants de moins de 12 ans.\n\nInformations sur salon agriculture-strasbourg.fr",
+                question: "Qu'est-ce que cette annonce propose ?",
+                points: 15,
+                options: ["De découvrir un parc d'animation.", "De gagner un séjour en famille.", "De se promener dans une ferme.", "De visiter une grande exposition."],
+                correct: "D",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 18,
+                text: "« Anniversaire », pièce de théâtre de Harold Pinter.\n\nMeg et son mari tiennent un hôtel avec pour seul client Stanley. Arrivent deux nouveaux clients dont la présence trouble Stanley... Tous les ingrédients sont là pour en faire un succès : une écriture sensible, d'excellents acteurs, une belle salle, une mise en scène originale. Une ombre au tableau : la langueur excessive de la pièce...",
+                question: "Sur quel point porte la critique négative de cette pièce de théâtre ?",
+                points: 15,
+                options: ["L'interprétation des comédiens.", "La durée de la représentation.", "La qualité littéraire du texte.", "Le lieu du spectacle."],
+                correct: "B",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 19,
+                text: "Des études de marché récentes montrent que les frites signent leur grand retour. Leur cote de popularité ne se dément pas, mais elles doivent être préparées dans les règles de l'art : pour des frites dorées, moelleuses dedans, croquantes dehors, il faut les cuire, puis les frire en deux temps.\n\nSi la Belgique et la France s'en disputent la paternité, on n'en a toujours pas trouvé l'origine. Avec le bond spectaculaire du burger dont elles sont l'accompagnement idéal, les frites sont fortement consommées au restaurant.",
+                question: "Que révèle cet article sur les frites ?",
+                points: 15,
+                options: ["L'origine historique de la recette.", "Le secret d'une bonne préparation.", "Les adresses où les consommer.", "Les raisons de leur popularité."],
+                correct: "B",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 20,
+                text: "Dora Bruder, publié en 1997, est considéré comme l'un des meilleurs romans de Patrick Modiano. L'écrivain aime fouiller l'histoire de la capitale et fréquente de nombreuses bibliothèques. Un jour, il tombe sur une annonce parue le 31 décembre 1941 dans Paris-soir : « On recherche une jeune fille, Dora Bruder, 15 ans, 1m55, visage ovale, yeux gris marron, manteau sport gris. Adresse toute indication à M. et Mme Bruder, 41, boulevard Ornano, Paris. »\n\nModiano va alors s'attacher à lever le mystère de cette disparition en entraînant le lecteur dans les rues du 18e arrondissement.",
+                question: "Que fait le journaliste dans cet extrait ?",
+                points: 21,
+                options: ["Il cite un extrait d'une œuvre de Modiano.", "Il explique l'idée de départ d'un livre de Modiano.", "Il présente le métier de Modiano à ses débuts.", "Il raconte la rencontre entre Modiano et sa femme."],
+                correct: "B",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 21,
+                text: "Madame, Monsieur,\n\nCe courrier fait suite à mon achat d'un téléphone le 5 mars dernier.\n\nAprès réflexion, je souhaiterais le rendre, car j'ai finalement décidé d'acheter un appareil avec messagerie intégrée.\n\nAinsi, je vous prie de bien vouloir me restituer la somme de 80 euros, correspondant à la somme versée le 5 mars par chèque.\n\nDans l'attente de votre réponse, je vous transmets, Madame, Monsieur, mes meilleures salutations.\n\nAndré Cellier",
+                question: "Quel est l'objet de la lettre de Monsieur Cellier ?",
+                points: 21,
+                options: ["Le remboursement de son article.", "L'échange de son téléphone.", "L'envoi de son téléphone par la poste.", "Une réclamation sur son achat."],
+                correct: "A",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 22,
+                text: "En Belgique, un studio de technologie créative propose au public de se livrer à une expérience artistique d'un genre inédit : coiffés d'un casque spécial, les participants doivent se remémorer une histoire personnelle durant trente à soixante secondes. Des données ressortent alors sous forme d'algorithmes et sont analysées par un système de mesure émotionnelle, ce qui permet de leur donner forme et couleur. Ainsi, des peintures virtuelles sont créées à partir des émotions de chacun. Et comme chaque histoire est unique, chaque œuvre l'est aussi !",
+                question: "Quel est le rôle des participants dans cette expérience ?",
+                points: 21,
+                options: ["Effectuer un calcul.", "Évoquer un fait divers.", "Fournir un support.", "Sélectionner un souvenir."],
+                correct: "D",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 23,
+                text: "L'épisode meurtrier de canicule, qui a entraîné la mort d'un si grand nombre de personnes du troisième âge en Europe, a imposé un nouveau défi sanitaire. « Une seule solution, la climatisation » a-t-on entendu à cette occasion. La revue Durable, chantre du développement durable, s'insurge contre cette facilité. « Le but n'est pas de condamner la climatisation par principe, notamment dans les hôpitaux et les foyers de personnes âgées, mais celle-ci crée des tensions sur le réseau électrique ; donc, avant de l'installer, il serait bon de considérer d'autres moyens efficaces tels que systèmes de circulation d'eau, appareillage sophistiqué de stores orientables jouant avec la brise et le rayonnement, etc. »",
+                question: "Que reproche la revue Durable à la climatisation ?",
+                points: 21,
+                options: ["Elle est simple à mettre en place, mais aussi très coûteuse.", "Elle est source d'infection pour des patients déjà fragiles.", "Elle entraîne une trop grande consommation d'énergie.", "Elle concurrence des modes naturels de rafraîchissement de l'air."],
+                correct: "C",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 24,
+                text: "Localiser un boucher, trouver un hôtel, calculer son itinéraire, observer sa maison par satellite... Les cartes fleurissent sur le web et les internautes y sont accros.\n\nPlus de 13 millions de Français consultent régulièrement des sites de localisation sur Internet. Sans oublier le succès phénoménal des photos-satellites mises en ligne. Ces services gratuits pour les internautes cachent un véritable business. De grandes sociétés rémunèrent les sites de localisation pour être bien placées sur les cartes. C'est d'autant plus efficace que les utilisateurs ne perçoivent pas immédiatement ces liens sponsorisés comme une publicité, mais comme un service.",
+                question: "Qu'apprend-on sur les services de localisation sur internet ?",
+                points: 21,
+                options: ["Ce sont des réseaux de commerçants qui les ont créés.", "Ils sont financés discrètement par des entreprises.", "Les prestations qu'ils proposent sont payantes.", "Leur maintenance est assurée par des bénévoles."],
+                correct: "B",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 25,
+                text: "La vision traditionnelle de l'entreprise implique d'avoir pour seule finalité le profit. Toutefois, le discours change. On parle désormais des trois P : performance du profit, des personnes et de la planète, ce qui constitue certes un progrès et signifie que l'entreprise doit être responsable socialement et environnementalement pour faire du profit. Néanmoins, la finalité reste toujours le profit.\n\nL'entreprise « humaniste » inverse ce discours en s'appuyant sur un regroupement de personnes au service du bien commun. Les bénéfices de l'entreprise qui demeurent nécessaires deviennent un moyen et l'objectif, c'est le bien commun. Pour l'atteindre, l'entreprise humaniste est construite sur des relations de confiance interpersonnelles, sur des produits et un service de qualité ainsi que sur un impact environnemental fiable, voire nul.",
+                question: "Comment les entreprises humanistes se distinguent-elles des autres ?",
+                points: 21,
+                options: ["Par l'abolition des relations hiérarchiques classiques.", "Par la mise en place d'une carte écologique commune.", "Par la primauté de l'intérêt collectif sur les bénéfices.", "Par la répartition équitable des profits entre salariés."],
+                correct: "C",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 26,
+                text: "Il veut réhabiliter la charcuterie.\nLe métier, bien sûr, mais aussi le produit. « On s'imagine un gros bonhomme avec un tablier taché de sang travaillant dans le froid, ironise Ludovic. C'est tout le contraire ! On s'éclate en cuisinant, on ne s'ennuie jamais. Quand elle est naturelle, la charcuterie est un excellent aliment, les nutritionnistes devraient faire preuve de discernement. » Autre obsession de puriste : la frontière des métiers. « Comment peut-on se prétendre à la fois boucher, charcutier et traiteur ? C'est un non-sens ! »",
+                question: "Quel message cet homme veut-il transmettre ?",
+                points: 21,
+                options: ["L'avenir de son travail est menacé par l'industrie agroalimentaire.", "La qualité des produits charcutiers est reconnue par les médecins.", "Le passage d'un métier de bouche à un autre se fait facilement.", "L'image attachée à sa profession est stéréotypée et peu valorisante."],
+                correct: "D",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 27,
+                text: "Lettre à G, un documentaire passionnant\n\nLes 4 jeunes réalisateurs de ce documentaire consacré au philosophe-journaliste André Gorz ont décidé de tourner ce film, après avoir découvert sa pensée presque par hasard. Ni pédagogique, ni austère, ni alarmiste, c'est une œuvre qui ouvre l'horizon et arrive à point nommé pour nous rappeler que l'écologie politique peut être une renaissance. Elle propose, en même temps qu'une découverte de cet auteur atypique, une lecture claire de son projet d'émancipation sociale à l'heure de l'urgence écologique. Car même si le contexte actuel est grave, la somme des connaissances psychologiques et scientifiques favorise, selon lui, « des possibilités d'émancipation, de développement et d'enrichissement de la vie qui n'ont jamais existé avant ».",
+                question: "Dans cet article, qu'apprend-on sur André Gorz ?",
+                points: 21,
+                options: ["Il dissocie environnement et questions sociales.", "Il envisage avec optimisme les futurs possibles.", "Il reste sceptique envers les scientifiques.", "Il s'associe à l'écriture d'un documentaire."],
+                correct: "B",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 28,
+                text: "Les distributeurs indépendants s'inquiètent de voir les salles de cinéma offrir de plus en plus de séances au spectacle vivant (opéras, ballets) ou au sport. Ces distributeurs sont le maillon le plus fragile du paysage cinématographique : ils prennent des risques sur la sortie des films et c'est à eux de financer la majeure partie de la numérisation des salles. Ils voient donc d'un mauvais œil que l'équipement numérique des grands complexes serve à passer autre chose que leurs films surtout quand les séances ont lieu le week-end, à l'heure où pour préserver la salle, le cinéma est interdit d'antenne à la télévision.",
+                question: "À quel problème sont confrontés les distributeurs indépendants ?",
+                points: 21,
+                options: ["À une concurrence accrue de la part des grands complexes.", "À la concurrence des autres formes de spectacle.", "À l'impossibilité de diffuser leurs films à la télévision.", "À la réticence du public à voir leurs productions."],
+                correct: "B",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 29,
+                text: "Soyez vous-même, ou sinon, devenez-le ! La rentrée de septembre voit s'afficher dans les couloirs du métro parisien et les vitrines des libraires les couvertures de livres de développement personnel et autres introductions à la méditation, destinés à faire passer la pilule du retour au bureau des corps vacanciers.\nLe nouveau film de Cédric Klapisch participe à sa manière à cette vague de bien-être sur fond de grisaille. Vous y verrez défiler votre vie monotone, heureusement suspendue à la promesse d'un grand bonheur croisé in extremis. La référence principale du film reste la psychanalyse. La sérénité est au bout du chemin, avec son secret : apprendre à s'aimer pour aimer quelqu'un d'autre.",
+                question: "Quelle tendance est dans l'air du temps ?",
+                points: 21,
+                options: ["Commencer une thérapie.", "Multiplier les passe-temps.", "Rechercher l'âme sœur.", "Travailler sur soi-même."],
+                correct: "D",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 30,
+                text: "Parcourir les routes d'Europe l'été, beaucoup de touristes le font sans forcément connaître les règles en vigueur dans chacun des pays. Ce qu'il faut savoir, c'est qu'il existe des différences qui peuvent être notables selon les législations. Alors que la vitesse maximale sur autoroute est de 130 km/h en France, elle n'est que de 120 km/h en Belgique, en Espagne ou au Portugal. Quant au taux d'alcoolémie toléré, il varie de 0.8 g/l en Irlande à zéro en République tchèque.",
+                question: "Que fait l'auteur de cet article ?",
+                points: 26,
+                options: ["Il commente une loi.", "Il donne un conseil.", "Il formule une plainte.", "Il raconte une anecdote."],
+                correct: "B",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 31,
+                text: "L'association Bois & Cie est pensée au départ comme un atelier de partage de savoir-faire autour du bois. Pendant plus d'une décennie, des passionnés se réunissaient pour fabriquer meubles et autres objets en réutilisant des rebuts de bois. Il y a quelques années, l'association a pris un tournant : créer des habitats démontables en bois pour des publics précaires. En effet, Bois & Cie accueille des salariés en contrat d'insertion professionnellement et à trouver un toit sont liées. L'association décide alors de faire de la construction d'habitations son cœur d'activité et lance le projet Toits & Cie.",
+                question: "Quelle décision cette association a-t-elle prise ?",
+                points: 26,
+                options: ["Abandonner le travail du bois.", "Aider les plus démunis à se loger.", "Bâtir des locaux commerciaux.", "Développer l'activité de recyclage."],
+                correct: "B",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 32,
+                text: "Les Néo-nomades ont souvent moins de 30 ans et vivent dans leur camion ou d'anciens cars scolaires transformés en caravane ou camping-car.\nCes nouveaux voyageurs intermittents vont d'un lieu à l'autre, au gré des impératifs de leur travail, souvent saisonnier et forment une population hétérogène.\nIls résolvent la difficulté d'accéder à un logement lorsque l'on n'a pas de travail permanent en se posant en marge de notre paysage contemporain : aux abords des routes secondaires, dans la périphérie des villes, le long des rails, sur des friches ou des terrains privés. Les néo-nomades forment de fait une entité structurée au cœur de notre société individualiste.",
+                question: "Selon le journaliste, quelle est l'origine du néo-nomadisme ?",
+                points: 26,
+                options: ["L'attirance pour les espaces naturels.", "L'insécurité des zones urbaines.", "La précarité du monde professionnel.", "Le désir de vivre en communauté."],
+                correct: "C",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 33,
+                text: "Dans les écoles, le mode d'évaluation classique est en passe d'être remplacé par une évaluation qui comporte des dizaines d'items, considérés comme « acquis », « pas acquis » ou « en cours d'acquisition » par l'enseignant. Cependant, certains items manquent de précision. Ils pensent qu'il est très difficile d'évaluer des compétences sur le savoir-être et que cela n'a aucun intérêt. En outre, le système demande trois fois plus de temps en correction. D'autres professeurs que certains élèves se sentent plus encouragés et valorisés. Ils progressent, car ils savent après chaque évaluation quelle est la compétence à retravailler, car cela est plus précis qu'une note. La suppression du mode traditionnel d'évaluation suscite des réactions fortes, aussi bien chez les parents et enseignants que chez les simples citoyens : réactions qui traduisent à la fois le sentiment de ne plus comprendre les objectifs de l'école, de ne plus maîtriser les attentes de l'institution envers les enfants.",
+                question: "En quoi ce nouveau système d'évaluation peut-il être déstabilisant ?",
+                points: 26,
+                options: ["Il est imposé sans explications aux enseignants.", "Il manque de finesse dans l'analyse des résultats.", "Il propose des questions inadaptées aux enfants.", "Il remet en question des traditions profondément ancrées."],
+                correct: "D",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 34,
+                text: "Un nouveau mot se banalise sur les campus américains : « microagression ». Qualifiant les blessures subtiles qui affectent les individus exposés à une forme de dévalorisation par le langage, il alimente le débat sur la liberté d'expression. Forgé dans les années 1970, le terme a été développé à partir de 2007 par Derald Wing Sue qui le définit ainsi : des insultes ou attitudes intentionnelles ou non qui communiquent des messages hostiles ou méprisants envers des personnes sur la seule base de leur appartenance à un groupe marginalisé. Des universités ont mis en place des mécanismes de prévention et de dénonciation de ces microagressions, mais certains redoutent que l'excès de précaution ne vienne tuer le débat d'idées.",
+                question: "Qu'apprend-on sur les microagressions ?",
+                points: 26,
+                options: ["Ce sont des blessures corporelles superficielles.", "Elles sont commises par des groupes minoritaires.", "Les autorités universitaires s'en préoccupent peu.", "Lutter contre elles peut nuire à certaines libertés."],
+                correct: "D",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 35,
+                text: "Le discours écologique actuel est très factuel, « pratico-pratique », comme si on n'osait pas parler de cette beauté dont nous avons pourtant besoin pour nous épanouir. C'est peut-être l'une des raisons pour laquelle l'écologie politique ne rallie pas tant que ça. Si on n'est pas sensible à la terre, aux végétaux, on devient un technicien de l'écologie, on emploie un langage neutre et rassurant, fait « d'environnement » et de « développement durable ». Mais il faut pouvoir parler de la beauté spécifique de la nature qui nous enchante, qui nous fait vibrer. Nous avons besoin de nous nourrir de sa splendeur, de son mystère, et pas seulement de ses aspects matériels, pratiques, biologiques.",
+                question: "Selon l'intervenant, qu'est-ce qui caractérise le discours écologique ?",
+                points: 26,
+                options: ["Il apaise les tensions de la société.", "Il insiste sur le point de vue matériel.", "Il propose des programmes utopiques.", "Il traite les problèmes liés aux sols."],
+                correct: "B",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 36,
+                text: "Il est rare que les journalistes de notre mensuel ou moi-même rentrions de reportage en renonçant à rédiger un article. La plupart du temps, les découvertes que nous faisons sont comme de grands bols d'air : elles annihilent tout défaitisme, font disparaître la fatalité ambiante et ouvrent de nouveaux horizons. Nous rencontrons des hommes et des femmes qui nous expliquent leurs envies, leurs rêves, leur utopie, et comment ils s'y prennent pour, à leur échelle, faire évoluer le monde. C'est simple, c'est lent, c'est « proprement humain ». Il est tellement jouissif de pouvoir se dire que nous allons pouvoir partager tous ces « petits riens » avec nos abonnés !",
+                question: "Quel est le parti pris de ces journalistes ?",
+                points: 33,
+                options: ["Être au plus près de l'actualité.", "Présenter des histoires positives.", "Proposer des anecdotes amusantes.", "Recenser les dérives de la société."],
+                correct: "B",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 37,
+                text: "Défenseur-e-s et détracteur-e-s de l'écriture inclusive, qui consiste à féminiser les mots en plaçant entre des points la terminaison du féminin, s'écharpent sur cet épineux sujet.\nPour Eliane Viennot, il est important de défendre l'écriture inclusive qui, en remaniant l'orthographe, vise à combattre les stéréotypes sexistes. Selon elle, la langue structure notre représentation du monde. Apprendre aux plus jeunes que le masculin l'emporte sur le féminin ne peut guère contribuer à forger des consciences égalitaristes. Elle rappelle de surcroît que la langue française a longtemps été plus égalitaire qu'elle ne l'est aujourd'hui : il y a eu une masculinisation délibérée du langage à partir du XVIIe siècle. Ceux qui se piquaient alors de définir le bon usage en ont profité pour renforcer l'ordre masculin.",
+                question: "Que pense Eliane Viennot de l'écriture inclusive ?",
+                points: 33,
+                options: ["Elle favorise l'évolution des mentalités.", "Elle incarne une première historique.", "Elle permet de moderniser le lexique.", "Elle reflète les clivages de la société."],
+                correct: "A",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 38,
+                text: "Le recul est considérable: les accidents de travail ont diminué de plus de 7 % cette année. Cette chute est due en partie aux campagnes médicales menées auprès du public. Mais elle révèle aussi une situation économique, avec la baisse d'activité, notamment dans les secteurs industriels — bâtiment et travaux publics. Mais si les accidents sont moins nombreux, les maladies professionnelles, elles, ne cessent de progresser, avec une hausse de 5% en 2009. Et les troubles des muscles et des os sont particulièrement concernés : leur fréquence a ainsi augmenté de plus de 7 % en un an. En cause, le stress, mais aussi les activités physiques à répétition.",
+                question: "Qu'apprend-on sur les accidents du travail ?",
+                points: 33,
+                options: ["Ils ont une influence très préoccupante sur l'économie.", "Ils se produisent dans les entreprises industrielles.", "Ils sont remplacés par des pathologies professionnelles.", "Ils sont source de traumatismes musculaires."],
+                correct: "C",
+                userAnswer: null,
+                review: false
+            },
+            {
+                id: 39,
+                text: "Peu à peu, les robots entrent dans notre vie de tous les jours, que ce soit sous forme de jouets pour enfants, pour faire le ménage, pour tenir compagnie aux personnes souffrant d'isolement ou pour combattre certaines pathologies. Cette problématique a interpellé des scientifiques qui se sont interrogés sur la perception que nous avions des robots. Peut-on s'y attacher et en faire des compagnons ? Ou les considérons-nous comme de vulgaires objets ? Leur étude, plaçant robots puis humains en difficulté, montre que ces machines ne nous laissent pas insensibles, mais l'émotion semble malgré tout plus intense lorsqu'un humain rencontre un obstacle.",
+                question: "Que cherchent à faire ces scientifiques ?",
+                points: 33,
+                options: ["À établir un lien entre robotique et individualisme.", "À évaluer l'action des robots dans la lutte contre la solitude.", "À répéter les dérivés issus de la robotique dans le quotidien.", "À vérifier l'empathie ressentie envers les robots."],
+                correct: "D",
+                userAnswer: null,
+                review: false
+            }
+        ];
+
+        // Quiz state
+        let currentQuestionIndex = 0;
+        let timeLeft = 60 * 60; // 60 minutes in seconds
+        let timerInterval;
+        let userAnswers = new Array(questions.length).fill(null);
+        let reviewQuestions = new Array(questions.length).fill(false);
+        let startTime = new Date();
+
+        // Initialize the quiz
+        function initQuiz() {
+            createQuestionGrid();
+            loadQuestion(currentQuestionIndex);
+            startTimer();
+            updateProgress();
+        }
+
+        // Create question navigation grid
+        function createQuestionGrid() {
+            const grid = document.getElementById('questionGrid');
+            grid.innerHTML = '';
+            
+            questions.forEach((question, index) => {
+                const button = document.createElement('button');
+                button.className = 'question-btn';
+                button.textContent = `Question${index + 1}`;
+                button.onclick = () => navigateToQuestion(index);
+                
+                if (index === currentQuestionIndex) {
+                    button.classList.add('active');
+                }
+                
+                if (userAnswers[index] !== null) {
+                    button.classList.add('answered');
+                }
+                
+                if (reviewQuestions[index]) {
+                    button.classList.add('review');
+                }
+                
+                grid.appendChild(button);
+            });
+        }
+
+        // Load a specific question
+        function loadQuestion(index) {
+            const question = questions[index];
+            
+            document.getElementById('questionNumber').textContent = `Question ${index + 1} sur ${questions.length}`;
+            document.getElementById('questionPoints').textContent = `${question.points} point(s)`;
+            document.getElementById('questionText').textContent = question.text + "\n\n" + question.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, optionIndex) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                
+                const letter = String.fromCharCode(65 + optionIndex);
+                
+                if (userAnswers[index] === letter) {
+                    optionDiv.classList.add('selected');
+                }
+                
+                optionDiv.onclick = () => selectOption(optionIndex);
+                
+                optionDiv.innerHTML = `
+                    <div class="option-letter">${letter}</div>
+                    <div class="option-text">${option}</div>
+                `;
+                
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            document.getElementById('prevBtn').disabled = index === 0;
+            const nextBtn = document.getElementById('nextBtn');
+            nextBtn.textContent = index === questions.length - 1 ? 'Terminer le test' : 'Suivant →';
+            if (index === questions.length - 1) {
+                nextBtn.classList.add('submit');
+            } else {
+                nextBtn.classList.remove('submit');
+            }
+            
+            const reviewBtn = document.getElementById('reviewBtn');
+            if (reviewQuestions[index]) {
+                reviewBtn.textContent = 'Retirer de la révision';
+                reviewBtn.className = 'review-btn active';
+            } else {
+                reviewBtn.textContent = 'Marquer pour révision';
+                reviewBtn.className = 'review-btn';
+            }
+            
+            updateQuestionGrid();
+            updateProgress();
+        }
+
+        // Select an option
+        function selectOption(optionIndex) {
+            const selectedLetter = String.fromCharCode(65 + optionIndex);
+            userAnswers[currentQuestionIndex] = selectedLetter;
+            loadQuestion(currentQuestionIndex);
+        }
+
+        // Toggle review status
+        function toggleReview() {
+            reviewQuestions[currentQuestionIndex] = !reviewQuestions[currentQuestionIndex];
+            loadQuestion(currentQuestionIndex);
+        }
+
+        // Navigate to a question
+        function navigateToQuestion(index) {
+            currentQuestionIndex = index;
+            loadQuestion(index);
+        }
+
+        // Previous question
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion(currentQuestionIndex);
+            }
+        }
+
+        // Next question or finish
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion(currentQuestionIndex);
+            } else {
+                finishTest();
+            }
+        }
+
+        // Update question grid
+        function updateQuestionGrid() {
+            const buttons = document.querySelectorAll('.question-btn');
+            buttons.forEach((button, index) => {
+                button.classList.remove('active', 'answered', 'review');
+                
+                if (index === currentQuestionIndex) {
+                    button.classList.add('active');
+                }
+                
+                if (userAnswers[index] !== null) {
+                    button.classList.add('answered');
+                }
+                
+                if (reviewQuestions[index]) {
+                    button.classList.add('review');
+                }
+            });
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const answeredCount = userAnswers.filter(answer => answer !== null).length;
+            const progress = (answeredCount / questions.length) * 100;
+            document.getElementById('progress').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = `${Math.round(progress)}%`;
+        }
+
+        // Timer functions
+        function startTimer() {
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishTest();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const hours = Math.floor(timeLeft / 3600);
+            const minutes = Math.floor((timeLeft % 3600) / 60);
+            const seconds = timeLeft % 60;
+            const timer = document.getElementById('timer');
+            timer.textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            timer.className = 'timer';
+            if (timeLeft < 300) { // Less than 5 minutes
+                timer.classList.add('danger');
+            } else if (timeLeft < 600) { // Less than 10 minutes
+                timer.classList.add('warning');
+            }
+        }
+
+        // Calculate time used
+        function getTimeUsed() {
+            const endTime = new Date();
+            const timeDiff = startTime - endTime;
+            
+            const totalSeconds = Math.floor(Math.abs(timeDiff) / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Finish test and show results
+        function finishTest() {
+            clearInterval(timerInterval);
+            
+            let correctAnswers = 0;
+            let totalPoints = 0;
+            let maxPoints = 0;
+            
+            questions.forEach((question, index) => {
+                maxPoints += question.points;
+                
+                if (userAnswers[index] === question.correct) {
+                    correctAnswers++;
+                    totalPoints += question.points;
+                }
+            });
+            
+            const scorePercentage = Math.round((correctAnswers / questions.length) * 100);
+            const pointsPercentage = Math.round((totalPoints / maxPoints) * 100);
+            
+            let cecredLevel = "NIVEAU A1 NON ATTEINT !";
+            let levelClass = "a1";
+            if (pointsPercentage >= 85) {
+                cecredLevel = "NIVEAU C2 ATTEINT";
+                levelClass = "c2";
+            } else if (pointsPercentage >= 75) {
+                cecredLevel = "NIVEAU C1 ATTEINT";
+                levelClass = "c1";
+            } else if (pointsPercentage >= 60) {
+                cecredLevel = "NIVEAU B2 ATTEINT";
+                levelClass = "b2";
+            } else if (pointsPercentage >= 40) {
+                cecredLevel = "NIVEAU B1 ATTEINT";
+                levelClass = "b1";
+            } else if (pointsPercentage >= 20) {
+                cecredLevel = "NIVEAU A2 ATTEINT";
+                levelClass = "a2";
+            }
+            
+            // Calculate time used
+            const timeUsed = 60 * 60 - timeLeft; // 60 minutes in seconds
+            const usedHours = Math.floor(timeUsed / 3600);
+            const usedMinutes = Math.floor((timeUsed % 3600) / 60);
+            const usedSeconds = timeUsed % 60;
+            
+            document.getElementById('correctCount').textContent = `${correctAnswers}`;
+            document.getElementById('timeUsed').textContent = `${usedHours.toString().padStart(2, '0')}:${usedMinutes.toString().padStart(2, '0')}:${usedSeconds.toString().padStart(2, '0')}`;
+            document.getElementById('scoreEarned').textContent = `${pointsPercentage}%`;
+            document.getElementById('scorePercentage').textContent = `${pointsPercentage}%`;
+            document.getElementById('yourScore').textContent = `${pointsPercentage}%`;
+            document.getElementById('cecrLevel').textContent = cecredLevel;
+            document.getElementById('cecrLevel').className = `score-level ${levelClass}`;
+            
+            createQuestionListButtons(correctAnswers);
+            document.getElementById('resultsModal').style.display = 'flex';
+        }
+
+        // Create question list for results
+        function createQuestionListButtons(correctAnswers) {
+            const questionsList = document.getElementById('questionsList');
+            questionsList.innerHTML = '';
+            
+            questions.forEach((question, index) => {
+                const button = document.createElement('button');
+                button.className = 'question-result-btn';
+                button.textContent = index + 1;
+                
+                const isCorrect = userAnswers[index] === question.correct;
+                
+                if (isCorrect) {
+                    button.classList.add('correct');
+                } else {
+                    button.classList.add('incorrect');
+                }
+                
+                button.onclick = () => showQuestionCorrection(index);
+                questionsList.appendChild(button);
+            });
+        }
+
+        // Show question correction
+        function showQuestionCorrection(index) {
+            const question = questions[index];
+            const correctionsContainer = document.getElementById('correctionsContainer');
+            
+            correctionsContainer.innerHTML = '';
+            
+            const correctionDiv = document.createElement('div');
+            const isCorrect = userAnswers[index] === question.correct;
+            correctionDiv.className = `question-correction ${isCorrect ? 'correct' : 'incorrect'}`;
+            
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'correction-header';
+            
+            const statusSpan = document.createElement('span');
+            statusSpan.className = `correction-status ${isCorrect ? 'correct' : 'incorrect'}`;
+            statusSpan.textContent = isCorrect ? 'Correcte' : 'Incorrecte';
+            
+            const pointsSpan = document.createElement('span');
+            pointsSpan.className = 'correction-status';
+            pointsSpan.textContent = `${question.points} point(s)`;
+            pointsSpan.style.backgroundColor = '#f0f0f0';
+            pointsSpan.style.color = '#333';
+            
+            headerDiv.appendChild(statusSpan);
+            headerDiv.appendChild(pointsSpan);
+            
+            const questionTextDiv = document.createElement('div');
+            questionTextDiv.className = 'question-text';
+            questionTextDiv.textContent = question.text + "\n\n" + question.question;
+            questionTextDiv.style.marginBottom = '15px';
+            questionTextDiv.style.padding = '15px';
+            questionTextDiv.style.backgroundColor = '#f8f9fa';
+            questionTextDiv.style.borderRadius = '8px';
+            questionTextDiv.style.fontSize = '16px';
+            
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'options-container';
+            
+            question.options.forEach((option, optionIndex) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'correction-option';
+                
+                const letter = String.fromCharCode(65 + optionIndex);
+                
+                if (letter === question.correct) {
+                    optionDiv.classList.add('correct-answer');
+                }
+                
+                if (userAnswers[index] === letter && letter !== question.correct) {
+                    optionDiv.classList.add('user-answer');
+                }
+                
+                optionDiv.innerHTML = `
+                    <div class="option-letter">${letter}</div>
+                    <div class="option-text">${option}</div>
+                `;
+                
+                optionsDiv.appendChild(optionDiv);
+            });
+            
+            const answerStatusDiv = document.createElement('div');
+            answerStatusDiv.style.marginTop = '15px';
+            answerStatusDiv.style.padding = '12px';
+            answerStatusDiv.style.borderRadius = '6px';
+            answerStatusDiv.style.fontWeight = '600';
+            
+            if (isCorrect) {
+                answerStatusDiv.style.backgroundColor = '#e8f5e9';
+                answerStatusDiv.style.color = '#2e7d32';
+                answerStatusDiv.innerHTML = `✓ <strong>Réponse correcte:</strong> ${question.correct} - ${question.options[question.correct.charCodeAt(0) - 65]}`;
+            } else {
+                const userAnswerText = userAnswers[index] || 'Aucune réponse';
+                const userAnswerOption = userAnswers[index] ? question.options[userAnswers[index].charCodeAt(0) - 65] : '';
+                const correctAnswerOption = question.options[question.correct.charCodeAt(0) - 65];
+                
+                answerStatusDiv.style.backgroundColor = '#ffebee';
+                answerStatusDiv.style.color = '#c62828';
+                answerStatusDiv.innerHTML = `
+                    ✗ <strong>Votre réponse:</strong> ${userAnswerText} - ${userAnswerOption}<br>
+                    ✓ <strong>Réponse correcte:</strong> ${question.correct} - ${correctAnswerOption}
+                `;
+            }
+            
+            correctionDiv.appendChild(headerDiv);
+            correctionDiv.appendChild(questionTextDiv);
+            correctionDiv.appendChild(optionsDiv);
+            correctionDiv.appendChild(answerStatusDiv);
+            
+            correctionsContainer.appendChild(correctionDiv);
+            correctionsContainer.style.display = 'block';
+            correctionsContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Toggle corrections
+        function toggleCorrections() {
+            const correctionsContainer = document.getElementById('correctionsContainer');
+            if (correctionsContainer.style.display === 'none' || correctionsContainer.style.display === '') {
+                correctionsContainer.style.display = 'block';
+                if (questions.length > 0) {
+                    showQuestionCorrection(0);
+                }
+            } else {
+                correctionsContainer.style.display = 'none';
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('resultsModal').style.display = 'none';
+            document.getElementById('correctionsContainer').style.display = 'none';
+        }
+
+        // Restart the quiz
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            timeLeft = 60 * 60;
+            userAnswers = new Array(questions.length).fill(null);
+            reviewQuestions = new Array(questions.length).fill(false);
+            startTime = new Date();
+            
+            document.getElementById('resultsModal').style.display = 'none';
+            document.getElementById('correctionsContainer').style.display = 'none';
+            
+            createQuestionGrid();
+            loadQuestion(currentQuestionIndex);
+            startTimer();
+            updateProgress();
+        }
+
+        // Go to home page
+        function goToHome() {
+            alert("Cette fonctionnalité retournerait normalement à la page d'accueil. Pour l'instant, elle redémarre le quiz.");
+            restartQuiz();
+        }
+
+        // Initialize quiz
+        document.addEventListener('DOMContentLoaded', initQuiz);
+    </script>
+</body>
+</html>

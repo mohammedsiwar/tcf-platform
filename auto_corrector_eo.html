@@ -1,0 +1,2284 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <title>TCF Canada · Expression Orale · Simulation · PREMIUM</title>
+    
+    <!-- Font Awesome 6 & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+    <style>
+        /* === MODERN RESET & VARIABLES === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --secondary: #3b82f6;
+            --secondary-dark: #2563eb;
+            --accent: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --premium: #8b5cf6;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+            --glass-bg: rgba(255,255,255,0.7);
+            --glass-border: rgba(255,255,255,0.5);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #eef2ff 0%, #d9e4ff 100%);
+            min-height: 100vh;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        /* === MAIN GLASS PANEL === */
+        .glass-panel {
+            width: 100%;
+            max-width: 1300px;
+            min-height: 95vh;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 42px;
+            box-shadow: 0 30px 60px -15px rgba(0,20,50,0.3);
+            overflow: hidden;
+            transition: opacity 0.3s ease;
+        }
+        
+        /* === AUTH OVERLAY === */
+        .auth-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10,20,40,0.7);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        
+        .auth-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(8px);
+            border-radius: 48px;
+            padding: 2.5rem 2rem;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 40px 70px -15px #0f172a;
+            border: 1px solid rgba(255,255,255,0.4);
+            animation: modalFloat 0.4s ease;
+        }
+        
+        @keyframes modalFloat {
+            0% { opacity: 0; transform: translateY(25px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        .auth-icon {
+            font-size: 4.2rem;
+            background: linear-gradient(135deg, var(--secondary), var(--premium));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.2rem;
+        }
+        
+        .auth-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.7rem;
+            color: var(--primary);
+        }
+        
+        .auth-subtitle {
+            color: var(--gray-600);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+        
+        .auth-btn {
+            padding: 1rem 2.2rem;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            margin: 0.3rem;
+            transition: 0.2s;
+            background: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border: 1px solid var(--gray-200);
+        }
+        
+        .auth-btn-primary {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            box-shadow: 0 10px 20px -5px #3b82f6;
+        }
+        
+        .auth-btn-primary:hover {
+            background: var(--secondary-dark);
+            transform: scale(1.02);
+        }
+        
+        .auth-btn-secondary:hover {
+            background: var(--gray-100);
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(59,130,246,0.2);
+            border-top: 4px solid var(--secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+        }
+        
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        /* === PREMIUM BADGE === */
+        .premium-badge {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ffd700, #ffb347);
+            color: #333;
+            padding: 0.8rem 1.8rem;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            z-index: 9998;
+            display: none;
+            border: 2px solid white;
+            backdrop-filter: blur(4px);
+        }
+        
+        .premium-badge.active {
+            display: block;
+            animation: pulse 2s infinite;
+        }
+        
+        .premium-badge i {
+            margin-right: 8px;
+            color: #ff6b00;
+        }
+        
+        /* === COPY WARNING === */
+        .copy-warning {
+            position: fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+            background: #ef4444; color: white; padding: 1rem 2.5rem; border-radius: 60px;
+            font-weight: 600; z-index: 10001; display: none; box-shadow:0 10px 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(4px);
+        }
+        
+        /* === MODERN HEADER === */
+        .modern-header {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: white;
+            padding: 2rem 2.5rem;
+            text-align: center;
+            border-bottom: 2px solid rgba(59,130,246,0.3);
+            position: relative;
+        }
+        
+        .modern-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            color: #cbd5e1;
+        }
+        
+        .timer-badge {
+            position: absolute;
+            right: 2.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-radius: 60px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .timer-badge .label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 0.2rem;
+        }
+        
+        .timer-badge .time {
+            font-size: 1.8rem;
+            font-weight: 700;
+            font-family: 'Monaco', monospace;
+            letter-spacing: 2px;
+            color: var(--secondary);
+        }
+        
+        /* === NAVIGATION TABS === */
+        .tabs-modern {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1.5rem 2rem 0 2rem;
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 60px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            background: var(--gray-100);
+            color: var(--gray-700);
+            font-size: 0.95rem;
+        }
+        
+        .tab-btn:hover { background: var(--gray-200); transform: translateY(-2px); }
+        .tab-btn.active { background: var(--secondary); color: white; box-shadow: 0 5px 15px rgba(59,130,246,0.3); }
+        
+        /* === MAIN CONTENT === */
+        .main-content {
+            padding: 2rem;
+            background: rgba(255,255,255,0.4);
+        }
+        
+        .step {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .step.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* === INSTRUCTION CARD === */
+        .instruction-card {
+            background: white;
+            border-radius: 30px;
+            padding: 1.8rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--gray-200);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+        }
+        
+        .instruction-card h4 {
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .instruction-card p {
+            color: var(--gray-600);
+            line-height: 1.6;
+            margin-bottom: 0.8rem;
+        }
+        
+        .instruction-card ul {
+            padding-left: 1.5rem;
+            margin: 0.5rem 0;
+        }
+        
+        /* === ALERT STYLES === */
+        .alert-warning {
+            background: #fff3cd;
+            border-left: 6px solid #ffc107;
+            padding: 1rem;
+            border-radius: 16px;
+            margin: 1rem 0;
+            color: #856404;
+        }
+        
+        .alert-danger {
+            background: #f8d7da;
+            border-left: 6px solid #dc3545;
+            padding: 1rem;
+            border-radius: 16px;
+            margin: 1rem 0;
+            color: #721c24;
+        }
+        
+        /* === TASK CARD === */
+        .task-card {
+            background: white;
+            border-radius: 32px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 2px solid var(--gray-200);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.02);
+        }
+        
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .task-number {
+            background: var(--secondary);
+            color: white;
+            padding: 0.4rem 1.5rem;
+            border-radius: 60px;
+            font-weight: 700;
+        }
+        
+        .task-requirements {
+            color: var(--gray-500);
+            font-size: 0.95rem;
+        }
+        
+        /* === SUBJECT SELECTION AREA === */
+        .subject-selection {
+            background: var(--gray-50);
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-bottom: 1.8rem;
+            border: 1px solid var(--gray-200);
+        }
+        
+        .subject-selection h4 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .subject-scroll-container {
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid var(--gray-200);
+            border-radius: 18px;
+            background: white;
+            margin-bottom: 1rem;
+        }
+        
+        .subject-list {
+            list-style: none;
+        }
+        
+        .subject-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .subject-item:hover {
+            background: #eef2ff;
+        }
+        
+        .subject-item.active {
+            background: #e0e7ff;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .subject-number {
+            background: var(--secondary);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        
+        .subject-text {
+            flex: 1;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+        
+        .subject-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .subject-btn {
+            padding: 0.6rem 1.5rem;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .subject-btn:hover {
+            background: var(--secondary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .subject-info {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        /* === SUBJECT BOX === */
+        .subject-box {
+            background: var(--gray-50);
+            padding: 1.5rem;
+            border-radius: 20px;
+            border: 1px dashed var(--gray-400);
+            margin: 1rem 0;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        
+        /* === RECORDING AREA === */
+        .recording-area {
+            background: var(--gray-50);
+            border-radius: 28px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 2px dashed var(--gray-300);
+            text-align: center;
+        }
+        
+        .microphone {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, var(--secondary), var(--premium));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 10px 30px rgba(59,130,246,0.4);
+        }
+        
+        .microphone:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(59,130,246,0.6);
+        }
+        
+        .microphone.recording {
+            animation: pulse-red 1.5s infinite;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 10px 30px rgba(239,68,68,0.4);
+        }
+        
+        .microphone i {
+            font-size: 50px;
+            color: white;
+        }
+        
+        @keyframes pulse-red {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239,68,68,0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(239,68,68,0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+        }
+        
+        .recording-status {
+            font-size: 1.2rem;
+            color: var(--gray-700);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        .recording-time {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: 'Monaco', monospace;
+            letter-spacing: 2px;
+            margin: 1rem 0;
+        }
+        
+        .progress-bar-modern {
+            width: 80%;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 20px;
+            margin: 1rem auto;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .recording-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .record-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 60px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            min-width: 150px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+        
+        .btn-start {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-stop {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-listen {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .record-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
+        .record-btn:disabled {
+            background: var(--gray-400);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .audio-player {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            display: none;
+        }
+        
+        .audio-player audio {
+            width: 100%;
+        }
+        
+        /* === TRANSCRIPTION AREA === */
+        .transcription-area {
+            background: white;
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            border: 1px solid var(--gray-200);
+        }
+        
+        .transcription-text {
+            min-height: 100px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 1rem;
+            background: var(--gray-50);
+            border-radius: 16px;
+            border: 1px solid var(--gray-200);
+            margin: 1rem 0;
+            line-height: 1.6;
+        }
+        
+        .transcription-textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 16px;
+            font-size: 1rem;
+            line-height: 1.6;
+            resize: vertical;
+            min-height: 100px;
+            margin: 1rem 0;
+            transition: 0.2s;
+        }
+        
+        .transcription-textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+        
+        .save-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .save-btn:hover {
+            background: var(--secondary-dark);
+            transform: translateY(-2px);
+        }
+        
+        /* === BUTTONS === */
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .modern-btn {
+            padding: 1rem 2.2rem;
+            border-radius: 60px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .modern-btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .modern-btn-primary:hover {
+            background: var(--secondary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .modern-btn-secondary {
+            background: var(--gray-100);
+            color: var(--gray-800);
+            border: 1px solid var(--gray-300);
+        }
+        
+        .modern-btn-secondary:hover {
+            background: var(--gray-200);
+            transform: translateY(-2px);
+        }
+        
+        .modern-btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .modern-btn-success:hover {
+            background: #0d9488;
+            transform: translateY(-2px);
+        }
+        
+        /* === RESULTS === */
+        .results-container {
+            padding: 2rem;
+        }
+        
+        .level-badge {
+            display: inline-block;
+            font-size: 3rem;
+            font-weight: 800;
+            padding: 1.5rem 3rem;
+            border-radius: 60px;
+            margin: 1rem 0 2rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        
+        .level-A0, .level-A1 { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .level-A2 { background: linear-gradient(135deg, #f97316, #ea580c); }
+        .level-B1 { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .level-B2 { background: linear-gradient(135deg, #10b981, #059669); }
+        .level-C1 { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .level-C2 { background: linear-gradient(135deg, #5b21b6, #4c1d95); }
+        
+        .feedback-card {
+            background: white;
+            border-radius: 32px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            border: 1px solid var(--gray-200);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .stat-item {
+            background: var(--gray-50);
+            border-radius: 20px;
+            padding: 1.2rem;
+            text-align: center;
+            border: 1px solid var(--gray-200);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 0.3rem;
+        }
+        
+        .stat-label {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+        
+        .criteria-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .criteria-card {
+            background: white;
+            border-radius: 24px;
+            padding: 1.5rem;
+            border: 1px solid var(--gray-200);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+        }
+        
+        .criteria-card h4 {
+            color: var(--primary);
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+        
+        .criteria-score {
+            display: inline-block;
+            padding: 0.3rem 1.2rem;
+            border-radius: 60px;
+            font-weight: 700;
+            margin-top: 0.8rem;
+        }
+        
+        .score-high { background: #dcfce7; color: #166534; }
+        .score-medium { background: #fef9c3; color: #854d0e; }
+        .score-low { background: #fee2e2; color: #991b1b; }
+        
+        .improvement-card {
+            background: #eef2ff;
+            border-radius: 28px;
+            padding: 2rem;
+            margin-top: 2rem;
+            border-left: 6px solid var(--secondary);
+        }
+        
+        .improvement-card h4 {
+            color: var(--primary);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .improvement-card ul {
+            padding-left: 1.5rem;
+        }
+        
+        .improvement-card li {
+            margin-bottom: 0.8rem;
+            color: var(--gray-700);
+        }
+        
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .modern-header h1 { font-size: 2rem; }
+            .timer-badge { position: static; transform: none; margin-top: 1rem; display: inline-block; }
+            .tabs-modern { flex-wrap: wrap; }
+            .recording-buttons { flex-direction: column; }
+            .record-btn { width: 100%; }
+            .button-group { flex-direction: column; }
+            .modern-btn { width: 100%; justify-content: center; }
+            .level-badge { font-size: 2rem; padding: 1rem 2rem; }
+        }
+        
+        /* hide quiz until auth */
+        .container-hidden { display: none !important; }
+        #mainContainer { display: none; }
+    </style>
+</head>
+<body>
+
+<!-- AUTH OVERLAY -->
+<div class="auth-overlay" id="authOverlay">
+    <div class="auth-card" id="authMessage">
+        <div class="auth-icon"><i class="fas fa-lock"></i></div>
+        <div class="auth-title">Authentification</div>
+        <div class="auth-subtitle">Vérification de votre accès premium...</div>
+        <div class="loading-spinner"></div>
+    </div>
+</div>
+
+<!-- PREMIUM BADGE -->
+<div class="premium-badge" id="premiumBadge">
+    <i class="fas fa-crown"></i> Accès Premium Actif
+</div>
+
+<!-- COPY WARNING -->
+<div class="copy-warning" id="copyWarning">
+    <i class="fas fa-ban"></i> Copie interdite
+</div>
+
+<!-- MAIN GLASS PANEL -->
+<div class="glass-panel" id="mainContainer">
+    <!-- MODERN HEADER -->
+    <div class="modern-header">
+        <h1>Simulation Expression Orale TCF</h1>
+        <p class="subtitle">Évaluez votre niveau d'expression orale avec 3 tâches enregistrées (A0 à C2)</p>
+        <div class="timer-badge">
+            <div class="label"><i class="fas fa-hourglass-half"></i> Temps restant</div>
+            <div class="time" id="temps-restant">15:00</div>
+        </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs-modern">
+        <button class="tab-btn active" onclick="changerTache(1)"><i class="fas fa-microphone"></i> Tâche 1</button>
+        <button class="tab-btn" onclick="changerTache(2)"><i class="fas fa-comments"></i> Tâche 2</button>
+        <button class="tab-btn" onclick="changerTache(3)"><i class="fas fa-comment-dots"></i> Tâche 3</button>
+        <button class="tab-btn" onclick="changerTache(4)"><i class="fas fa-chart-bar"></i> Résultats</button>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <!-- Tâche 1: Entretien dirigé -->
+        <div class="step active" id="tache1">
+            <h2 style="color: var(--primary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+                <i class="fas fa-microphone" style="color: var(--secondary);"></i> Tâche 1 : Entretien Dirigé
+            </h2>
+            
+            <div class="instruction-card">
+                <h4><i class="fas fa-info-circle" style="color: var(--secondary);"></i> Instructions</h4>
+                <p><strong>Objectif :</strong> Répondre à des questions simples sur des sujets de la vie quotidienne.</p>
+                <p><strong>Niveau visé :</strong> A1 à A2 • <strong>Durée :</strong> 2 minutes</p>
+                <p><strong>Critères d'évaluation :</strong></p>
+                <ul>
+                    <li>Compréhension des questions</li>
+                    <li>Précision et pertinence des réponses</li>
+                    <li>Prononciation et clarté</li>
+                    <li>Fluidité dans l'expression</li>
+                </ul>
+                <div class="alert-warning">
+                    <i class="fas fa-microphone-alt"></i> <strong>Note :</strong> Cette simulation utilise un enregistrement simulé. Dans une vraie application, votre voix serait réellement enregistrée.
+                </div>
+            </div>
+            
+            <div class="task-card">
+                <div class="task-header">
+                    <span class="task-number"><i class="fas fa-microphone"></i> Tâche 1 • Entretien dirigé</span>
+                    <span class="task-requirements"><i class="fas fa-clock"></i> Durée: 2 minutes • 4 questions</span>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--primary); margin-bottom: 1rem;">Sujet de l'entretien :</h3>
+                    <div class="subject-box">
+                        <p><strong>Question 1 :</strong> Pouvez-vous vous présenter brièvement ?</p>
+                        <p><strong>Question 2 :</strong> Parlez-moi de votre ville ou de votre quartier.</p>
+                        <p><strong>Question 3 :</strong> Quelles sont vos activités préférées pendant votre temps libre ?</p>
+                        <p><strong>Question 4 :</strong> Parlez-moi d'un projet que vous aimeriez réaliser dans le futur.</p>
+                    </div>
+                </div>
+                
+                <div class="recording-area">
+                    <h3><i class="fas fa-microphone"></i> Enregistrement vocal</h3>
+                    
+                    <div class="microphone" id="microphone1" onclick="basculerEnregistrement(1)">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                    
+                    <div class="recording-status" id="statut-enregistrement1">
+                        Prêt à enregistrer votre réponse
+                    </div>
+                    
+                    <div class="recording-time" id="temps-enregistrement1">02:00</div>
+                    
+                    <div class="progress-bar-modern">
+                        <div class="progress-fill" id="progression1"></div>
+                    </div>
+                    
+                    <div class="recording-buttons">
+                        <button class="record-btn btn-start" id="btn-commencer1" onclick="commencerEnregistrement(1)">
+                            <i class="fas fa-play"></i> Commencer
+                        </button>
+                        <button class="record-btn btn-stop" id="btn-arrêter1" onclick="arrêterEnregistrement(1)" disabled>
+                            <i class="fas fa-stop"></i> Arrêter
+                        </button>
+                        <button class="record-btn btn-listen" id="btn-écouter1" onclick="écouterEnregistrement(1)" disabled>
+                            <i class="fas fa-play-circle"></i> Écouter
+                        </button>
+                    </div>
+                    
+                    <div id="audio-container1" class="audio-player">
+                        <h4 style="margin-bottom: 1rem;">Votre enregistrement :</h4>
+                        <audio id="audio-player1" controls>
+                            Votre navigateur ne supporte pas l'élément audio.
+                        </audio>
+                    </div>
+                </div>
+                
+                <div class="transcription-area">
+                    <h3 style="margin-bottom: 1rem;">Transcription de votre réponse</h3>
+                    <div class="transcription-text" id="transcription1">
+                        Votre transcription apparaîtra ici après l'enregistrement.
+                    </div>
+                    <div class="alert-warning" style="margin-top: 1rem;">
+                        <i class="fas fa-keyboard"></i> <strong>Important :</strong> Pour une évaluation précise, veuillez saisir manuellement ce que vous avez dit pendant l'enregistrement.
+                        <textarea id="transcription-manuelle1" class="transcription-textarea" placeholder="Saisissez ici ce que vous avez dit..."></textarea>
+                        <button onclick="sauvegarderTranscriptionManuelle(1)" class="save-btn">
+                            <i class="fas fa-save"></i> Sauvegarder la transcription
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <div></div>
+                <button class="modern-btn modern-btn-primary" onclick="changerTache(2)">
+                    Suivant → Tâche 2 <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Tâche 2: Exercice en interaction -->
+        <div class="step" id="tache2">
+            <h2 style="color: var(--primary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+                <i class="fas fa-comments" style="color: var(--secondary);"></i> Tâche 2 : Exercice en Interaction
+            </h2>
+            
+            <div class="instruction-card">
+                <h4><i class="fas fa-info-circle" style="color: var(--secondary);"></i> Instructions</h4>
+                <p><strong>Objectif :</strong> Interagir dans une situation de la vie quotidienne.</p>
+                <p><strong>Niveau visé :</strong> A2 à B1 • <strong>Durée :</strong> 3 minutes</p>
+                <p><strong>Critères d'évaluation :</strong></p>
+                <ul>
+                    <li>Capacité à interagir de manière appropriée</li>
+                    <li>Utilisation des formules de politesse</li>
+                    <li>Fluidité dans l'échange</li>
+                    <li>Correction grammaticale et lexicale</li>
+                </ul>
+            </div>
+            
+            <div class="task-card">
+                <div class="task-header">
+                    <span class="task-number"><i class="fas fa-comments"></i> Tâche 2 • Interaction</span>
+                    <span class="task-requirements"><i class="fas fa-clock"></i> Durée: 3 minutes</span>
+                </div>
+                
+                <!-- Sélection de sujet -->
+                <div class="subject-selection">
+                    <h4><i class="fas fa-list-ol"></i> Sélectionnez un sujet</h4>
+                    <div class="subject-scroll-container">
+                        <ul class="subject-list" id="tache2-sujets">
+                            <!-- Les sujets seront générés dynamiquement -->
+                        </ul>
+                    </div>
+                    <div class="subject-controls">
+                        <div>
+                            <button class="subject-btn" onclick="selectionnerSujetAleatoire(2)">
+                                <i class="fas fa-random"></i> Sujet aléatoire
+                            </button>
+                            <button class="subject-btn" onclick="afficherTousSujets(2)" style="margin-left: 0.5rem;">
+                                <i class="fas fa-eye"></i> Voir tous
+                            </button>
+                        </div>
+                        <div class="subject-info">
+                            <span id="tache2-sujet-info">Aucun sujet sélectionné</span>
+                            <span id="tache2-compteur">0/0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--primary); margin-bottom: 1rem;">Situation proposée :</h3>
+                    <div class="subject-box" id="sujet-tache2">
+                        <p><strong>Sélectionnez un sujet dans la liste ci-dessus pour afficher la situation.</strong></p>
+                    </div>
+                </div>
+                
+                <div class="recording-area">
+                    <h3><i class="fas fa-microphone"></i> Enregistrement vocal</h3>
+                    
+                    <div class="microphone" id="microphone2" onclick="basculerEnregistrement(2)">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                    
+                    <div class="recording-status" id="statut-enregistrement2">
+                        Prêt à enregistrer votre réponse
+                    </div>
+                    
+                    <div class="recording-time" id="temps-enregistrement2">03:00</div>
+                    
+                    <div class="progress-bar-modern">
+                        <div class="progress-fill" id="progression2"></div>
+                    </div>
+                    
+                    <div class="recording-buttons">
+                        <button class="record-btn btn-start" id="btn-commencer2" onclick="commencerEnregistrement(2)">
+                            <i class="fas fa-play"></i> Commencer
+                        </button>
+                        <button class="record-btn btn-stop" id="btn-arrêter2" onclick="arrêterEnregistrement(2)" disabled>
+                            <i class="fas fa-stop"></i> Arrêter
+                        </button>
+                        <button class="record-btn btn-listen" id="btn-écouter2" onclick="écouterEnregistrement(2)" disabled>
+                            <i class="fas fa-play-circle"></i> Écouter
+                        </button>
+                    </div>
+                    
+                    <div id="audio-container2" class="audio-player">
+                        <h4 style="margin-bottom: 1rem;">Votre enregistrement :</h4>
+                        <audio id="audio-player2" controls>
+                            Votre navigateur ne supporte pas l'élément audio.
+                        </audio>
+                    </div>
+                </div>
+                
+                <div class="transcription-area">
+                    <h3 style="margin-bottom: 1rem;">Transcription de votre réponse</h3>
+                    <div class="transcription-text" id="transcription2">
+                        Votre transcription apparaîtra ici après l'enregistrement.
+                    </div>
+                    <div class="alert-warning" style="margin-top: 1rem;">
+                        <i class="fas fa-keyboard"></i> <strong>Important :</strong> Veuillez saisir manuellement ce que vous avez dit.
+                        <textarea id="transcription-manuelle2" class="transcription-textarea" placeholder="Saisissez ici ce que vous avez dit..."></textarea>
+                        <button onclick="sauvegarderTranscriptionManuelle(2)" class="save-btn">
+                            <i class="fas fa-save"></i> Sauvegarder
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button class="modern-btn modern-btn-secondary" onclick="changerTache(1)">
+                    <i class="fas fa-arrow-left"></i> ← Tâche 1
+                </button>
+                <button class="modern-btn modern-btn-primary" onclick="changerTache(3)">
+                    Suivant → Tâche 3 <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Tâche 3: Expression d'un point de vue -->
+        <div class="step" id="tache3">
+            <h2 style="color: var(--primary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+                <i class="fas fa-comment-dots" style="color: var(--secondary);"></i> Tâche 3 : Expression d'un Point de Vue
+            </h2>
+            
+            <div class="instruction-card">
+                <h4><i class="fas fa-info-circle" style="color: var(--secondary);"></i> Instructions</h4>
+                <p><strong>Objectif :</strong> Exprimer et défendre un point de vue sur un sujet de société.</p>
+                <p><strong>Niveau visé :</strong> B1 à B2 • <strong>Durée :</strong> 5 minutes</p>
+                <p><strong>Critères d'évaluation :</strong></p>
+                <ul>
+                    <li>Structure et organisation du discours</li>
+                    <li>Pertinence et développement des arguments</li>
+                    <li>Variété du vocabulaire et des structures</li>
+                    <li>Prononciation et intonation</li>
+                </ul>
+            </div>
+            
+            <div class="task-card">
+                <div class="task-header">
+                    <span class="task-number"><i class="fas fa-comment-dots"></i> Tâche 3 • Point de vue</span>
+                    <span class="task-requirements"><i class="fas fa-clock"></i> Durée: 5 minutes</span>
+                </div>
+                
+                <!-- Sélection de sujet -->
+                <div class="subject-selection">
+                    <h4><i class="fas fa-list-ol"></i> Sélectionnez un sujet</h4>
+                    <div class="subject-scroll-container">
+                        <ul class="subject-list" id="tache3-sujets">
+                            <!-- Les sujets seront générés dynamiquement -->
+                        </ul>
+                    </div>
+                    <div class="subject-controls">
+                        <div>
+                            <button class="subject-btn" onclick="selectionnerSujetAleatoire(3)">
+                                <i class="fas fa-random"></i> Sujet aléatoire
+                            </button>
+                            <button class="subject-btn" onclick="afficherTousSujets(3)" style="margin-left: 0.5rem;">
+                                <i class="fas fa-eye"></i> Voir tous
+                            </button>
+                        </div>
+                        <div class="subject-info">
+                            <span id="tache3-sujet-info">Aucun sujet sélectionné</span>
+                            <span id="tache3-compteur">0/0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--primary); margin-bottom: 1rem;">Sujet à développer :</h3>
+                    <div class="subject-box" id="sujet-tache3">
+                        <p><strong>Sélectionnez un sujet dans la liste ci-dessus pour afficher le thème de discussion.</strong></p>
+                    </div>
+                </div>
+                
+                <div class="recording-area">
+                    <h3><i class="fas fa-microphone"></i> Enregistrement vocal</h3>
+                    
+                    <div class="microphone" id="microphone3" onclick="basculerEnregistrement(3)">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                    
+                    <div class="recording-status" id="statut-enregistrement3">
+                        Prêt à enregistrer votre réponse
+                    </div>
+                    
+                    <div class="recording-time" id="temps-enregistrement3">05:00</div>
+                    
+                    <div class="progress-bar-modern">
+                        <div class="progress-fill" id="progression3"></div>
+                    </div>
+                    
+                    <div class="recording-buttons">
+                        <button class="record-btn btn-start" id="btn-commencer3" onclick="commencerEnregistrement(3)">
+                            <i class="fas fa-play"></i> Commencer
+                        </button>
+                        <button class="record-btn btn-stop" id="btn-arrêter3" onclick="arrêterEnregistrement(3)" disabled>
+                            <i class="fas fa-stop"></i> Arrêter
+                        </button>
+                        <button class="record-btn btn-listen" id="btn-écouter3" onclick="écouterEnregistrement(3)" disabled>
+                            <i class="fas fa-play-circle"></i> Écouter
+                        </button>
+                    </div>
+                    
+                    <div id="audio-container3" class="audio-player">
+                        <h4 style="margin-bottom: 1rem;">Votre enregistrement :</h4>
+                        <audio id="audio-player3" controls>
+                            Votre navigateur ne supporte pas l'élément audio.
+                        </audio>
+                    </div>
+                </div>
+                
+                <div class="transcription-area">
+                    <h3 style="margin-bottom: 1rem;">Transcription de votre réponse</h3>
+                    <div class="transcription-text" id="transcription3">
+                        Votre transcription apparaîtra ici après l'enregistrement.
+                    </div>
+                    <div class="alert-warning" style="margin-top: 1rem;">
+                        <i class="fas fa-keyboard"></i> <strong>Important :</strong> Veuillez saisir manuellement ce que vous avez dit.
+                        <textarea id="transcription-manuelle3" class="transcription-textarea" placeholder="Saisissez ici ce que vous avez dit..."></textarea>
+                        <button onclick="sauvegarderTranscriptionManuelle(3)" class="save-btn">
+                            <i class="fas fa-save"></i> Sauvegarder
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button class="modern-btn modern-btn-secondary" onclick="changerTache(2)">
+                    <i class="fas fa-arrow-left"></i> ← Tâche 2
+                </button>
+                <button class="modern-btn modern-btn-success" onclick="soumettreÉvaluation()">
+                    <i class="fas fa-chart-bar"></i> Voir les résultats
+                </button>
+            </div>
+        </div>
+        
+        <!-- Résultats -->
+        <div class="step" id="tache4">
+            <div class="results-container">
+                <h2 style="color: var(--primary); margin-bottom: 1.5rem;">Résultats de votre évaluation</h2>
+                
+                <div id="badge-niveau-global"></div>
+                
+                <div class="feedback-card">
+                    <h3 style="margin-bottom: 1rem;">Évaluation Globale</h3>
+                    <div id="feedback-global"></div>
+                    
+                    <div class="stats-grid" id="statistiques-globales"></div>
+                </div>
+                
+                <div class="criteria-grid" id="critères-évaluation"></div>
+                
+                <div class="improvement-card">
+                    <h4><i class="fas fa-lightbulb"></i> Conseils pour améliorer votre expression orale</h4>
+                    <div id="conseils-amélioration"></div>
+                </div>
+                
+                <div class="button-group" style="justify-content: center; margin-top: 2rem;">
+                    <button class="modern-btn modern-btn-success" onclick="recommencerTest()">
+                        <i class="fas fa-redo-alt"></i> Recommencer le test
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAhGVA4vr3pISonxvccIMCxZZOE5bkynRQ",
+            authDomain: "platformtcf.firebaseapp.com",
+            projectId: "platformtcf",
+            storageBucket: "platformtcf.firebasestorage.app",
+            messagingSenderId: "779352652301",
+            appId: "1:779352652301:web:41ca6b1dbcc42739b47344"
+        };
+
+        let currentUser = null;
+        let isPremium = false;
+        let firebaseApp, firebaseAuth, firestore;
+
+        // DOM elements
+        const authOverlay = document.getElementById('authOverlay');
+        const authMessage = document.getElementById('authMessage');
+        const mainContainer = document.getElementById('mainContainer');
+        const premiumBadge = document.getElementById('premiumBadge');
+        const copyWarning = document.getElementById('copyWarning');
+
+        // ========== FIREBASE AUTHENTICATION ==========
+        async function initFirebase() {
+            try {
+                firebaseApp = firebase.initializeApp(firebaseConfig);
+                firebaseAuth = firebase.auth();
+                firestore = firebase.firestore();
+
+                firebaseAuth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        await handleAuthenticatedUser(user);
+                    } else {
+                        showAuthMessage('not_logged_in', 'Non connecté', 'Vous devez être connecté avec un compte premium pour accéder à ce test.');
+                    }
+                });
+            } catch (e) {
+                showAuthMessage('error', 'Erreur Firebase', 'Impossible de contacter le serveur.');
+            }
+        }
+
+        async function handleAuthenticatedUser(user) {
+            try {
+                showAuthMessage('loading', 'Vérification', 'Vérification de votre statut premium...');
+                const doc = await firestore.collection('users').doc(user.uid).get();
+                if (!doc.exists) {
+                    showAuthMessage('error', 'Utilisateur inconnu', 'Aucun profil trouvé.');
+                    return;
+                }
+                const data = doc.data();
+                currentUser = { uid: user.uid, email: user.email, ...data };
+
+                // Premium check
+                isPremium = false;
+                if (data.premiumActive === true) isPremium = true;
+                if (data.premium === true) isPremium = true;
+                if (data.premiumType && data.premiumType !== "none") isPremium = true;
+                if (data.status === "premium" || data.status === "active") isPremium = true;
+                if (data.subscriptionStatus === "active") isPremium = true;
+                if (data.premiumExpiry) {
+                    const now = new Date(), expiry = new Date(data.premiumExpiry);
+                    if (expiry > now) isPremium = true;
+                }
+                // hardcoded premium
+                if (user.uid === "a0fPHv3JniRr55uJJjJggSMFKGY2") isPremium = true;
+                if (user.email === "bouhoula_mohamedhedi@yahoo.fr") isPremium = true;
+                if (data.role === "admin" || data.isAdmin) isPremium = true;
+
+                if (!isPremium) {
+                    showAuthMessage('premium_required', 'Accès premium requis', 'Ce test nécessite un abonnement premium actif.');
+                    return;
+                }
+
+                // Access granted
+                authOverlay.style.display = 'none';
+                mainContainer.style.display = 'block';
+                premiumBadge.classList.add('active');
+                
+                // Start the test
+                startOriginalTest();
+
+            } catch (err) {
+                showAuthMessage('error', 'Erreur', 'Impossible de récupérer vos données.');
+            }
+        }
+
+        function showAuthMessage(type, title, message) {
+            let icon = '';
+            let content = '';
+            if (type === 'loading') {
+                icon = '<div class="loading-spinner"></div>';
+                content = `<div class="auth-icon">⏳</div><div class="auth-title">${title}</div><div class="auth-subtitle">${message}</div>${icon}`;
+            } else if (type === 'not_logged_in' || type === 'premium_required') {
+                icon = '🔒';
+                content = `<div class="auth-icon">${icon}</div><div class="auth-title">${title}</div><div class="auth-subtitle">${message}</div>
+                <div style="margin-top:2rem;"><button class="auth-btn auth-btn-primary" onclick="redirectToLogin()">Se connecter</button>
+                <button class="auth-btn auth-btn-secondary" onclick="closePage()">Fermer</button></div>`;
+            } else {
+                icon = '❌';
+                content = `<div class="auth-icon">${icon}</div><div class="auth-title">${title}</div><div class="auth-subtitle">${message}</div>
+                <button class="auth-btn auth-btn-primary" onclick="location.reload()">Réessayer</button>`;
+            }
+            authMessage.innerHTML = content;
+            authOverlay.style.display = 'flex';
+        }
+
+        window.redirectToLogin = function() {
+            window.location.href = 'index.html';
+        };
+        window.closePage = function() { window.close(); };
+
+        // ========== COPY PROTECTION ==========
+        function setupCopyProtection() {
+            document.addEventListener('copy', (e) => {
+                const selection = window.getSelection().toString();
+                if (selection.length > 100) {
+                    e.preventDefault();
+                    showCopyWarning();
+                }
+            });
+            
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+                    const selection = window.getSelection().toString();
+                    if (selection.length > 100) {
+                        e.preventDefault();
+                        showCopyWarning();
+                    }
+                }
+                if (e.key === 'PrintScreen') {
+                    e.preventDefault();
+                    showCopyWarning();
+                }
+            });
+        }
+
+        function showCopyWarning() {
+            copyWarning.style.display = 'block';
+            setTimeout(() => {
+                copyWarning.style.display = 'none';
+            }, 2000);
+        }
+
+        // ========== ORIGINAL TCF FUNCTIONS ==========
+        
+        // Variables globales
+        let tacheActuelle = 1;
+        let tempsRestantGlobal = 15 * 60; // 15 minutes en secondes
+        let intervalTempsGlobal;
+        
+        // Données des enregistrements
+        const enregistrements = {
+            1: { 
+                audioBlob: null, 
+                audioUrl: null, 
+                transcription: "", 
+                durée: 0, 
+                enCours: false, 
+                interval: null, 
+                tempsRestant: 120,
+                transcriptionManuelle: ""
+            },
+            2: { 
+                audioBlob: null, 
+                audioUrl: null, 
+                transcription: "", 
+                durée: 0, 
+                enCours: false, 
+                interval: null, 
+                tempsRestant: 180,
+                transcriptionManuelle: "",
+                sujetSelectionne: null
+            },
+            3: { 
+                audioBlob: null, 
+                audioUrl: null, 
+                transcription: "", 
+                durée: 0, 
+                enCours: false, 
+                interval: null, 
+                tempsRestant: 300,
+                transcriptionManuelle: "",
+                sujetSelectionne: null
+            }
+        };
+        
+        // Variables pour l'enregistrement audio réel
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let stream = null;
+        
+        // Données des tâches
+        const tâchesInfo = {
+            1: { nom: "Entretien dirigé", durée: 120, niveau: "A1-A2" },
+            2: { nom: "Exercice en interaction", durée: 180, niveau: "A2-B1" },
+            3: { nom: "Expression d'un point de vue", durée: 300, niveau: "B1-B2" }
+        };
+        
+        // Critères d'évaluation
+        const critèresÉvaluation = [
+            { nom: "Compréhension", description: "Capacité à comprendre les questions/consignes" },
+            { nom: "Prononciation", description: "Clarté et correction de la prononciation" },
+            { nom: "Fluidité", description: "Débit naturel et hésitations limitées" },
+            { nom: "Vocabulaire", description: "Variété et précision du vocabulaire utilisé" },
+            { nom: "Grammaire", description: "Correction grammaticale des phrases" },
+            { nom: "Cohérence", description: "Organisation logique du discours" }
+        ];
+        
+        // Sujets pour Tâche 2 (interaction) - COMPLETE LIST FROM DOCUMENT
+        const sujetsTache2 = [
+            "Je suis votre ami(e) et je fais régulièrement des voyages organisés. Vous voulez partir en vacances de cette façon. Vous me demandez des conseils pour organiser votre voyage (destination, prix, activités, etc.).",
+            "Je suis votre ami(e). Je prends des cours de dessin. Vous êtes intéressé(e) et vous me posez des questions pour avoir des informations (les tarifs, l'école, les professeurs, les horaires, etc.).",
+            "Je suis votre ami(e). Vous venez de vous installer dans ma ville. Vous voulez sortir le week-end. Vous me posez des questions pour connaître les quartiers animés, les activités à faire, les lieux à visiter, etc.",
+            "Je suis votre ami(e). Vous voulez passer un week-end dans une ville que je connais bien. Pour organiser votre séjour. Vous me posez des questions sur cette ville (lieux à visiter, météo, activités, hébergement, etc.)",
+            "Je travaille à l'accueil d'une bibliothèque. Vous voulez vous inscrire. Vous me posez des questions sur le fonctionnement de cette bibliothèque (inscription, conditions d'emprunt, horaires, etc.).",
+            "Je suis votre collègue et j'ai récemment effectué un voyage au Canada. Vous êtes intéressé(e) et vous me posez des questions sur ce voyage (activités, transports, loisirs, etc...)",
+            "Je suis votre voisin(e), j'ai une maison à louer au bord de la mer et vous êtes intéressé(e). Posez-moi des questions.",
+            "Je suis votre ami(e). Je pars en vacances pendant quelques temps. J'aimerais que vous vous occupiez de mon appartement pendant mon absence. Vous me posez des questions (dates, tâches à faire, etc.).",
+            "Vous avez fait connaissance avec moi dans une gare. Engagez une conversation pour découvrir mon amour pour les montagnes. Posez-moi des questions pour en apprendre plus sur cette passion.",
+            "Je travaille dans une société de livraison. Vous souhaitez commander un meuble. Posez-moi des questions pour obtenir des informations (tarif, date, modalités, etc...)",
+            "Je suis producteur de fruits et légumes bio et je vends directement mes produits aux particuliers. Vous êtes intéressé(e). Vous me posez des questions pour obtenir des informations utiles (prix, types de produits, livraison, etc.).",
+            "Je suis votre ami(e). Je suis bénévole dans une association qui aide les personnes âgées. Vous êtes intéressé(e) et vous me posez des questions (activités, participants, inscription, etc.).",
+            "Je suis votre collègue. J'ai habité dix ans au Canada. Vous voulez immigrer à Ottawa. Vous me posez des questions pour connaître mon expérience d'intégration dans ce pays (logement, travail, culture, etc.).",
+            "Je suis votre voisin(e). Je suis allé(e) au zoo le week-end dernier. Vous souhaitez y emmener votre famille. Vous me posez des questions pour organiser votre sortie (jour, animaux, tarifs, etc.).",
+            "Je travaille dans une agence touristique. Vous souhaitez partir aux sports d'hiver au Canada. Vous me posez des questions pour obtenir des informations (activité(s) proposée(s), tarifs, types de logement, etc.).",
+            "Je suis professeur de guitare. Vous souhaitez prendre des leçons avec moi. Vous me posez des questions sur le déroulement des cours (horaires, tarifs, genre musical, etc.).",
+            "Je suis un(e) de vos collègues. Je loue ma maison pendant les vacances d'été. Cela vous intéresse. Vous me posez des questions sur la maison (nombre de pièces, environnement, prix, etc.).",
+            "Je suis votre ami(e). Je travaille dans une association. Vous êtes intéressé(e). Vous me posez des questions sur mon travail (association, activités, nombre d'heures, etc.).",
+            "Je suis votre collègue. C'est votre premier jour de travail dans une entreprise canadienne. Vous me posez des questions sur l'entreprise (organisation, collègues, repas, etc.).",
+            "Je travaille au secrétariat d'une université à Calgary. Vous êtes intéressé(e) par nos cours de langues pour adultes. Vous me posez des questions pour avoir des informations sur les offres de cours proposés (langues, prix, horaires, etc.).",
+            "Je suis votre ami(e), c'est bientôt mon anniversaire. Vous me proposez d'organiser une fête. Vous me demandez mon avis (lieu, invités, horaires, etc.).",
+            "Je suis votre ami(e). Je voudrais faire des études au Canada. Vous m'interrogez pour mieux comprendre mon projet (spécialité, objectifs, lieu, etc.).",
+            "Je suis votre ami(e). J'ai besoin de transporter des objets lourds mais je n'ai pas de véhicule. Vous m'interrogez pour m'aider à trouver une solution (objets, distance, date, etc.).",
+            "Je suis votre voisin(e). Je connais une personne qui garde des enfants chez les particuliers. Vous êtes intéressé(e). Vous me posez des questions sur cette personne (expérience, disponibilité, tarif, etc.).",
+            "Je travaille dans un office de tourisme au Canada. Vous voulez partir en week-end pour vous reposer. Demandez-moi des conseils (lieux, activités, transports, etc.).",
+            "Je propose une chambre à louer dans mon appartement. Vous avez vu mon annonce. Vous venez visiter l'appartement et vous me posez des questions (loyer, meubles, vie en commun, etc.).",
+            "Je suis votre ami(e), je vous invite à la soirée d'ouverture d'un grand restaurant. Vous me posez des questions sur l'événement (tenue appropriée, menu proposé, déroulement de la soirée, etc.).",
+            "Je suis votre collègue. Je ne pourrai pas aller chercher mes parents à l'aéroport ce week-end. Vous me proposez de me rendre ce service et vous me demandez les informations nécessaires (dates, vol, description physique, etc.).",
+            "Je suis votre collègue. Vous avez lu mon annonce au travail : je revends mes meubles. Vous êtes intéressé(e) : vous me posez des questions (état, prix, taille, etc.).",
+            "Je suis votre voisin(e). Vous venez d'emménager dans mon immeuble. Vous me posez des questions sur les activités du quartier (commerces, activités culturelles et sportives, etc.).",
+            "Je suis agent(e) de voyage. Vous souhaitez partir en vacances au Canada. Vous me demandez des renseignements (tarifs, lieux, type de séjour, etc.).",
+            "Je suis un(e) ami(e) et je vis à Ottawa. Vous venez d'arriver dans la ville et vous souhaitez vous déplacer à vélo. Vous me posez des questions sur ce moyen de transport (pistes cyclables, agences de location, matériel, etc.).",
+            "Je suis votre voisin (e). Vous venez d'emménager, vous connaissez mal le quartier. Vous me posez des questions pour mieux le connaître (services, magasins, ambiance, etc.).",
+            "Je travaille pour une entreprise, vous souhaitez faire des travaux dans votre logement. Vous me posez des questions (tarifs, durée, bruits, garantie, services, etc.).",
+            "Je travaille dans une auto-école, vous voulez apprendre à conduire. Vous me posez des questions pour avoir des informations.",
+            "Je suis votre ami(e). J'étudie dans une université à Toronto. Vous allez commencer vos études dans cette université. Vous me posez des questions sur cet établissement (cours, équipements, logement, etc.).",
+            "Je suis votre voisin(e). Je vais souvent nager à la piscine municipale. Vous êtes intéressé(e) par cette activité. Vous me posez des questions sur la piscine (équipements, horaires, tarifs, etc.).",
+            "Je suis votre voisin (e). J'organise une fête avec les habitants du quartier. Vous êtes intéressé(e). Vous me posez des questions sur l'organisation (date, repas, invités, etc.).",
+            "Je suis votre voisin(e). Vous venez d'emménager à Vancouver. Vous voulez savoir comment vous déplacer dans la ville. Vous me posez des questions sur les moyens de transport disponibles (types de transports, tarifs, horaires, etc.).",
+            "Je travaille dans une agence de voyages. Vous voulez partir en vacances au bord de la mer. Vous me posez des questions sur les offres (destinations, tarifs, activités, etc.)."
+        ];
+        
+        // Sujets pour Tâche 3 (opinion) - COMPLETE LIST FROM DOCUMENT
+        const sujetsTache3 = [
+            "Changer de pays, c'est changer de culture. Qu'en pensez-vous ?",
+            "De nos jours, les jeunes sont de moins en moins polis. Êtes-vous d'accord ? Pourquoi ?",
+            "Il est difficile de vivre seul(e). Êtes-vous d'accord ?",
+            "À votre avis, est-il facile de se faire des amis quand on s'installe dans un nouveau pays ? Pourquoi ?",
+            "À votre avis, peut-on vivre sans Internet ? Pourquoi ?",
+            "Quelles matières des élèves devraient être enseignées à l'école pour les intéresser plus ? Pourquoi ?",
+            "Avoir une grande famille ou de bons amis ? Qu'en pensez-vous ?",
+            "Les entreprises devraient aider les nouveaux employés à bien s'intégrer. Êtes-vous d'accord avec cette affirmation ?",
+            "Quel était votre cours préféré à l'école ? Pourquoi ?",
+            "Vivre à l'étranger assure-t-il une réussite dans la vie professionnelle ?",
+            "Est-il possible de développer l'économie en préservant l'environnement ?",
+            "La lecture des livres est un moyen pour connaître un pays, êtes-vous d'accord avec cette affirmation ?",
+            "Doit-on préserver ses traditions et cultures dans un pays d'accueil ?",
+            "Les parents donnent de l'argent à leurs enfants pour avoir des bonnes notes. Qu'en pensez-vous ?",
+            "Est-il important de favoriser le bien-être au travail ?",
+            "De plus en plus de personnes choisissent de devenir végétariennes. Que pensez-vous de ce mode d'alimentation ?",
+            "Est-il possible de réaliser tous ses achats en ligne ? Qu'en pensez-vous ?",
+            "Le salaire est l'aspect le plus important d'un emploi. Êtes-vous d'accord avec cette affirmation ?",
+            "Les membres de notre famille sont nos meilleurs amis. Êtes-vous d'accord avec cette affirmation ? Pourquoi ?",
+            "Pour une personne âgée, il est plus facile de vivre en ville qu'à la campagne. Êtes-vous d'accord avec cette affirmation ?",
+            "Dans le futur, avec les nouvelles technologies, nous n'aurons plus besoin de travailler. Qu'en pensez-vous ?",
+            "Est-ce que vous pensez que les voyages sont utiles ? Pourquoi ?",
+            "Il est normal que les jeunes travaillent pour financer leurs études. Qu'en pensez-vous ?",
+            "Il est nécessaire d'apprendre la langue du pays où l'on vit pour s'intégrer. Êtes-vous d'accord avec cette affirmation ? Pourquoi ?",
+            "Pour protéger la planète, les transports publics devraient être gratuits. Que pensez-vous de cette affirmation ?",
+            "Est-ce que vous pensez que l'autorité est nécessaire dans l'éducation d'un enfant ? Pourquoi ?",
+            "Nous utilisons tous les jours des appareils électroniques (ordinateurs, téléphones portables, tablettes, etc.). Selon vous, quels sont les risques liés à leur utilisation ?",
+            "Pour des raisons d'égalité, certains gouvernements comptent 50% d'hommes et 50% de femmes. Qu'en pensez-vous ?",
+            "Selon vous, est-il nécessaire de vivre dans un pays pour connaître sa culture ? Expliquez pourquoi.",
+            "Travailler à l'étranger est facile. Qu'en pensez-vous ?",
+            "Faut-il être autoritaire avec ses enfants ? Qu'en pensez-vous ?",
+            "À votre avis, peut-on vivre sans internet ?",
+            "Les transports en communs doivent-ils être gratuits ?",
+            "La consommation des produits bio est bénéfique. Qu'en pensez-vous ?",
+            "Pour gagner beaucoup d'argent, il est indispensable d'avoir fait des études, êtes-vous d'accord cette affirmation ?",
+            "À la maison, les parents devraient interdire à leurs enfants l'utilisation d'Internet. Êtes-vous d'accord avec cette affirmation ?",
+            "Il est possible de vivre dans un pays sans parler sa langue. Qu'en pensez-vous ?",
+            "Prendre la décision de quitter son pays est facile. Qu'en pensez-vous ?",
+            "Certains économistes pensent que les nouvelles technologies vont détruire les emplois. Qu'en pensez-vous ?",
+            "Internet contribue à améliorer notre qualité de vie ? Qu'en pensez-vous ?",
+            "De nos jours peut-on vivre sans télé ? Pourquoi ?",
+            "De nos jours tout le monde veut être beau. Qu'en pensez-vous ?",
+            "Le stress est un bon stimulant. Qu'en pensez-vous ?",
+            "Les métiers les plus difficiles devraient être les métiers les mieux payés. Qu'en pensez-vous ?",
+            "À votre avis, comment un état peut-il faciliter l'intégration des étrangers ?",
+            "Tout le monde peut réduire ses déchets. Qu'en pensez-vous ?",
+            "Il n'y a pas d'âge pour faire des études. Qu'en pensez-vous ?",
+            "Les métiers artistiques ne sont pas des métiers sérieux (cinéma, musique, peinture, etc.). Qu'en pensez-vous ?",
+            "Les personnes âgées donnent toujours de bons conseils. Qu'en pensez-vous ?",
+            "Les réseaux sociaux permettent de rencontrer de nouveaux amis plus facilement. Qu'en pensez-vous ?"
+        ];
+
+        function startOriginalTest() {
+            démarrerChronomètreGlobal();
+            demanderPermissionMicro();
+            initialiserSujets();
+        }
+
+        function initialiserSujets() {
+            // Initialiser Tâche 2
+            const listeTache2 = document.getElementById('tache2-sujets');
+            const compteurTache2 = document.getElementById('tache2-compteur');
+            
+            sujetsTache2.forEach((sujet, index) => {
+                const li = document.createElement('li');
+                li.className = 'subject-item';
+                li.innerHTML = `
+                    <div class="subject-number">${index + 1}</div>
+                    <div class="subject-text">${sujet}</div>
+                `;
+                li.addEventListener('click', () => selectionnerSujet(2, index, sujet));
+                listeTache2.appendChild(li);
+            });
+            
+            compteurTache2.textContent = `${sujetsTache2.length} sujets`;
+            
+            // Initialiser Tâche 3
+            const listeTache3 = document.getElementById('tache3-sujets');
+            const compteurTache3 = document.getElementById('tache3-compteur');
+            
+            sujetsTache3.forEach((sujet, index) => {
+                const li = document.createElement('li');
+                li.className = 'subject-item';
+                li.innerHTML = `
+                    <div class="subject-number">${index + 1}</div>
+                    <div class="subject-text">${sujet}</div>
+                `;
+                li.addEventListener('click', () => selectionnerSujet(3, index, sujet));
+                listeTache3.appendChild(li);
+            });
+            
+            compteurTache3.textContent = `${sujetsTache3.length} sujets`;
+            
+            // Sélectionner aléatoirement un sujet par défaut pour chaque tâche
+            selectionnerSujetAleatoire(2);
+            selectionnerSujetAleatoire(3);
+        }
+
+        function selectionnerSujet(tache, index, texte) {
+            const items = document.querySelectorAll(`#tache${tache}-sujets .subject-item`);
+            items.forEach(item => item.classList.remove('active'));
+            items[index].classList.add('active');
+            
+            const sujetBox = document.getElementById(`sujet-tache${tache}`);
+            sujetBox.innerHTML = `<p><strong>Sujet :</strong> ${texte}</p>`;
+            
+            const info = document.getElementById(`tache${tache}-sujet-info`);
+            info.textContent = `Sujet ${index + 1} sélectionné`;
+            
+            enregistrements[tache].sujetSelectionne = { index, texte };
+            
+            items[index].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function selectionnerSujetAleatoire(tache) {
+            const sujets = tache === 2 ? sujetsTache2 : sujetsTache3;
+            const index = Math.floor(Math.random() * sujets.length);
+            selectionnerSujet(tache, index, sujets[index]);
+        }
+
+        function afficherTousSujets(tache) {
+            const sujets = tache === 2 ? sujetsTache2 : sujetsTache3;
+            console.log(`Sujets Tâche ${tache}:`, sujets);
+            alert(`Tâche ${tache} a ${sujets.length} sujets disponibles. Consultez la console pour voir la liste complète.`);
+        }
+
+        async function demanderPermissionMicro() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                console.log("Microphone autorisé");
+            } catch (err) {
+                console.warn("Microphone non disponible ou permission refusée:", err);
+            }
+        }
+
+        function démarrerChronomètreGlobal() {
+            intervalTempsGlobal = setInterval(function() {
+                tempsRestantGlobal--;
+                
+                const minutes = Math.floor(tempsRestantGlobal / 60);
+                const secondes = tempsRestantGlobal % 60;
+                document.getElementById('temps-restant').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${secondes.toString().padStart(2, '0')}`;
+                
+                if (tempsRestantGlobal <= 0) {
+                    clearInterval(intervalTempsGlobal);
+                    alert("Le temps est écoulé ! L'évaluation va être soumise.");
+                    soumettreÉvaluation();
+                }
+            }, 1000);
+        }
+
+        function changerTache(numéro) {
+            for (let i = 1; i <= 3; i++) {
+                if (enregistrements[i].enCours) {
+                    arrêterEnregistrement(i);
+                }
+            }
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn')[numéro - 1].classList.add('active');
+            
+            document.querySelectorAll('.step').forEach(etape => {
+                etape.classList.remove('active');
+            });
+            
+            document.getElementById(`tache${numéro}`).classList.add('active');
+            tacheActuelle = numéro;
+        }
+
+        function basculerEnregistrement(numéro) {
+            if (enregistrements[numéro].enCours) {
+                arrêterEnregistrement(numéro);
+            } else {
+                commencerEnregistrement(numéro);
+            }
+        }
+
+        async function commencerEnregistrement(numéro) {
+            if (numéro > 1 && !enregistrements[numéro].sujetSelectionne) {
+                alert(`Veuillez sélectionner un sujet pour la Tâche ${numéro} avant de commencer l'enregistrement.`);
+                return;
+            }
+            
+            if (enregistrements[numéro].enCours) return;
+            
+            enregistrements[numéro].tempsRestant = tâchesInfo[numéro].durée;
+            
+            document.getElementById(`microphone${numéro}`).classList.add('recording');
+            document.getElementById(`statut-enregistrement${numéro}`).textContent = "Enregistrement en cours...";
+            document.getElementById(`btn-commencer${numéro}`).disabled = true;
+            document.getElementById(`btn-arrêter${numéro}`).disabled = false;
+            document.getElementById(`btn-écouter${numéro}`).disabled = true;
+            
+            enregistrements[numéro].enCours = true;
+            enregistrements[numéro].interval = setInterval(function() {
+                enregistrements[numéro].tempsRestant--;
+                
+                const minutes = Math.floor(enregistrements[numéro].tempsRestant / 60);
+                const secondes = enregistrements[numéro].tempsRestant % 60;
+                document.getElementById(`temps-enregistrement${numéro}`).textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${secondes.toString().padStart(2, '0')}`;
+                
+                const pourcentage = 100 - (enregistrements[numéro].tempsRestant / tâchesInfo[numéro].durée) * 100;
+                document.getElementById(`progression${numéro}`).style.width = `${pourcentage}%`;
+                
+                if (enregistrements[numéro].tempsRestant <= 0) {
+                    arrêterEnregistrement(numéro);
+                }
+            }, 1000);
+            
+            try {
+                if (!stream) {
+                    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                }
+                
+                audioChunks = [];
+                mediaRecorder = new MediaRecorder(stream);
+                
+                mediaRecorder.ondataavailable = event => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+                
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    
+                    enregistrements[numéro].audioBlob = audioBlob;
+                    enregistrements[numéro].audioUrl = audioUrl;
+                    
+                    const audioPlayer = document.getElementById(`audio-player${numéro}`);
+                    audioPlayer.src = audioUrl;
+                    
+                    document.getElementById(`audio-container${numéro}`).style.display = 'block';
+                    document.getElementById(`btn-écouter${numéro}`).disabled = false;
+                };
+                
+                mediaRecorder.start();
+                console.log(`Enregistrement audio démarré pour la tâche ${numéro}`);
+            } catch (err) {
+                console.warn("Erreur lors de l'enregistrement audio:", err);
+                document.getElementById(`statut-enregistrement${numéro}`).textContent = "Enregistrement simulé en cours...";
+            }
+        }
+
+        function arrêterEnregistrement(numéro) {
+            if (!enregistrements[numéro].enCours) return;
+            
+            clearInterval(enregistrements[numéro].interval);
+            enregistrements[numéro].enCours = false;
+            
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+            
+            enregistrements[numéro].durée = tâchesInfo[numéro].durée - enregistrements[numéro].tempsRestant;
+            
+            document.getElementById(`microphone${numéro}`).classList.remove('recording');
+            document.getElementById(`statut-enregistrement${numéro}`).textContent = "Enregistrement terminé";
+            document.getElementById(`btn-commencer${numéro}`).disabled = false;
+            document.getElementById(`btn-arrêter${numéro}`).disabled = true;
+            
+            if (enregistrements[numéro].audioUrl) {
+                document.getElementById(`btn-écouter${numéro}`).disabled = false;
+            }
+            
+            if (!enregistrements[numéro].transcriptionManuelle) {
+                générerTranscriptionSimulée(numéro);
+            }
+        }
+
+        function écouterEnregistrement(numéro) {
+            if (enregistrements[numéro].audioUrl) {
+                const audioPlayer = document.getElementById(`audio-player${numéro}`);
+                audioPlayer.play();
+                document.getElementById(`audio-container${numéro}`).style.display = 'block';
+            } else {
+                alert(`Pas d'enregistrement audio disponible pour la tâche ${numéro}. Veuillez autoriser l'accès au microphone.`);
+            }
+        }
+
+        function sauvegarderTranscriptionManuelle(numéro) {
+            const texte = document.getElementById(`transcription-manuelle${numéro}`).value.trim();
+            if (texte) {
+                enregistrements[numéro].transcriptionManuelle = texte;
+                enregistrements[numéro].transcription = texte;
+                document.getElementById(`transcription${numéro}`).textContent = texte;
+                alert("Transcription sauvegardée !");
+            } else {
+                alert("Veuillez saisir une transcription avant de sauvegarder.");
+            }
+        }
+
+        function générerTranscriptionSimulée(numéro) {
+            let transcription = "";
+            
+            if (numéro === 1) {
+                transcription = `Bonjour, je m'appelle [votre nom]. J'ai [votre âge] ans et j'habite à [votre ville]. Ma ville est plutôt agréable, il y a un parc près de chez moi où je me promène souvent. Pendant mon temps libre, j'aime lire des livres et regarder des films. Je fais aussi du sport deux fois par semaine. Dans le futur, j'aimerais voyager en Amérique du Sud pour découvrir de nouvelles cultures.`;
+            } else if (numéro === 2) {
+                const sujet = enregistrements[2].sujetSelectionne ? enregistrements[2].sujetSelectionne.texte : "sujet inconnu";
+                transcription = `Bonjour, je cherche des informations selon la situation suivante : "${sujet}". Je vais donc poser des questions pertinentes pour cette situation. Par exemple, je demanderais des détails sur les aspects mentionnés dans le sujet. Je m'assurerais d'utiliser des formules de politesse appropriées et de structurer mes questions de manière claire.`;
+            } else if (numéro === 3) {
+                const sujet = enregistrements[3].sujetSelectionne ? enregistrements[3].sujetSelectionne.texte : "sujet inconnu";
+                transcription = `À mon avis, concernant le sujet "${sujet}", je pense que... Tout d'abord, il est important de considérer les différents aspects de cette question. D'un côté, on peut argumenter que... Mais d'un autre côté, il faut aussi prendre en compte que... En conclusion, je crois que la réponse à cette question dépend de plusieurs facteurs et qu'il n'y a pas de réponse unique.`;
+            }
+            
+            enregistrements[numéro].transcription = transcription;
+            document.getElementById(`transcription${numéro}`).textContent = transcription;
+            document.getElementById(`transcription-manuelle${numéro}`).value = transcription;
+            enregistrements[numéro].transcriptionManuelle = transcription;
+        }
+
+        function soumettreÉvaluation() {
+            clearInterval(intervalTempsGlobal);
+            
+            for (let i = 1; i <= 3; i++) {
+                if (enregistrements[i].enCours) {
+                    arrêterEnregistrement(i);
+                }
+            }
+            
+            let toutesComplétées = true;
+            for (let i = 1; i <= 3; i++) {
+                if (enregistrements[i].durée === 0) {
+                    toutesComplétées = false;
+                    if (!confirm(`La tâche ${i} n'a pas été enregistrée. Souhaitez-vous quand même soumettre l'évaluation ?`)) {
+                        changerTache(i);
+                        return;
+                    }
+                }
+            }
+            
+            const résultats = calculerRésultatsAméliorés();
+            afficherRésultats(résultats);
+            changerTache(4);
+        }
+
+        function calculerRésultatsAméliorés() {
+            const résultatsTâches = [];
+            let scoresCritères = {};
+            
+            critèresÉvaluation.forEach(critère => {
+                scoresCritères[critère.nom] = 0;
+            });
+            
+            for (let i = 1; i <= 3; i++) {
+                const transcription = enregistrements[i].transcriptionManuelle || enregistrements[i].transcription;
+                const durée = enregistrements[i].durée;
+                
+                const analyse = analyserTranscription(transcription, i);
+                
+                let scoreTâche = 0;
+                
+                const facteurs = {
+                    longueur: Math.min(analyse.nombreMots / (i === 1 ? 80 : i === 2 ? 120 : 150), 3),
+                    connecteurs: Math.min(analyse.connecteurs / 3, 2),
+                    vocabulaire: Math.min(analyse.motsUniques / (i === 1 ? 30 : i === 2 ? 50 : 70), 3),
+                    qualité: analyse.qualité * 2,
+                    pertinence: analyse.pertinence * 2
+                };
+                
+                scoreTâche = Object.values(facteurs).reduce((a, b) => a + b, 0);
+                scoreTâche = Math.min(scoreTâche, 12);
+                
+                scoresCritères["Compréhension"] += analyse.pertinence * 2;
+                scoresCritères["Vocabulaire"] += facteurs.vocabulaire;
+                scoresCritères["Grammaire"] += analyse.qualité * 2;
+                scoresCritères["Cohérence"] += facteurs.connecteurs;
+                scoresCritères["Fluidité"] += Math.min(durée / tâchesInfo[i].durée, 1) * 2;
+                scoresCritères["Prononciation"] += 1.5;
+                
+                const détectionMauvaiseQualité = détecterMauvaiseQualité(transcription, i);
+                if (détectionMauvaiseQualité.faibleQualité) {
+                    scoreTâche = Math.max(scoreTâche * 0.3, 1);
+                    analyse.commentaire = détectionMauvaiseQualité.raison;
+                }
+                
+                const niveau = déterminerNiveauTâche(scoreTâche, i);
+                
+                résultatsTâches.push({
+                    numéro: i,
+                    nom: tâchesInfo[i].nom,
+                    score: scoreTâche.toFixed(1),
+                    niveau: niveau,
+                    durée: durée,
+                    transcription: transcription,
+                    analyse: analyse,
+                    faibleQualité: détectionMauvaiseQualité.faibleQualité
+                });
+            }
+            
+            Object.keys(scoresCritères).forEach(critère => {
+                scoresCritères[critère] = (scoresCritères[critère] / 3 * 2.5).toFixed(1);
+            });
+            
+            const scoreMoyen = résultatsTâches.reduce((sum, tache) => sum + parseFloat(tache.score), 0) / 3;
+            const niveauGlobal = déterminerNiveauGlobal(scoreMoyen, résultatsTâches);
+            
+            return {
+                niveauGlobal: niveauGlobal,
+                scoreMoyen: scoreMoyen.toFixed(1),
+                résultatsTâches: résultatsTâches,
+                scoresCritères: scoresCritères,
+                tempsTotal: (15 * 60) - tempsRestantGlobal
+            };
+        }
+
+        function analyserTranscription(transcription, numéroTâche) {
+            if (!transcription || transcription.trim().length < 10) {
+                return {
+                    nombreMots: 0,
+                    connecteurs: 0,
+                    motsUniques: 0,
+                    qualité: 0,
+                    pertinence: 0,
+                    commentaire: "Transcription trop courte ou vide"
+                };
+            }
+            
+            const mots = transcription.split(/\s+/).filter(m => m.length > 0);
+            const nombreMots = mots.length;
+            
+            const connecteurs = (transcription.match(/et|mais|donc|car|parce que|cependant|toutefois|par conséquent|en revanche|d'abord|ensuite|finalement|premièrement|deuxièmement|en conclusion|par exemple|de plus|en outre|néanmoins|ainsi/gi) || []).length;
+            
+            const motsUniques = new Set(mots.map(m => m.toLowerCase().replace(/[^\wéèêëàâäôöûüç]/g, ''))).size;
+            
+            let qualité = 0.5;
+            
+            const structuresComplexes = (transcription.match(/qui|que|où|dont|lequel|laquelle|lesquels|lesquelles|parce que|bien que|pour que|afin que/gi) || []).length;
+            if (structuresComplexes > 0) qualité += 0.3;
+            
+            const verbesConjugués = (transcription.match(/\b(je|tu|il|elle|on|nous|vous|ils|elles)\s+\w+(e|es|ons|ez|ent|ais|ait|ions|iez|aient|ai|as|a|ons|ez|ont|erai|eras|era|erons|erez|eront|erais|erait|erions|eriez|eraient)\b/gi) || []).length;
+            if (verbesConjugués > 2) qualité += 0.2;
+            
+            let pertinence = 0.5;
+            
+            let motsClésPertinents = [];
+            if (numéroTâche === 1) {
+                motsClésPertinents = ['je', 'moi', 'habite', 'ville', 'travail', 'loisir', 'aime', 'préfère', 'futur', 'projet'];
+            } else if (numéroTâche === 2) {
+                motsClésPertinents = ['question', 'demande', 'information', 'renseignement', 'pourriez', 'pouvez', 'auriez', 'voudrais'];
+            } else if (numéroTâche === 3) {
+                motsClésPertinents = ['pense', 'crois', 'opinion', 'avis', 'd\'après', 'selon', 'argument', 'pour', 'contre', 'avantage', 'inconvénient'];
+            }
+            
+            const motsPertinentsTrouvés = motsClésPertinents.filter(mot => 
+                transcription.toLowerCase().includes(mot)
+            ).length;
+            
+            if (motsPertinentsTrouvés >= 3) pertinence += 0.3;
+            if (motsPertinentsTrouvés >= 5) pertinence += 0.4;
+            
+            return {
+                nombreMots: nombreMots,
+                connecteurs: connecteurs,
+                motsUniques: motsUniques,
+                qualité: Math.min(qualité, 1),
+                pertinence: Math.min(pertinence, 1),
+                commentaire: "Analyse terminée"
+            };
+        }
+
+        function détecterMauvaiseQualité(transcription, numéroTâche) {
+            if (!transcription || transcription.trim().length < 20) {
+                return {
+                    faibleQualité: true,
+                    raison: "Réponse trop courte (moins de 20 caractères)"
+                };
+            }
+            
+            const texte = transcription.toLowerCase();
+            const mots = texte.split(/\s+/);
+            const motsUniques = new Set(mots);
+            const ratioUnicité = motsUniques.size / mots.length;
+            
+            if (ratioUnicité < 0.3 && mots.length > 30) {
+                return {
+                    faibleQualité: true,
+                    raison: "Trop de répétitions de mots"
+                };
+            }
+            
+            const syllabesFrançais = ['tion', 'ment', 'age', 'ure', 'ique', 'iste', 'isme', 'able', 'ible', 'eux', 'euse'];
+            const syllabesFrançaisTrouvées = syllabesFrançais.filter(s => texte.includes(s)).length;
+            
+            if (mots.length > 40 && syllabesFrançaisTrouvées < 3) {
+                return {
+                    faibleQualité: true,
+                    raison: "Texte ne ressemblant pas à du français"
+                };
+            }
+            
+            let motsPertinentsMinimum = 0;
+            if (numéroTâche === 1) motsPertinentsMinimum = 2;
+            else if (numéroTâche === 2) motsPertinentsMinimum = 3;
+            else if (numéroTâche === 3) motsPertinentsMinimum = 4;
+            
+            const motsClés = {
+                1: ['je', 'moi', 'habite', 'ville', 'travail', 'loisir'],
+                2: ['question', 'demande', 'information', 'renseignement'],
+                3: ['pense', 'crois', 'opinion', 'avis', 'argument']
+            };
+            
+            const motsPertinentsTrouvés = motsClés[numéroTâche].filter(mot => 
+                texte.includes(mot)
+            ).length;
+            
+            if (motsPertinentsTrouvés < motsPertinentsMinimum) {
+                return {
+                    faibleQualité: true,
+                    raison: "Réponse non pertinente par rapport au sujet"
+                };
+            }
+            
+            return {
+                faibleQualité: false,
+                raison: "Qualité acceptable"
+            };
+        }
+
+        function déterminerNiveauTâche(score, numéroTâche) {
+            if (score >= 10) return "C1";
+            if (score >= 8.5) return "B2";
+            if (score >= 7) return "B1";
+            if (score >= 5) return "A2";
+            if (score >= 3) return "A1";
+            return "A0";
+        }
+
+        function déterminerNiveauGlobal(scoreMoyen, résultatsTâches) {
+            const tâchesFaibleQualité = résultatsTâches.filter(t => t.faibleQualité).length;
+            
+            let scoreAjusté = scoreMoyen;
+            if (tâchesFaibleQualité === 1) scoreAjusté *= 0.7;
+            if (tâchesFaibleQualité === 2) scoreAjusté *= 0.5;
+            if (tâchesFaibleQualité === 3) scoreAjusté *= 0.3;
+            
+            if (scoreAjusté >= 10) return "C1";
+            if (scoreAjusté >= 8.5) return "B2";
+            if (scoreAjusté >= 7) return "B1";
+            if (scoreAjusté >= 5.5) return "A2+";
+            if (scoreAjusté >= 4) return "A2";
+            if (scoreAjusté >= 2.5) return "A1";
+            return "A0";
+        }
+
+        function afficherRésultats(résultats) {
+            const badge = document.getElementById('badge-niveau-global');
+            badge.innerHTML = `<div class="level-badge level-${résultats.niveauGlobal}">Niveau ${résultats.niveauGlobal}</div>`;
+            
+            const feedback = document.getElementById('feedback-global');
+            let feedbackTexte = `<p><strong>Niveau atteint : ${résultats.niveauGlobal}</strong></p>`;
+            feedbackTexte += `<p>Score moyen : ${résultats.scoreMoyen}/12</p>`;
+            
+            const tâchesFaibleQualité = résultats.résultatsTâches.filter(t => t.faibleQualité);
+            if (tâchesFaibleQualité.length > 0) {
+                feedbackTexte += `<div class="alert-danger"><i class="fas fa-exclamation-triangle"></i> <strong>Attention :</strong> ${tâchesFaibleQualité.length} tâche(s) ont été détectées comme étant de faible qualité :<ul>`;
+                tâchesFaibleQualité.forEach(t => {
+                    feedbackTexte += `<li>Tâche ${t.numéro} : ${t.analyse.commentaire}</li>`;
+                });
+                feedbackTexte += `</ul>Votre score a été ajusté en conséquence.</div>`;
+            }
+            
+            feedback.innerHTML = feedbackTexte;
+            
+            const stats = document.getElementById('statistiques-globales');
+            const minutesTotal = Math.floor(résultats.tempsTotal / 60);
+            const secondesTotal = résultats.tempsTotal % 60;
+            
+            stats.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-value">${résultats.scoreMoyen}</div>
+                    <div class="stat-label">Score /12</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${résultats.niveauGlobal}</div>
+                    <div class="stat-label">Niveau global</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${minutesTotal}:${secondesTotal.toString().padStart(2, '0')}</div>
+                    <div class="stat-label">Temps total</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${résultats.résultatsTâches.filter(t => t.durée > 10).length}/3</div>
+                    <div class="stat-label">Tâches complétées</div>
+                </div>
+            `;
+            
+            const critèresDiv = document.getElementById('critères-évaluation');
+            let critèresHTML = '';
+            
+            Object.entries(résultats.scoresCritères).forEach(([nom, score]) => {
+                const scoreNum = parseFloat(score);
+                let classeNote = "score-medium";
+                if (scoreNum >= 7) classeNote = "score-high";
+                else if (scoreNum <= 4) classeNote = "score-low";
+                
+                const critèreInfo = critèresÉvaluation.find(c => c.nom === nom);
+                const description = critèreInfo ? critèreInfo.description : "";
+                
+                critèresHTML += `
+                    <div class="criteria-card">
+                        <h4>${nom}</h4>
+                        <p style="color: var(--gray-600); font-size: 0.9rem;">${description}</p>
+                        <div class="criteria-score ${classeNote}">${score}/10</div>
+                    </div>
+                `;
+            });
+            
+            critèresDiv.innerHTML = critèresHTML;
+            
+            const conseilsDiv = document.getElementById('conseils-amélioration');
+            let conseilsHTML = '<ul>';
+            
+            if (résultats.niveauGlobal === "A0" || résultats.niveauGlobal === "A1") {
+                conseilsHTML += `
+                    <li><strong>Commencez par le basique :</strong> Apprenez les phrases essentielles pour vous présenter, parler de votre famille, de votre travail</li>
+                    <li><strong>Écoutez et répétez :</strong> Utilisez des applications comme Duolingo ou écoutez des podcasts pour débutants</li>
+                    <li><strong>Pratiquez la prononciation :</strong> Répétez des mots et des phrases simples pour améliorer votre accent</li>
+                    <li><strong>Utilisez des flashcards :</strong> Apprenez 5-10 nouveaux mots par jour avec leur prononciation</li>
+                `;
+            } else if (résultats.niveauGlobal === "A2" || résultats.niveauGlobal === "A2+") {
+                conseilsHTML += `
+                    <li><strong>Développez votre vocabulaire :</strong> Apprenez 10 nouveaux mots chaque jour et utilisez-les dans des phrases</li>
+                    <li><strong>Pratiquez des dialogues :</strong> Imaginez des situations de la vie quotidienne et jouez les dialogues</li>
+                    <li><strong>Regardez des vidéos simples :</strong> Des dessins animés ou des vidéos éducatives avec sous-titres</li>
+                    <li><strong>Trouvez un partenaire :</strong> Échangez avec un francophone ou un autre apprenant, même 15 minutes par jour</li>
+                `;
+            } else if (résultats.niveauGlobal === "B1") {
+                conseilsHTML += `
+                    <li><strong>Améliorez votre fluidité :</strong> Parlez sur des sujets variés pendant 2-3 minutes sans vous arrêter</li>
+                    <li><strong>Travaillez la grammaire :</strong> Concentrez-vous sur les temps du passé et l'accord des participes passés</li>
+                    <li><strong>Écoutez des podcasts :</strong> Des émissions de radio ou podcasts sur des sujets qui vous intéressent</li>
+                    <li><strong>Participez à des conversations :</strong> Rejoignez des groupes de conversation en ligne ou en personne</li>
+                `;
+            } else {
+                conseilsHTML += `
+                    <li><strong>Affinez votre prononciation :</strong> Travaillez les sons spécifiques du français (u/ou, é/è, etc.)</li>
+                    <li><strong>Enrichissez votre expression :</strong> Utilisez des expressions idiomatiques et des tournures complexes</li>
+                    <li><strong>Pratiquez des présentations :</strong> Préparez et présentez des exposés sur des sujets variés</li>
+                    <li><strong>Participez à des débats :</strong> Exprimez et défendez vos opinions sur des sujets complexes</li>
+                `;
+            }
+            
+            Object.entries(résultats.scoresCritères).forEach(([nom, score]) => {
+                const scoreNum = parseFloat(score);
+                if (scoreNum <= 4) {
+                    if (nom === "Vocabulaire") {
+                        conseilsHTML += `<li><strong>Pour améliorer votre ${nom.toLowerCase()} :</strong> Lisez des articles en français et notez les mots nouveaux. Utilisez un dictionnaire thématique.</li>`;
+                    } else if (nom === "Grammaire") {
+                        conseilsHTML += `<li><strong>Pour améliorer votre ${nom.toLowerCase()} :</strong> Faites des exercices de grammaire spécifiques. Concentrez-vous sur un point à la fois (les prépositions, les accords, etc.).</li>`;
+                    } else if (nom === "Fluidité") {
+                        conseilsHTML += `<li><strong>Pour améliorer votre ${nom.toLowerCase()} :</strong> Parlez sur un chronomètre. Commencez par 1 minute, puis augmentez progressivement.</li>`;
+                    }
+                }
+            });
+            
+            conseilsHTML += '</ul>';
+            conseilsDiv.innerHTML = conseilsHTML;
+        }
+
+        function recommencerTest() {
+            if (!confirm("Voulez-vous vraiment recommencer le test ? Tous vos enregistrements seront perdus.")) {
+                return;
+            }
+            
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            
+            for (let i = 1; i <= 3; i++) {
+                if (enregistrements[i].audioUrl) {
+                    URL.revokeObjectURL(enregistrements[i].audioUrl);
+                }
+                
+                enregistrements[i].audioBlob = null;
+                enregistrements[i].audioUrl = null;
+                enregistrements[i].transcription = "";
+                enregistrements[i].durée = 0;
+                enregistrements[i].enCours = false;
+                enregistrements[i].tempsRestant = tâchesInfo[i].durée;
+                enregistrements[i].transcriptionManuelle = "";
+                enregistrements[i].sujetSelectionne = null;
+                
+                document.getElementById(`microphone${i}`).classList.remove('recording');
+                document.getElementById(`statut-enregistrement${i}`).textContent = "Prêt à enregistrer votre réponse";
+                document.getElementById(`temps-enregistrement${i}`).textContent = 
+                    `${Math.floor(tâchesInfo[i].durée / 60).toString().padStart(2, '0')}:${(tâchesInfo[i].durée % 60).toString().padStart(2, '0')}`;
+                document.getElementById(`progression${i}`).style.width = "0%";
+                document.getElementById(`btn-commencer${i}`).disabled = false;
+                document.getElementById(`btn-arrêter${i}`).disabled = true;
+                document.getElementById(`btn-écouter${i}`).disabled = true;
+                document.getElementById(`transcription${i}`).textContent = "Votre transcription apparaîtra ici après l'enregistrement.";
+                document.getElementById(`transcription-manuelle${i}`).value = "";
+                document.getElementById(`audio-container${i}`).style.display = 'none';
+            }
+            
+            const itemsTache2 = document.querySelectorAll('#tache2-sujets .subject-item');
+            itemsTache2.forEach(item => item.classList.remove('active'));
+            document.getElementById('tache2-sujet-info').textContent = "Aucun sujet sélectionné";
+            
+            const itemsTache3 = document.querySelectorAll('#tache3-sujets .subject-item');
+            itemsTache3.forEach(item => item.classList.remove('active'));
+            document.getElementById('tache3-sujet-info').textContent = "Aucun sujet sélectionné";
+            
+            document.getElementById('sujet-tache2').innerHTML = `<p><strong>Sélectionnez un sujet dans la liste ci-dessus pour afficher la situation.</strong></p>`;
+            document.getElementById('sujet-tache3').innerHTML = `<p><strong>Sélectionnez un sujet dans la liste ci-dessus pour afficher le thème de discussion.</strong></p>`;
+            
+            selectionnerSujetAleatoire(2);
+            selectionnerSujetAleatoire(3);
+            
+            tempsRestantGlobal = 15 * 60;
+            document.getElementById('temps-restant').textContent = "15:00";
+            
+            clearInterval(intervalTempsGlobal);
+            démarrerChronomètreGlobal();
+            demanderPermissionMicro();
+            
+            changerTache(1);
+        }
+
+        // Make functions global
+        window.changerTache = changerTache;
+        window.basculerEnregistrement = basculerEnregistrement;
+        window.commencerEnregistrement = commencerEnregistrement;
+        window.arrêterEnregistrement = arrêterEnregistrement;
+        window.écouterEnregistrement = écouterEnregistrement;
+        window.sauvegarderTranscriptionManuelle = sauvegarderTranscriptionManuelle;
+        window.selectionnerSujetAleatoire = selectionnerSujetAleatoire;
+        window.afficherTousSujets = afficherTousSujets;
+        window.soumettreÉvaluation = soumettreÉvaluation;
+        window.recommencerTest = recommencerTest;
+
+        // initialize
+        initFirebase();
+    })();
+</script>
+</body>
+</html>

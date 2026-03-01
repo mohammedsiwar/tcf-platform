@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <title>TCF Canada · Compréhension Orale Test 6 · PREMIUM</title>
+    
+    <!-- Font Awesome 6 & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+    <style>
+        /* === MODERN RESET & VARIABLES === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --secondary: #3b82f6;
+            --secondary-dark: #2563eb;
+            --accent: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --premium: #8b5cf6;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+            --glass-bg: rgba(255,255,255,0.7);
+            --glass-border: rgba(255,255,255,0.5);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #eef2ff 0%, #d9e4ff 100%);
+            min-height: 100vh;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        /* === MAIN GLASS PANEL === */
+        .glass-panel {
+            width: 100%;
+            max-width: 1400px;
+            height: 95vh;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 42px;
+            box-shadow: 0 30px 60px -15px rgba(0,20,50,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: opacity 0.3s ease;
+        }
+        
+        /* === AUTH OVERLAY === */
+        .auth-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10,20,40,0.7);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        
+        .auth-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(8px);
+            border-radius: 48px;
+            padding: 2.5rem 2rem;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 40px 70px -15px #0f172a;
+            border: 1px solid rgba(255,255,255,0.4);
+            animation: modalFloat 0.4s ease;
+        }
+        
+        @keyframes modalFloat {
+            0% { opacity: 0; transform: translateY(25px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        .auth-icon {
+            font-size: 4.2rem;
+            background: linear-gradient(135deg, var(--secondary), var(--premium));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.2rem;
+        }
+        
+        .auth-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.7rem;
+            color: var(--primary);
+        }
+        
+        .auth-subtitle {
+            color: var(--gray-600);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+        
+        .auth-btn {
+            padding: 1rem 2.2rem;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            margin: 0.3rem;
+            transition: 0.2s;
+            background: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border: 1px solid var(--gray-200);
+        }
+        
+        .auth-btn-primary {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            box-shadow: 0 10px 20px -5px #3b82f6;
+        }
+        
+        .auth-btn-primary:hover {
+            background: var(--secondary-dark);
+            transform: scale(1.02);
+        }
+        
+        .auth-btn-secondary:hover {
+            background: var(--gray-100);
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(59,130,246,0.2);
+            border-top: 4px solid var(--secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+        }
+        
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        /* === MODERN HEADER === */
+        .modern-header {
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(16px);
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(59,130,246,0.2);
+        }
+        
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+        }
+        
+        .logo-icon {
+            background: linear-gradient(135deg, var(--secondary), var(--premium));
+            width: 48px;
+            height: 48px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .title-block h1 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #0f172a, #2563eb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .timer-card {
+            background: var(--primary);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1.6rem;
+            font-family: 'Monaco', monospace;
+            border: 1px solid var(--secondary);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        
+        .timer-card.warning { background: #f59e0b; color: #1e293b; }
+        .timer-card.danger { background: #ef4444; animation: pulse 1s infinite; }
+        
+        @keyframes pulse { 0%,100%{ opacity:1; } 50%{ opacity:0.7; } }
+        
+        /* === NAVIGATION SECTION === */
+        .nav-section {
+            background: rgba(255,255,255,0.5);
+            backdrop-filter: blur(8px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(0,0,0,0.03);
+        }
+        
+        .question-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+            justify-content: center;
+        }
+        
+        .q-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 18px;
+            border: 1.5px solid var(--gray-200);
+            background: white;
+            font-weight: 600;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        
+        .q-btn:hover { border-color: var(--secondary); background: #f0f9ff; }
+        .q-btn.active { background: var(--secondary); border-color: var(--secondary); color: white; transform: scale(1.05); }
+        .q-btn.answered { background: var(--success); border-color: var(--success); color: white; }
+        .q-btn.review { background: var(--warning); border-color: var(--warning); color: white; }
+        
+        .progress-legende {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            font-size: 0.95rem;
+            color: var(--gray-600);
+        }
+        
+        .progress-bar-bg {
+            flex: 1;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border-radius: 20px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        /* === SCROLL CONTENT === */
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem 2rem 1.5rem;
+            scrollbar-width: thin;
+        }
+        
+        .scroll-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .scroll-content::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.02);
+            border-radius: 10px;
+        }
+        .scroll-content::-webkit-scrollbar-thumb {
+            background: var(--gray-400);
+            border-radius: 10px;
+        }
+        
+        /* === QUESTION HEADER CARD === */
+        .question-header-card {
+            display: flex;
+            justify-content: space-between;
+            background: white;
+            padding: 1.2rem 2rem;
+            border-radius: 30px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(59,130,246,0.2);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+        }
+        
+        .badge-points {
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            padding: 0.4rem 1.5rem;
+            border-radius: 60px;
+            color: white;
+            font-weight: 700;
+        }
+        
+        /* === MEDIA CONTAINER (Image + Audio) === */
+        .media-section {
+            margin-bottom: 2rem;
+        }
+        
+        .image-card {
+            background: white;
+            border-radius: 32px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            border: 1px solid var(--gray-200);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.02);
+        }
+        
+        .image-card h3 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+        }
+        
+        .question-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 24px;
+            margin-bottom: 1rem;
+            box-shadow: 0 15px 25px -8px rgba(0,0,0,0.15);
+        }
+        
+        .image-caption {
+            color: var(--gray-500);
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+        
+        /* === AUDIO PLAYER === */
+        .audio-player {
+            background: white;
+            border-radius: 32px;
+            padding: 2rem;
+            border: 1px solid var(--gray-200);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.02);
+        }
+        
+        .audio-title {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 1.1rem;
+        }
+        
+        .audio-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.8rem;
+        }
+        
+        .audio-btn {
+            background: white;
+            border: 2px solid var(--gray-200);
+            border-radius: 60px;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 1rem;
+        }
+        
+        .audio-btn:hover { border-color: var(--secondary); background: #f0f9ff; }
+        .audio-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .time-display {
+            font-family: monospace;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            background: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 60px;
+            border: 1px solid var(--gray-200);
+        }
+        
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 20px;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        
+        .audio-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--premium));
+            width: 0%;
+            transition: width 0.1s;
+        }
+        
+        /* === INSTRUCTIONS === */
+        .instructions {
+            background: linear-gradient(135deg, #eef2ff, white);
+            padding: 1.5rem 2rem;
+            border-radius: 30px;
+            margin: 1.8rem 0;
+            border-left: 6px solid var(--secondary);
+            font-size: 1.1rem;
+            color: var(--primary);
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+        }
+        
+        /* === OPTIONS === */
+        .options-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .option-item {
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 2px solid var(--gray-200);
+            border-radius: 30px;
+            padding: 1.2rem 2rem;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+        
+        .option-item:hover { border-color: var(--secondary); background: #f0f9ff; transform: translateY(-2px); }
+        .option-item.selected { border-color: var(--secondary); background: #eef2ff; }
+        
+        .option-letter {
+            width: 50px;
+            height: 50px;
+            border-radius: 30px;
+            background: var(--gray-100);
+            border: 2px solid var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-right: 1.5rem;
+            flex-shrink: 0;
+            font-size: 1.3rem;
+        }
+        
+        .selected .option-letter { background: var(--secondary); color: white; }
+        
+        .option-text {
+            flex: 1;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+        
+        /* === FOOTER === */
+        .quiz-footer {
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(16px);
+            padding: 1.3rem 2rem;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-foot-btn {
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            border: none;
+            background: white;
+            border: 1px solid var(--gray-300);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            transition: 0.2s;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+        
+        .nav-foot-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .nav-foot-btn.primary { background: var(--secondary); color: white; border: none; }
+        .nav-foot-btn.primary:hover { background: var(--secondary-dark); }
+        .nav-foot-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        
+        .review-mark-btn {
+            background: #f59e0b;
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .review-mark-btn:hover { background: #e68900; transform: translateY(-2px); }
+        .review-mark-btn.active { background: var(--warning); }
+        
+        /* === RESULTS MODAL === */
+        .modal-overlay {
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        
+        .modal-card {
+            background: white;
+            border-radius: 48px;
+            padding: 2.2rem;
+            max-width: 850px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalFloat 0.3s ease;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 1.2rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-box {
+            background: var(--gray-100);
+            border-radius: 28px;
+            padding: 1.5rem 0.5rem;
+            text-align: center;
+        }
+        
+        .stat-box span:first-of-type {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+        
+        .score-level-badge {
+            padding: 0.6rem 1.8rem;
+            border-radius: 60px;
+            display: inline-block;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin: 1rem 0;
+        }
+        .score-level.a1 { background: #ef4444; color: white; }
+        .score-level.a2 { background: #f59e0b; color: white; }
+        .score-level.b1 { background: #fbbf24; color: black; }
+        .score-level.b2 { background: #34a853; color: white; }
+        .score-level.c1 { background: #0f9d58; color: white; }
+        .score-level.c2 { background: #0b5e2e; color: white; }
+        
+        .questions-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem;
+            margin: 2rem 0;
+            justify-content: center;
+            background: var(--gray-50);
+            padding: 1.5rem;
+            border-radius: 38px;
+        }
+        
+        .question-result-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 18px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.15s;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        
+        .question-result-btn.correct { background: var(--success); }
+        .question-result-btn.incorrect { background: var(--accent); }
+        .question-result-btn:hover { transform: scale(1.1); box-shadow: 0 5px 12px rgba(0,0,0,0.2); }
+        
+        .corrections-container {
+            margin-top: 2rem;
+            background: var(--gray-50);
+            border-radius: 32px;
+            padding: 1.8rem;
+        }
+        
+        .correction-item {
+            background: white;
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-bottom: 1.2rem;
+            border-left: 6px solid transparent;
+        }
+        
+        .correction-option {
+            display: flex; align-items: center; padding: 1rem; margin:0.6rem 0; border-radius: 18px;
+        }
+        .correction-option.correct-answer { background: #e6f7e6; border-left: 6px solid #10b981; }
+        .correction-option.user-answer { background: #fee9e9; border-left: 6px solid #ef4444; }
+        .correction-letter {
+            width: 40px; height:40px; border-radius:20px; background:var(--gray-100); border:2px solid var(--secondary);
+            display:flex; align-items:center; justify-content:center; font-weight:800; margin-right:1rem;
+        }
+        
+        .copy-warning {
+            position: fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+            background: #ef4444; color: white; padding: 1rem 2.5rem; border-radius: 60px;
+            font-weight: 600; z-index: 10001; display: none; box-shadow:0 10px 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(4px);
+        }
+        
+        /* === RESPONSIVE === */
+        @media (max-width: 800px) {
+            .glass-panel { height: 100vh; border-radius: 28px; }
+            .modern-header { flex-direction: column; align-items: start; gap: 0.5rem; }
+            .timer-card { align-self: flex-end; font-size: 1.3rem; }
+            .audio-controls { flex-direction: column; }
+            .audio-btn { width: 100%; justify-content: center; }
+            .option-item { padding: 1rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+        
+        @media (max-width: 480px) {
+            .question-grid { gap: 0.3rem; }
+            .q-btn { width: 38px; height: 38px; font-size: 0.9rem; }
+            .option-letter { width: 40px; height: 40px; font-size: 1.1rem; }
+            .option-text { font-size: 1rem; }
+        }
+        
+        /* hide quiz until auth */
+        #quizContainer { display: none; }
+    </style>
+</head>
+<body>
+
+<!-- AUTH OVERLAY -->
+<div class="auth-overlay" id="authOverlay">
+    <div class="auth-card" id="authMessage">
+        <div class="auth-icon"><i class="fas fa-lock"></i></div>
+        <div class="auth-title">Authentification</div>
+        <div class="auth-subtitle">Vérification de votre accès premium...</div>
+        <div class="loading-spinner"></div>
+    </div>
+</div>
+
+<!-- COPY WARNING -->
+<div class="copy-warning" id="copyWarning"><i class="fas fa-ban"></i> Copie interdite</div>
+
+<!-- MAIN QUIZ GLASS PANEL -->
+<div class="glass-panel" id="quizContainer">
+    <!-- HEADER -->
+    <div class="modern-header">
+        <div class="logo-area">
+            <div class="logo-icon"><i class="fas fa-headphones"></i></div>
+            <div class="title-block"><h1>Oral Test 6 · TCF Canada</h1></div>
+        </div>
+        <div class="timer-card" id="timerDisplay">01:00:00</div>
+    </div>
+
+    <!-- NAVIGATION ROW -->
+    <div class="nav-section">
+        <div class="question-grid" id="questionGrid"></div>
+        <div class="progress-legende">
+            <div class="progress-bar-bg"><div class="progress-fill" id="globalProgress"></div></div>
+            <span><i class="fas fa-circle" style="color:#f59e0b;"></i> Révision</span>
+            <span><i class="fas fa-circle" style="color:#10b981;"></i> Répondu</span>
+        </div>
+    </div>
+
+    <!-- MAIN SCROLL AREA -->
+    <div class="scroll-content" id="mainScroll">
+        <!-- question header (numero + points) -->
+        <div class="question-header-card">
+            <span id="qNumberDisplay">Question 1 / 39</span>
+            <span class="badge-points" id="pointsDisplay">3 points</span>
+        </div>
+
+        <!-- DYNAMIC MEDIA (image + audio) -->
+        <div id="mediaContainer" class="media-section"></div>
+
+        <!-- INSTRUCTION -->
+        <div class="instructions" id="instructionText">
+            Écoutez les 4 propositions, choisissez celle qui correspond à l'image.
+        </div>
+
+        <!-- OPTIONS (A,B,C,D) -->
+        <div class="options-panel" id="optionsContainer"></div>
+    </div>
+
+    <!-- FOOTER BUTTONS -->
+    <div class="quiz-footer">
+        <button class="nav-foot-btn" id="prevBtn"><i class="fas fa-arrow-left"></i> Précédent</button>
+        <button class="review-mark-btn" id="reviewBtn"><i class="fas fa-bookmark"></i> Marquer</button>
+        <button class="nav-foot-btn primary" id="nextBtn">Suivant <i class="fas fa-arrow-right"></i></button>
+    </div>
+</div>
+
+<!-- RESULTS MODAL -->
+<div class="modal-overlay" id="resultsModal">
+    <div class="modal-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <h2 style="font-size:2rem; font-weight:700;">Résultats</h2>
+            <button onclick="closeResults()" style="background:none; border:none; font-size:2.5rem; cursor:pointer; width:50px;">&times;</button>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-box"><span id="correctCount">0</span> <div>Correctes</div></div>
+            <div class="stat-box"><span id="timeUsed">00:00</span> <div>Temps</div></div>
+            <div class="stat-box"><span id="scorePercent">0</span> <div>Score %</div></div>
+        </div>
+        <div style="background:linear-gradient(135deg,#0f172a,#1e293b); color:white; padding:1.5rem; border-radius:32px; text-align:center; margin:1rem 0;">
+            <span id="cecrLevelDisplay" class="score-level-badge" style="background:transparent;">NIVEAU A1 NON ATTEINT</span>
+        </div>
+        <div class="questions-list" id="questionsList"></div>
+        <button class="nav-foot-btn primary" style="width:100%; justify-content:center;" onclick="toggleCorrections()">
+            <i class="fas fa-check-circle"></i> Afficher les corrections
+        </button>
+        <div id="correctionsContainer" style="display:none; margin-top:2rem;"></div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAhGVA4vr3pISonxvccIMCxZZOE5bkynRQ",
+            authDomain: "platformtcf.firebaseapp.com",
+            projectId: "platformtcf",
+            storageBucket: "platformtcf.firebasestorage.app",
+            messagingSenderId: "779352652301",
+            appId: "1:779352652301:web:41ca6b1dbcc42739b47344"
+        };
+
+        let currentUser = null;
+        let isPremium = false;
+        let firebaseApp, firebaseAuth, firestore;
+
+        // ==================== QUESTIONS (TEST 6 ORAL) ====================
+        const questions = [
+            // Q1-2 : image+audio
+            { id:1, type:'image', image:'oral6_image1.png', audio:'test6_audio1.mp3', points:3, options:['A','B','C','D'], correct:'A', instruction:'Écoutez les 4 propositions, choisissez celle qui correspond à l\'image.' },
+            { id:2, type:'image', image:'oral6_image2.png', audio:'test6_audio2.mp3', points:3, options:['A','B','C','D'], correct:'B', instruction:'Écoutez les 4 propositions, choisissez celle qui correspond à l\'image.' },
+            { id:3, type:'audio', audio:'test6_audio3.mp3', points:3, options:['A','B','C','D'], correct:'A', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:4, type:'audio', audio:'test6_audio4.mp3', points:3, options:['A','B','C','D'], correct:'D', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:5, type:'audio', audio:'test6_audio5.mp3', points:9, options:['A','B','C','D'], correct:'B', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:6, type:'audio', audio:'test6_audio6.mp3', points:9, options:['A','B','C','D'], correct:'A', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:7, type:'audio', audio:'test6_audio7.mp3', points:9, options:['A','B','C','D'], correct:'C', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:8, type:'audio', audio:'test6_audio8.mp3', points:9, options:['A','B','C','D'], correct:'B', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:9, type:'audio', audio:'test6_audio9.mp3', points:9, options:['A','B','C','D'], correct:'A', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:10, type:'audio', audio:'test6_audio10.mp3', points:9, options:['A','B','C','D'], correct:'D', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:11, type:'audio', audio:'test6_audio11.mp3', points:15, options:['À l’opéra.','Au cabaret.','Au cinéma.','Au théâtre.'], correct:'C', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:12, type:'audio', audio:'test6_audio12.mp3', points:15, options:['D\'acheter le programme.','De réserver rapidement.','De venir en famille.','D\'être déguisé.'], correct:'B', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:13, type:'audio', audio:'test6_audio13.mp3', points:15, options:['Elle accueille chez elle des lions malades.','Elle est la plus jeune vétérinaire de France.','Elle sait soigner les animaux sauvages.','Elle travaille dans des endroits dangereux.'], correct:'C', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:14, type:'audio', audio:'test6_audio14.mp3', points:15, options:['En assistant à des concerts.','En écoutant des disques.','En regardant jouer ses proches.','En travaillant dans un club.'], correct:'C', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:15, type:'audio', audio:'test6_audio15.mp3', points:15, options:['Pour contrôler l\'état des machines en service.','Pour donner une formation aux employés.','Pour mettre à jour toutes les applications.','Pour réparer des équipements informatiques.'], correct:'D', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:16, type:'audio', audio:'test6_audio16.mp3', points:15, options:['Il aura lieu plus tard dans le semestre.','Il évaluera le chapitre des maladies.','Il se fera dans le grand amphithéâtre.','Il sera corrigé par un enseignant extérieur.'], correct:'A', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:17, type:'audio', audio:'test6_audio17.mp3', points:15, options:['Confirmer la date d\'un entretien d\'embauche.','Se renseigner sur les conditions de travail.','S\'informer sur une formation professionnelle.','Vérifier si un courrier est bien arrivé.'], correct:'D', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:18, type:'audio', audio:'test6_audio18.mp3', points:15, options:['Elle a été victime d\'un vol.','Elle a oublié son passeport.','Elle a perdu son sac à main.','Elle est tombée dans le métro.'], correct:'A', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:19, type:'audio', audio:'test6_audio19.mp3', points:15, options:['Les accidents sont importants.','Les arrêts sont interdits.','Les départs sont nombreux.','Les embouteillages sont finis.'], correct:'C', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:20, type:'audio', audio:'test6_audio20.mp3', points:21, options:['Le nombre d\'élèves est en baisse.','Les frais de scolarité sont élevés.','Leurs programmes sont inadaptés.','Leurs financements sont fragilisés.'], correct:'D', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:21, type:'audio', audio:'test6_audio21.mp3', points:21, options:['Il fait plus beau qu\'hier.','Il fait plus mauvais qu\'hier.','Il pleut plus qu\'hier.','Il y a moins de soleil qu\'hier.'], correct:'A', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:22, type:'audio', audio:'test6_audio22.mp3', points:21, options:['Lui apporter un livre.','Lui demande conseil.','Lui présenter son travail.','Lui proposer une interview.'], correct:'C', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:23, type:'audio', audio:'test6_audio23.mp3', points:21, options:['Des circuits respectueux de l\'environnement.','Des formules adaptées à chaque client.','Des tarifs plus bas que la concurrence.','Des voyages à caractère humanitaire.'], correct:'B', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:24, type:'audio', audio:'test6_audio24.mp3', points:21, options:['La création de numéros innovants.','La renaissance des traditions oubliées.','L\'introduction des animaux sauvages.','L\'ouverture de formations artistiques.'], correct:'D', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:25, type:'audio', audio:'test6_audio25.mp3', points:21, options:['Augmenter les espaces se terres cultivables.','Moderniser les machines de production agricole.','Privilégier une agriculture sans produit chimique.','Utiliser des semences génétiquement modifiées.'], correct:'C', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:26, type:'audio', audio:'test6_audio26.mp3', points:21, options:['La peur de faire de la peine à leur entourage familial.','Le confort que leur procure leur structure familiale.','Le plaisir de voir leur famille comme ils le souhaitent.','L\'obligation de soutenir financièrement leur famille.'], correct:'B', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:27, type:'audio', audio:'test6_audio27.mp3', points:21, options:['Ils espèrent obtenir une allocation de l\'État.','Ils voient leur futur de manière positive.','Ils comptent sur le soutien de leurs proches.','Ils refusent d\'habiter chez leurs parents.'], correct:'B', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:28, type:'audio', audio:'test6_audio28.mp3', points:21, options:['Sa mémoire exceptionnelle.','Ses aptitudes au jardinage.','Ses origines sociales modestes.','Son parcours d\'apprentissage.'], correct:'D', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:29, type:'audio', audio:'test6_audio29.mp3', points:21, options:['De devenir entrepreneur en créant son entreprise.','De s\'informer sur les secteurs porteurs d\'emplois.','De suivre une formation diplômante à l\'université.','D\'élargir sa recherche d\'emploi à d\'autres domaines.'], correct:'D', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:30, type:'audio', audio:'test6_audio30.mp3', points:26, options:['D\'un appel à projets imaginaires.','D\'un examen de fin d\'études.','D\'un nouveau plan d\'urbanisme.','D\'une rénovation d\'un monument.'], correct:'A', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:31, type:'audio', audio:'test6_audio31.mp3', points:26, options:['D\'une compétition sportive.','D\'une croisière maritime.','D\'une histoire familiale.','D\'une rencontre amoureuse.'], correct:'C', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:32, type:'audio', audio:'test6_audio32.mp3', points:26, options:['Ils nagent en plein air dans la capitale.','Ils s\'amusent dans un parc d\'attractions.','Ils se retrouvent à la piscine municipale.','Ils sont en vacances au bord de la mer.'], correct:'A', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:33, type:'audio', audio:'test6_audio33.mp3', points:26, options:['De la particularité de sa voix.','De la reprise d\'une œuvre.','De sa nouvelle tournée.','De son dernier rôle au cinéma.'], correct:'B', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:34, type:'audio', audio:'test6_audio34.mp3', points:26, options:['Ils consomment plus que la jeune génération.','Ils dépensent beaucoup pour leur santé.','Ils profitent peu des effets de la croissance.','Ils sont à l\'origine de créations d\'emplois.'], correct:'D', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:35, type:'audio', audio:'test6_audio35.mp3', points:26, options:['Il considère que le phénomène doit être analysé.','Il conteste les méthodes de collecte des données.','Il partage la vision catastrophiste des écologistes.','Il s\'oppose aux décisions du gouvernement.'], correct:'B', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:36, type:'audio', audio:'test6_audio36.mp3', points:33, options:['Ils améliorent les facultés d\'attention.','Ils entravent la liberté de penser.','Ils assurent les travaux fastidieux.','Ils diminuent les aptitudes cognitives.'], correct:'C', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:37, type:'audio', audio:'test6_audio37.mp3', points:33, options:['Le nombre de médiateurs est insuffisant pour répondre à la demande.','Les banques influencent les décisions prises par les médiateurs.','Les demandeurs trouvent que la procédure est trop longue et compliquée.','Quelle que soit la nature du litige, le médiateur n\'a qu\'un pouvoir consultatif.'], correct:'D', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:38, type:'audio', audio:'test6_audio38.mp3', points:33, options:['Les remplacer par des copies de qualité.','Les rénover selon les techniques originales.','Les reproduire avec des matériaux identiques.','Leur substituer des créations contemporaines.'], correct:'D', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' },
+            { id:39, type:'audio', audio:'test6_audio39.mp3', points:33, options:['La fragilité de l\'engagement.','La multiplicité des contacts.','La pauvreté des échanges.','L\'absence du face-à-face.'], correct:'A', instruction:'Écoutez l\'extrait sonore et la question. Choisissez la bonne réponse.' }
+        ];
+
+        // === QUIZ STATE ===
+        let currentIdx = 0;
+        let userAnswers = new Array(39).fill(null);
+        let reviewFlags = new Array(39).fill(false);
+        let timeLeft = 3600; // 60 minutes = 3600 seconds
+        let timerInterval;
+        let startTime = new Date();
+        let currentAudio = null;
+
+        // DOM elements
+        const authOverlay = document.getElementById('authOverlay');
+        const authMessage = document.getElementById('authMessage');
+        const quizContainer = document.getElementById('quizContainer');
+
+        // ========== FIREBASE AUTHENTICATION ==========
+        async function initFirebase() {
+            try {
+                firebaseApp = firebase.initializeApp(firebaseConfig);
+                firebaseAuth = firebase.auth();
+                firestore = firebase.firestore();
+
+                firebaseAuth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        await handleAuthenticatedUser(user);
+                    } else {
+                        showAuthMessage('not_logged_in', 'Non connecté', 'Vous devez être connecté avec un compte premium pour accéder à ce test.');
+                    }
+                });
+            } catch (e) {
+                showAuthMessage('error', 'Erreur Firebase', 'Impossible de contacter le serveur.');
+            }
+        }
+
+        async function handleAuthenticatedUser(user) {
+            try {
+                showAuthMessage('loading', 'Vérification', 'Vérification de votre statut premium...');
+                const doc = await firestore.collection('users').doc(user.uid).get();
+                if (!doc.exists) {
+                    showAuthMessage('error', 'Utilisateur inconnu', 'Aucun profil trouvé.');
+                    return;
+                }
+                const data = doc.data();
+                currentUser = { uid: user.uid, email: user.email, ...data };
+
+                // Premium check
+                isPremium = false;
+                if (data.premiumActive === true) isPremium = true;
+                if (data.premium === true) isPremium = true;
+                if (data.premiumType && data.premiumType !== "none") isPremium = true;
+                if (data.status === "premium" || data.status === "active") isPremium = true;
+                if (data.subscriptionStatus === "active") isPremium = true;
+                if (data.premiumExpiry) {
+                    const now = new Date(), expiry = new Date(data.premiumExpiry);
+                    if (expiry > now) isPremium = true;
+                }
+                // hardcoded premium
+                if (user.uid === "a0fPHv3JniRr55uJJjJggSMFKGY2") isPremium = true;
+                if (user.email === "bouhoula_mohamedhedi@yahoo.fr") isPremium = true;
+                if (data.role === "admin" || data.isAdmin) isPremium = true;
+
+                if (!isPremium) {
+                    showAuthMessage('premium_required', 'Accès premium requis', 'Ce test nécessite un abonnement premium actif.');
+                    return;
+                }
+
+                // Access granted
+                authOverlay.style.display = 'none';
+                quizContainer.style.display = 'flex';
+                startQuiz();
+
+            } catch (err) {
+                showAuthMessage('error', 'Erreur', 'Impossible de récupérer vos données.');
+            }
+        }
+
+        function showAuthMessage(type, title, message) {
+            let icon = '';
+            let content = '';
+            if (type === 'loading') {
+                icon = '<div class="loading-spinner"></div>';
+                content = `<div class="auth-icon">⏳</div><div class="auth-title">${title}</div><div class="auth-subtitle">${message}</div>${icon}`;
+            } else if (type === 'not_logged_in' || type === 'premium_required') {
+                icon = '🔒';
+                content = `<div class="auth-icon">${icon}</div><div class="auth-title">${title}</div><div class="auth-subtitle">${message}</div>
+                <div style="margin-top:2rem;"><button class="auth-btn auth-btn-primary" onclick="redirectToLogin()">Se connecter</button>
+                <button class="auth-btn auth-btn-secondary" onclick="closePage()">Fermer</button></div>`;
+            } else {
+                icon = '❌';
+                content = `<div class="auth-icon">${icon}</div><div class="auth-title">${title}</div><div class="auth-subtitle">${message}</div>
+                <button class="auth-btn auth-btn-primary" onclick="location.reload()">Réessayer</button>`;
+            }
+            authMessage.innerHTML = content;
+            authOverlay.style.display = 'flex';
+        }
+
+        window.redirectToLogin = function() {
+            window.location.href = 'index.html';
+        };
+        window.closePage = function() { window.close(); };
+
+        // ========== QUIZ CORE ==========
+        function startQuiz() {
+            createQuestionGrid();
+            loadQuestion(0);
+            startTimer();
+            updateProgress();
+            setupCopyProtection();
+        }
+
+        function createQuestionGrid() {
+            const grid = document.getElementById('questionGrid');
+            grid.innerHTML = '';
+            for (let i=0; i<39; i++) {
+                let btn = document.createElement('button');
+                btn.className = 'q-btn';
+                btn.textContent = i+1;
+                btn.onclick = () => navigateTo(i);
+                grid.appendChild(btn);
+            }
+            updateGridClasses();
+        }
+
+        function updateGridClasses() {
+            document.querySelectorAll('.q-btn').forEach((btn, idx) => {
+                btn.classList.remove('active','answered','review');
+                if (idx === currentIdx) btn.classList.add('active');
+                if (userAnswers[idx] !== null) btn.classList.add('answered');
+                if (reviewFlags[idx]) btn.classList.add('review');
+            });
+        }
+
+        function loadQuestion(index) {
+            const q = questions[index];
+            document.getElementById('qNumberDisplay').innerText = `Question ${index+1} / 39`;
+            document.getElementById('pointsDisplay').innerText = q.points + ' points';
+            document.getElementById('instructionText').innerText = q.instruction;
+
+            loadMedia(index);
+
+            const optsDiv = document.getElementById('optionsContainer');
+            optsDiv.innerHTML = '';
+            q.options.forEach((opt, optIdx) => {
+                let letter = String.fromCharCode(65+optIdx);
+                let selectedClass = (userAnswers[index] === letter) ? 'selected' : '';
+                let div = document.createElement('div');
+                div.className = `option-item ${selectedClass}`;
+                div.onclick = () => selectOption(optIdx);
+                div.innerHTML = `<div class="option-letter">${letter}</div><div class="option-text">${opt}</div>`;
+                optsDiv.appendChild(div);
+            });
+
+            document.getElementById('prevBtn').disabled = (index===0);
+            let nextBtn = document.getElementById('nextBtn');
+            nextBtn.innerHTML = (index===38) ? 'Terminer <i class="fas fa-check"></i>' : 'Suivant <i class="fas fa-arrow-right"></i>';
+
+            let reviewBtn = document.getElementById('reviewBtn');
+            reviewBtn.innerHTML = reviewFlags[index] ? '✓ Révision' : '<i class="fas fa-bookmark"></i> Marquer';
+
+            updateGridClasses();
+            updateProgress();
+        }
+
+        function loadMedia(index) {
+            const q = questions[index];
+            const mediaContainer = document.getElementById('mediaContainer');
+
+            if (q.type === 'image' && q.image) {
+                mediaContainer.innerHTML = `
+                    <div class="image-card">
+                        <h3><i class="fas fa-image"></i> Image Q${q.id}</h3>
+                        <img src="${q.image}" alt="Image Q${q.id}" class="question-image" onerror="this.src='https://via.placeholder.com/500x300/3b82f6/ffffff?text=Image+Q${q.id}';">
+                        <div class="image-caption">${q.image}</div>
+                    </div>
+                    <div class="audio-player">
+                        <div class="audio-title"><i class="fas fa-headphones"></i> Audio: ${q.audio}</div>
+                        <audio id="audioPlayer" preload="metadata">
+                            <source src="${q.audio}" type="audio/mpeg">
+                            <source src="${q.audio.replace('.mp3','.wav')}" type="audio/wav">
+                        </audio>
+                        <div class="audio-controls">
+                            <button class="audio-btn" id="playBtn"><i class="fas fa-play"></i> Jouer</button>
+                            <button class="audio-btn" id="pauseBtn" disabled><i class="fas fa-pause"></i> Pause</button>
+                            <button class="audio-btn" id="stopBtn" disabled><i class="fas fa-stop"></i> Stop</button>
+                            <span class="time-display" id="timeDisplay">00:00 / 00:00</span>
+                        </div>
+                        <div class="progress-bar-container" id="progressContainer">
+                            <div class="audio-progress" id="audioProgress"></div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                mediaContainer.innerHTML = `
+                    <div class="audio-player">
+                        <div class="audio-title"><i class="fas fa-headphones"></i> Question ${q.id} - ${q.audio}</div>
+                        <audio id="audioPlayer" preload="metadata">
+                            <source src="${q.audio}" type="audio/mpeg">
+                            <source src="${q.audio.replace('.mp3','.wav')}" type="audio/wav">
+                        </audio>
+                        <div class="audio-controls">
+                            <button class="audio-btn" id="playBtn"><i class="fas fa-play"></i> Jouer</button>
+                            <button class="audio-btn" id="pauseBtn" disabled><i class="fas fa-pause"></i> Pause</button>
+                            <button class="audio-btn" id="stopBtn" disabled><i class="fas fa-stop"></i> Stop</button>
+                            <span class="time-display" id="timeDisplay">00:00 / 00:00</span>
+                        </div>
+                        <div class="progress-bar-container" id="progressContainer">
+                            <div class="audio-progress" id="audioProgress"></div>
+                        </div>
+                    </div>
+                `;
+            }
+            initAudio();
+            document.getElementById('playBtn').onclick = playAudio;
+            document.getElementById('pauseBtn').onclick = pauseAudio;
+            document.getElementById('stopBtn').onclick = stopAudio;
+            document.getElementById('progressContainer').onclick = (e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const pos = (e.clientX - rect.left) / rect.width;
+                if (currentAudio && currentAudio.duration) currentAudio.currentTime = pos * currentAudio.duration;
+            };
+        }
+
+        function initAudio() {
+            currentAudio = document.getElementById('audioPlayer');
+            if (currentAudio) {
+                currentAudio.addEventListener('loadedmetadata', () => {
+                    document.getElementById('timeDisplay').textContent = `00:00 / ${formatTime(currentAudio.duration)}`;
+                });
+                currentAudio.addEventListener('timeupdate', updateAudioProgress);
+                currentAudio.addEventListener('ended', () => {
+                    document.getElementById('playBtn').disabled = false;
+                    document.getElementById('pauseBtn').disabled = true;
+                    document.getElementById('stopBtn').disabled = true;
+                });
+            }
+        }
+
+        function playAudio() {
+            if (currentAudio) {
+                currentAudio.play();
+                document.getElementById('playBtn').disabled = true;
+                document.getElementById('pauseBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = false;
+            }
+        }
+        function pauseAudio() {
+            if (currentAudio) { currentAudio.pause();
+                document.getElementById('playBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = true;
+            }
+        }
+        function stopAudio() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                document.getElementById('timeDisplay').textContent = '00:00 / 00:00';
+                document.getElementById('audioProgress').style.width = '0%';
+                document.getElementById('playBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = true;
+            }
+        }
+        function updateAudioProgress() {
+            if (currentAudio && currentAudio.duration) {
+                let prog = (currentAudio.currentTime / currentAudio.duration) * 100;
+                document.getElementById('audioProgress').style.width = prog + '%';
+                document.getElementById('timeDisplay').textContent = `${formatTime(Math.floor(currentAudio.currentTime))} / ${formatTime(Math.floor(currentAudio.duration))}`;
+            }
+        }
+        function formatTime(s) {
+            let m = Math.floor(s/60), sec = s%60;
+            return `${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+        }
+
+        function selectOption(optIdx) {
+            userAnswers[currentIdx] = String.fromCharCode(65+optIdx);
+            loadQuestion(currentIdx);
+        }
+
+        function navigateTo(idx) {
+            if (idx>=0 && idx<39) {
+                if (currentAudio) stopAudio();
+                currentIdx = idx;
+                loadQuestion(currentIdx);
+            }
+        }
+
+        document.getElementById('prevBtn').onclick = () => navigateTo(currentIdx-1);
+        document.getElementById('nextBtn').onclick = () => {
+            if (currentIdx === 38) finishTest();
+            else navigateTo(currentIdx+1);
+        };
+        document.getElementById('reviewBtn').onclick = () => {
+            reviewFlags[currentIdx] = !reviewFlags[currentIdx];
+            loadQuestion(currentIdx);
+        };
+
+        function updateProgress() {
+            let answered = userAnswers.filter(a => a !== null).length;
+            document.getElementById('globalProgress').style.width = (answered/39*100)+'%';
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                if (timeLeft <= 0) finishTest();
+                let h = Math.floor(timeLeft/3600);
+                let m = Math.floor((timeLeft%3600)/60);
+                let s = timeLeft%60;
+                let timerEl = document.getElementById('timerDisplay');
+                timerEl.innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                if (timeLeft < 300) timerEl.className = 'timer-card danger';
+                else if (timeLeft < 600) timerEl.className = 'timer-card warning';
+                else timerEl.className = 'timer-card';
+            }, 1000);
+        }
+
+        function finishTest() {
+            if (currentAudio) stopAudio();
+            clearInterval(timerInterval);
+
+            let correctCount = 0, totalPoints = 0, earned = 0;
+            questions.forEach((q,i) => {
+                totalPoints += q.points;
+                if (userAnswers[i] === q.correct) {
+                    correctCount++;
+                    earned += q.points;
+                }
+            });
+            let percent = Math.round((earned/totalPoints)*100);
+
+            document.getElementById('correctCount').innerText = correctCount;
+            let elapsedSeconds = 3600 - timeLeft;
+            let h = Math.floor(elapsedSeconds/3600);
+            let m = Math.floor((elapsedSeconds%3600)/60);
+            let s = elapsedSeconds%60;
+            document.getElementById('timeUsed').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            document.getElementById('scorePercent').innerText = percent + '%';
+
+            let cecrEl = document.getElementById('cecrLevelDisplay');
+            if (percent>=85) cecrEl.innerText = 'C2 ATTEINT';
+            else if (percent>=75) cecrEl.innerText = 'C1 ATTEINT';
+            else if (percent>=60) cecrEl.innerText = 'B2 ATTEINT';
+            else if (percent>=40) cecrEl.innerText = 'B1 ATTEINT';
+            else if (percent>=20) cecrEl.innerText = 'A2 ATTEINT';
+            else cecrEl.innerText = 'A1 NON ATTEINT';
+
+            let qlist = document.getElementById('questionsList');
+            qlist.innerHTML = '';
+            for (let i=0;i<39;i++) {
+                let span = document.createElement('span');
+                span.className = `question-result-btn ${userAnswers[i]===questions[i].correct ? 'correct' : 'incorrect'}`;
+                span.innerText = i+1;
+                span.onclick = () => showCorrection(i);
+                qlist.appendChild(span);
+            }
+            document.getElementById('resultsModal').style.display = 'flex';
+        }
+
+        function showCorrection(idx) {
+            let q = questions[idx];
+            let html = `<div class="corrections-container"><h3 style="margin-bottom:1rem;">Question ${idx+1} (${q.points} pts)</h3>`;
+            html += `<p style="margin-bottom:1rem; font-style:italic;">${q.instruction}</p>`;
+            q.options.forEach((opt,i) => {
+                let letter = String.fromCharCode(65+i);
+                let classe = '';
+                if (letter === q.correct) classe = 'correct-answer';
+                if (userAnswers[idx] === letter && letter !== q.correct) classe = 'user-answer';
+                html += `<div class="correction-option ${classe}"><div class="correction-letter">${letter}</div><div style="flex:1;">${opt}</div></div>`;
+            });
+            let correctLetter = q.correct;
+            let correctText = q.options[q.correct.charCodeAt(0)-65];
+            let userLetter = userAnswers[idx] || 'Aucune';
+            let userText = userAnswers[idx] ? q.options[userAnswers[idx].charCodeAt(0)-65] : '';
+            html += `<div style="margin-top:1.5rem; padding:1rem; background:white; border-radius:18px;"><p><strong>Votre réponse:</strong> ${userLetter} - ${userText || 'Non répondue'}</p><p><strong>Réponse correcte:</strong> ${correctLetter} - ${correctText}</p></div>`;
+            html += `</div>`;
+            document.getElementById('correctionsContainer').innerHTML = html;
+            document.getElementById('correctionsContainer').style.display = 'block';
+        }
+
+        window.toggleCorrections = function() {
+            let c = document.getElementById('correctionsContainer');
+            if (c.style.display === 'none' || c.style.display === '') { showCorrection(0); c.style.display = 'block'; }
+            else c.style.display = 'none';
+        };
+        window.closeResults = function() { document.getElementById('resultsModal').style.display = 'none'; };
+
+        function setupCopyProtection() {
+            document.addEventListener('copy', (e) => {
+                if (window.getSelection().toString().length > 40) { e.preventDefault(); showCopyWarning(); }
+            });
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey||e.metaKey) && (e.key === 'c'||e.key === 'C')) {
+                    if (window.getSelection().toString().length > 40) { e.preventDefault(); showCopyWarning(); }
+                }
+            });
+        }
+        function showCopyWarning() {
+            let w = document.getElementById('copyWarning');
+            w.style.display = 'block';
+            setTimeout(() => w.style.display = 'none', 1500);
+        }
+
+        // initialize
+        initFirebase();
+    })();
+</script>
+</body>
+</html>

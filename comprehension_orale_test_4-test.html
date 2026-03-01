@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <title>TCF Canada · Compréhension Écrite Test 4 · PREMIUM</title>
+    
+    <!-- Font Awesome 6 & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+    <style>
+        /* === MODERN RESET & VARIABLES === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --secondary: #3b82f6;
+            --secondary-dark: #2563eb;
+            --accent: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --premium: #8b5cf6;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+            --glass-bg: rgba(255,255,255,0.7);
+            --glass-border: rgba(255,255,255,0.5);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #eef2ff 0%, #d9e4ff 100%);
+            min-height: 100vh;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        /* === MAIN GLASS PANEL === */
+        .glass-panel {
+            width: 100%;
+            max-width: 1400px;
+            height: 95vh;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 42px;
+            box-shadow: 0 30px 60px -15px rgba(0,20,50,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: opacity 0.3s ease;
+        }
+        
+        /* === AUTH OVERLAY === */
+        .auth-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10,20,40,0.7);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        
+        .auth-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(8px);
+            border-radius: 48px;
+            padding: 2.5rem 2rem;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 40px 70px -15px #0f172a;
+            border: 1px solid rgba(255,255,255,0.4);
+            animation: modalFloat 0.4s ease;
+        }
+        
+        @keyframes modalFloat {
+            0% { opacity: 0; transform: translateY(25px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        .auth-icon {
+            font-size: 4.2rem;
+            background: linear-gradient(135deg, var(--secondary), var(--premium));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.2rem;
+        }
+        
+        .auth-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.7rem;
+            color: var(--primary);
+        }
+        
+        .auth-subtitle {
+            color: var(--gray-600);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+        
+        .auth-btn {
+            padding: 1rem 2.2rem;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            margin: 0.3rem;
+            transition: 0.2s;
+            background: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border: 1px solid var(--gray-200);
+        }
+        
+        .auth-btn-primary {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            box-shadow: 0 10px 20px -5px #3b82f6;
+        }
+        
+        .auth-btn-primary:hover {
+            background: var(--secondary-dark);
+            transform: scale(1.02);
+        }
+        
+        .auth-btn-secondary:hover {
+            background: var(--gray-100);
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(59,130,246,0.2);
+            border-top: 4px solid var(--secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+        }
+        
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        /* === MODERN HEADER === */
+        .modern-header {
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(16px);
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(59,130,246,0.2);
+        }
+        
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+        }
+        
+        .logo-icon {
+            background: linear-gradient(135deg, var(--secondary), var(--premium));
+            width: 48px;
+            height: 48px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .title-block h1 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #0f172a, #2563eb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .timer-card {
+            background: var(--primary);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1.6rem;
+            font-family: 'Monaco', monospace;
+            border: 1px solid var(--secondary);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        
+        .timer-card.warning { background: #f59e0b; color: #1e293b; }
+        .timer-card.danger { background: #ef4444; animation: pulse 1s infinite; }
+        
+        @keyframes pulse { 0%,100%{ opacity:1; } 50%{ opacity:0.7; } }
+        
+        /* === NAVIGATION SECTION === */
+        .nav-section {
+            background: rgba(255,255,255,0.5);
+            backdrop-filter: blur(8px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(0,0,0,0.03);
+        }
+        
+        .question-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+            justify-content: center;
+        }
+        
+        .q-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 18px;
+            border: 1.5px solid var(--gray-200);
+            background: white;
+            font-weight: 600;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        
+        .q-btn:hover { border-color: var(--secondary); background: #f0f9ff; }
+        .q-btn.active { background: var(--secondary); border-color: var(--secondary); color: white; transform: scale(1.05); }
+        .q-btn.answered { background: var(--success); border-color: var(--success); color: white; }
+        .q-btn.review { background: var(--warning); border-color: var(--warning); color: white; }
+        
+        .progress-legende {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            font-size: 0.95rem;
+            color: var(--gray-600);
+        }
+        
+        .progress-bar-bg {
+            flex: 1;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border-radius: 20px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        /* === SCROLL CONTENT === */
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem 2rem 1.5rem;
+            scrollbar-width: thin;
+        }
+        
+        .scroll-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .scroll-content::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.02);
+            border-radius: 10px;
+        }
+        .scroll-content::-webkit-scrollbar-thumb {
+            background: var(--gray-400);
+            border-radius: 10px;
+        }
+        
+        /* === QUESTION HEADER CARD === */
+        .question-header-card {
+            display: flex;
+            justify-content: space-between;
+            background: white;
+            padding: 1.2rem 2rem;
+            border-radius: 30px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(59,130,246,0.2);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+        }
+        
+        .badge-points {
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            padding: 0.4rem 1.5rem;
+            border-radius: 60px;
+            color: white;
+            font-weight: 700;
+        }
+        
+        /* === QUESTION TEXT CARD === */
+        .question-text-card {
+            background: white;
+            border-radius: 32px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--gray-200);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.02);
+        }
+        
+        .question-text {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            white-space: pre-line;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            color: var(--gray-800);
+        }
+        
+        .announcement-text {
+            font-style: italic;
+            padding: 1rem 2rem;
+            background: #f0f9ff;
+            border-radius: 24px;
+            border-left: 6px solid var(--secondary);
+        }
+        
+        /* === INSTRUCTIONS === */
+        .instructions {
+            background: linear-gradient(135deg, #eef2ff, white);
+            padding: 1.5rem 2rem;
+            border-radius: 30px;
+            margin: 1.8rem 0;
+            border-left: 6px solid var(--secondary);
+            font-size: 1.1rem;
+            color: var(--primary);
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+        }
+        
+        /* === OPTIONS === */
+        .options-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .option-item {
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 2px solid var(--gray-200);
+            border-radius: 30px;
+            padding: 1.2rem 2rem;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+        
+        .option-item:hover { border-color: var(--secondary); background: #f0f9ff; transform: translateY(-2px); }
+        .option-item.selected { border-color: var(--secondary); background: #eef2ff; }
+        
+        .option-letter {
+            width: 50px;
+            height: 50px;
+            border-radius: 30px;
+            background: var(--gray-100);
+            border: 2px solid var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-right: 1.5rem;
+            flex-shrink: 0;
+            font-size: 1.3rem;
+        }
+        
+        .selected .option-letter { background: var(--secondary); color: white; }
+        
+        .option-text {
+            flex: 1;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+        
+        /* === FOOTER === */
+        .quiz-footer {
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(16px);
+            padding: 1.3rem 2rem;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-foot-btn {
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            border: none;
+            background: white;
+            border: 1px solid var(--gray-300);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            transition: 0.2s;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+        
+        .nav-foot-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .nav-foot-btn.primary { background: var(--secondary); color: white; border: none; }
+        .nav-foot-btn.primary:hover { background: var(--secondary-dark); }
+        .nav-foot-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        
+        .review-mark-btn {
+            background: #f59e0b;
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .review-mark-btn:hover { background: #e68900; transform: translateY(-2px); }
+        .review-mark-btn.active { background: var(--warning); }
+        
+        /* === RESULTS MODAL === */
+        .modal-overlay {
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        
+        .modal-card {
+            background: white;
+            border-radius: 48px;
+            padding: 2.2rem;
+            max-width: 850px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalFloat 0.3s ease;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 1.2rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-box {
+            background: var(--gray-100);
+            border-radius: 28px;
+            padding: 1.5rem 0.5rem;
+            text-align: center;
+        }
+        
+        .stat-box span:first-of-type {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+        
+        .score-level-badge {
+            padding: 0.6rem 1.8rem;
+            border-radius: 60px;
+            display: inline-block;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin: 1rem 0;
+        }
+        .score-level.a1 { background: #ef4444; color: white; }
+        .score-level.a2 { background: #f59e0b; color: white; }
+        .score-level.b1 { background: #fbbf24; color: black; }
+        .score-level.b2 { background: #34a853; color: white; }
+        .score-level.c1 { background: #0f9d58; color: white; }
+        .score-level.c2 { background: #0b5e2e; color: white; }
+        
+        .questions-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem;
+            margin: 2rem 0;
+            justify-content: center;
+            background: var(--gray-50);
+            padding: 1.5rem;
+            border-radius: 38px;
+        }
+        
+        .question-result-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 18px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.15s;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        
+        .question-result-btn.correct { background: var(--success); }
+        .question-result-btn.incorrect { background: var(--accent); }
+        .question-result-btn:hover { transform: scale(1.1); box-shadow: 0 5px 12px rgba(0,0,0,0.2); }
+        
+        .corrections-container {
+            margin-top: 2rem;
+            background: var(--gray-50);
+            border-radius: 32px;
+            padding: 1.8rem;
+        }
+        
+        .correction-item {
+            background: white;
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-bottom: 1.2rem;
+            border-left: 6px solid transparent;
+        }
+        
+        .correction-option {
+            display: flex; align-items: center; padding: 1rem; margin:0.6rem 0; border-radius: 18px;
+        }
+        .correction-option.correct-answer { background: #e6f7e6; border-left: 6px solid #10b981; }
+        .correction-option.user-answer { background: #fee9e9; border-left: 6px solid #ef4444; }
+        .correction-letter {
+            width: 40px; height:40px; border-radius:20px; background:var(--gray-100); border:2px solid var(--secondary);
+            display:flex; align-items:center; justify-content:center; font-weight:800; margin-right:1rem;
+        }
+        
+        .copy-warning {
+            position: fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+            background: #ef4444; color: white; padding: 1rem 2.5rem; border-radius: 60px;
+            font-weight: 600; z-index: 10001; display: none; box-shadow:0 10px 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(4px);
+        }
+        
+        /* === RESPONSIVE === */
+        @media (max-width: 800px) {
+            .glass-panel { height: 100vh; border-radius: 28px; }
+            .modern-header { flex-direction: column; align-items: start; gap: 0.5rem; }
+            .timer-card { align-self: flex-end; }
+            .option-item { padding: 1rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .question-text { font-size: 1rem; }
+        }
+        
+        @media (max-width: 480px) {
+            .question-grid { gap: 0.3rem; }
+            .q-btn { width: 38px; height: 38px; font-size: 0.9rem; }
+            .option-letter { width: 40px; height: 40px; font-size: 1.1rem; }
+            .option-text { font-size: 1rem; }
+        }
+        
+        /* hide quiz until auth */
+        #quizContainer { display: none; }
+    </style>
+</head>
+<body>
+
+<!-- AUTH OVERLAY -->
+<div class="auth-overlay" id="authOverlay">
+    <div class="auth-card" id="authMessage">
+        <div class="auth-icon"><i class="fas fa-lock"></i></div>
+        <div class="auth-title">Authentification</div>
+        <div class="auth-subtitle">Vérification de votre accès premium...</div>
+        <div class="loading-spinner"></div>
+    </div>
+</div>
+
+<!-- COPY WARNING -->
+<div class="copy-warning" id="copyWarning"><i class="fas fa-ban"></i> Copie interdite</div>
+
+<!-- MAIN QUIZ GLASS PANEL -->
+<div class="glass-panel" id="quizContainer">
+    <!-- HEADER -->
+    <div class="modern-header">
+        <div class="logo-area">
+            <div class="logo-icon"><i class="fas fa-book-open"></i></div>
+            <div class="title-block"><h1>Écrit Test 4 · TCF Canada</h1></div>
+        </div>
+        <div class="timer-card" id="timerDisplay">00:40:00</div>
+    </div>
+
+    <!-- NAVIGATION ROW -->
+    <div class="nav-section">
+        <div class="question-grid" id="questionGrid"></div>
+        <div class="progress-legende">
+            <div class="progress-bar-bg"><div class="progress-fill" id="globalProgress"></div></div>
+            <span><i class="fas fa-circle" style="color:#f59e0b;"></i> Révision</span>
+            <span><i class="fas fa-circle" style="color:#10b981;"></i> Répondu</span>
+        </div>
+    </div>
+
+    <!-- MAIN SCROLL AREA -->
+    <div class="scroll-content" id="mainScroll">
+        <!-- question header (numero + points) -->
+        <div class="question-header-card">
+            <span id="qNumberDisplay">Question 1 / 40</span>
+            <span class="badge-points" id="pointsDisplay">3 points</span>
+        </div>
+
+        <!-- QUESTION TEXT -->
+        <div class="question-text-card">
+            <div class="question-text" id="questionText"></div>
+        </div>
+
+        <!-- INSTRUCTION (hidden by default, shown when needed) -->
+        <div class="instructions" id="instructionText" style="display:none;">
+            Choisissez la bonne réponse.
+        </div>
+
+        <!-- OPTIONS (A,B,C,D) -->
+        <div class="options-panel" id="optionsContainer"></div>
+    </div>
+
+    <!-- FOOTER BUTTONS -->
+    <div class="quiz-footer">
+        <button class="nav-foot-btn" id="prevBtn"><i class="fas fa-arrow-left"></i> Précédent</button>
+        <button class="review-mark-btn" id="reviewBtn"><i class="fas fa-bookmark"></i> Marquer</button>
+        <button class="nav-foot-btn primary" id="nextBtn">Suivant <i class="fas fa-arrow-right"></i></button>
+    </div>
+</div>
+
+<!-- RESULTS MODAL -->
+<div class="modal-overlay" id="resultsModal">
+    <div class="modal-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <h2 style="font-size:2rem; font-weight:700;">Résultats</h2>
+            <button onclick="closeResults()" style="background:none; border:none; font-size:2.5rem; cursor:pointer; width:50px;">&times;</button>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-box"><span id="correctCount">0</span> <div>Correctes</div></div>
+            <div class="stat-box"><span id="timeUsed">00:00</span> <div>Temps</div></div>
+            <div class="stat-box"><span id="scorePercent">0</span> <div>Score %</div></div>
+        </div>
+        <div style="background:linear-gradient(135deg,#0f172a,#1e293b); color:white; padding:1.5rem; border-radius:32px; text-align:center; margin:1rem 0;">
+            <span id="cecrLevelDisplay" class="score-level-badge" style="background:transparent;">NIVEAU A1 NON ATTEINT</span>
+        </div>
+        <div class="questions-list" id="questionsList"></div>
+        <button class="nav-foot-btn primary" style="width:100%; justify-content:center;" onclick="toggleCorrections()">
+            <i class="fas fa-check-circle"></i> Afficher les corrections
+        </button>
+        <div id="correctionsContainer" style="display:none; margin-top:2rem;"></div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAhGVA4vr3pISonxvccIMCxZZOE5bkynRQ",
+            authDomain: "platformtcf.firebaseapp.com",
+            projectId: "platformtcf",
+            storageBucket: "platformtcf.firebasestorage.app",
+            messagingSenderId: "779352652301",
+            appId: "1:779352652301:web:41ca6b1dbcc42739b47344"
+        };
+
+        let currentUser = null;
+        let isPremium = false;
+        let firebaseApp, firebaseAuth, firestore;
+
+        // ==================== QUESTIONS (TEST 4 ÉCRIT) ====================
+        const questions = [
+            { id:1, text:"Maman. Je fais mes devoirs de mathématiques chez Louise. Je rentre à 21 heures. Bises et à ce soir. Patrick", question:"Qu'est-ce que Patrick fait chez Louise ?", points:3, options:["Il dort","Il joue","Il mange","Il travaille"], correct:'D' },
+            { id:2, text:"France 5\n• 19h 55 SÉRIE DOCUMENTAIRE « Bonjour la Bretagne »\n• 20 H 35 MAGAZINE « La grande librairie » Présentation : François Bunel\n• 21h 35 DOCUMENTAIRE « Arman, portrait d'un peintre et d'un sculpteur »\n• 23 h 55 SÉRIE DOCUMENTAIRE « J'irai dormir chez vous – Maroc »", question:"À quelle heure est-ce qu'on peut voir une émission sur l'art ?", points:3, options:["À 19 h 55","À 20 h 55","À 21 h 35","À 23 h 55"], correct:'C' },
+            { id:3, text:"Je suis arrivé chez moi. Je t'appelle demain pour aller voir le film. Je t'embrasse Cyprien", question:"Où est Cyprien ?", points:3, options:["À la gare","À la maison","Au cinéma","Au travail"], correct:'B' },
+            { id:4, text:"LA MAIRIE VOUS INFORME\nPendant les travaux, il est interdit de stationner devant l'entrée du supermarché.\nMerci d'utiliser le parking derrière la poste.", question:"Où pouvez-vous laisser votre voiture pendant les travaux ?", points:3, options:["Devant la mairie","Près de l'entrée du supermarché","Derrière le bâtiment de la poste","En face du parc"], correct:'C' },
+            { id:5, text:"À bord du Tip Top, le plus grand bateau du bassin d'Arcachon, laissez-vous guider pour 2h30 de promenade au gré des vents et des courants marins.\nDépart de la jetée Thiers tous les jours en juillet et août, en fonction des horaires de la marée. Renseignez-vous la veille. Prix 25 euros par personne. 28 passagers maximum par croisière.", question:"Que propose ce document ?", points:9, options:["La visite d'un bateau","Une promenade en mer","Une promenade en ville","La visite de la part Arcachon"], correct:'B' },
+            { id:6, text:"Le centre de Branféré a ouvert ses portes au printemps dernier dans un parc de Bretagne. Des classes du primaire y sont invitées. Les élèves y apprennent, pendant quelques jours, à connaître et respecter la nature.", question:"Qu'apprend-on sur le centre de Branféré ?", points:9, options:["Il accueille les élèves et leurs parents","Il est ouvert seulement au printemps","Il est réservé aux écoles de Bretagne","Il informe les enfants sur la nature"], correct:'D' },
+            { id:7, text:"Cher Monsieur Damier,\nNous avons le plaisir de vous annoncer que vous êtes l'heureux gagnant de notre grand jeu de l'été. Vous pouvez dès maintenant venir chercher votre prix dans votre magasin préféré où nos soldes d'automne ont déjà commencé !\nBien cordialement", question:"Que va recevoir monsieur Damier ?", points:9, options:["Un cadeau","Une publicité","Une visite","Une lettre"], correct:'A' },
+            { id:8, text:"GRAND JEU JARDIMARCHÉ\nVous pensez avoir le plus beau jardin ?\nEnvoyez une photo à grandjeu@jardimarche.com. Trois gagnants recevront un chèque de 500 euros valable dans tous nos magasins.", question:"Que propose Jardimarché ?", points:9, options:["D'acheter des plantes à bon prix","De faire des courses en ligne","De participer à un concours","De recevoir des outils gratuits"], correct:'C' },
+            { id:9, text:"Bonjour Ahmed,\nCe message pour te rappeler la reunion de lundi.\nNous commanderons des paniers-repas pour le midi car la séance peut durer longtemps, les dossiers a traiter sont nombreux. Peux-tu en informer les personnes des services concernés ? Merci d'avance.\nA lundi.\nPierre", question:"Que demande Pierre à Ahmed ?", points:9, options:["D'apporter le déjeuner","D'avancer le rendez-vous","De consulter les documents","De prévenir ses collègues"], correct:'D' },
+            { id:10, text:"Chers parents,\nJe profite d'une étape en ville pour vous envoyer un courriel. La randonnée se passe bien, nous marchons beaucoup avec les moniteurs. C'est fatigant, mais la région est magnifique.\nBisous, à bientôt.\nKarim", question:"Pourquoi est-ce que Karim écrit à ses parents ?", points:9, options:["Pour annoncer son retour","Pour parler de son travail","Pour prendre des nouvelles","Pour raconter ses vacances"], correct:'D' },
+            { id:11, text:"Vous avez entre 16 et 25 ans et vous souhaitez travailler rapidement ?\nVenez rencontrer des chefs d'entreprise et connaître les formations existantes au salon de l'entreprise, du 3 au 9 avril prochain.", question:"Qu'est-ce qu'on peut faire dans ce salon ?", points:15, options:["Participer à un stage de plusieurs jours","S'informer sur le monde professionnel","S'inscrire à un cours réservé aux jeunes","Trouver de l'aide pour écrire un CV"], correct:'B' },
+            { id:12, text:"Un récent sondage a révélé que le tourisme intercontinental des Européens commence à s'essouffler. Désormais, on connaît bien nos voisins, on veut donc voir autre chose. Les touristes n'ont pas l'impression de changer d'air s'ils ne quittent pas l'Union. On assiste à un développement du tourisme de longue distance, par exemple vers l'Afrique du Sud.", question:"Selon les dernières études, les Européens…", points:15, options:["Voyagent plutôt dans l'Union Européenne","Visitent de préférence leurs pays d'origine","Découvrent les pays de leurs voisins","S'aventurent dans les pays lointains"], correct:'D' },
+            { id:13, text:"Ne dites plus dépendance, dites autonomie.\nLes mots changent, le problème demeure. Ce problème est celui d'une population qui vit de plus en plus longtemps, grâce aux progrès de la médecine, mais dont les dernières années nécessitent très souvent une assistance à domicile ou un hébergement en maison de retraite médicalisée.", question:"Selon ce texte, quelle difficulté rencontrent les personnes âgées ?", points:15, options:["Elles ont besoin d'accompagnement","Elles ont peur de quitter leur logement","Elles souffrent de grande solitude","Elles suivent des traitement coûteux"], correct:'A' },
+            { id:14, text:"Les vacanciers français ont trouvé cet été le bonheur chez eux, avec une nette préférence pour les côtes ensoleillées, tandis que les étrangers européens ou non, qui n'avaient pas choisi la France l'an dernier, sont revenus. Globalement, la fréquentation touristique a légèrement progressé, selon des données statistiques recueillies. La montagne a connu une belle saison aussi avec des taux de réservation dans les résidences de tourisme en hausse de 9% en Savoie et Haute-Savoie, dans les Alpes.", question:"Où les Français ont-ils préféré passer leurs vacances d'été ?", points:15, options:["À l'étranger","Dans les Alpes","En Europe","En France"], correct:'D' },
+            { id:15, text:"Comment apprendre une langue étrangère.\nExiste-t-il un âge critique au-delà duquel on ne peut plus jamais atteindre le niveau d'un locuteur natif ? Ce sujet fait l'objet de nombreux débats. Plus on est jeune, plus on a d'appétit pour découvrir le monde. L'apprentissage d'une langue, quelle qu'elle soit, est donc plus simple. Mais il y a également une composante sociale. On se comporte avec l'enfant d'une manière bien particulière, que l'on ne peut reproduire avec un adolescent ou un adulte.", question:"D'après cet extrait, qu'est-ce qui favorise chez les enfants l'apprentissage d'une langue étrangère ?", points:15, options:["Leur curiosité","Leur imagination","Leur mémoire","Leur obéissance"], correct:'A' },
+            { id:16, text:"Une collégienne de 13 ans a remporté un prix grâce à son idée d'entreprise. Soucieuse de l'environnement, la jeune fille a imaginé un service qui encourage la récupération de bouteilles en plastique. Son concept est simple : le consommateur échange des bouteilles en plastique vides contre un objet recyclé. Par exemple, avec une bouteille en plastique, il peut commander un stylo, avec 47 bouteilles il peut avoir un t-shirt et pour 65 bouteilles il a la possibilité d'acheter une couverture.", question:"Que propose la jeune fille pour les bouteilles en plastique vides ?", points:15, options:["De les produire de façon écologique","De les revendre à un prix réduit","De les transformer en vêtement","De les utiliser comme monnaie"], correct:'D' },
+            { id:17, text:"Job d'été, la première expérience.\nQuand une entreprise fait appel pour la première fois à un jeune, elle n'a pas d'attente vis-à-vis de ses compétences professionnelles, c'est donc sur son comportement que vont se porter ses critères d'évaluation. Même saisonnier, il faut montrer qu'on a vraiment envie de décrocher un job. Les jeunes sans expérience ont tout intérêt à parler de leur passion et à démontrer leur motivation. Pour un employeur, c'est ce qui reste souvent le critère le plus important.", question:"Selon l'article, que faut-il faire pour trouver un job d'été ?", points:15, options:["Exposer l'ensemble de ses qualités professionnelles","Faire la preuve de son désir de travailler","Parler avec enthousiasme de ses projets","Parler des emplois qu'on a déjà occupés"], correct:'B' },
+            { id:18, text:"MATCH SÈTE - TOURS\nMercredi 12 novembre\n• Achat des billets aux points de vente habituels : 15 €\n• Réduction pour les étudiants et les détenteurs de carte « Famille nombreuse »\n• Vente aux guichets du stade, le soir même : 20 €", question:"À quelle condition l'acheteur a-t-il un meilleur prix ?", points:15, options:["En achetant les billets en avance","En choisissant des places pour quatre matchs","En prenant des billets pour un groupe","En présentant une carte de club de sport"], correct:'A' },
+            { id:19, text:"LA NÉO-RURALITÉ EST DEVENUE UN PHÉNOMÈNE DE SOCIÉTÉ.\nCette dénomination date des années 70, c'est le retour à la terre alors que la désertification des campagnes se poursuit, un mouvement de population inverse s'opère. Il concerne des personnes jeunes, sans enfant, portant les valeurs contestataires de mai 68. Issues de toutes les classes sociales, elles ne recherchent pas spécialement le confort. Elles veulent avant tout vivre une expérience, ce qui les différencie de la population locale et ne facilite pas leur intégration.", question:"Que veulent les néo-ruraux ?", points:15, options:["Accéder à la propriété privée","Avoir un mode de vie économique","Participer à la vie associative","Tenter une nouvelle aventure"], correct:'D' },
+            { id:20, text:"Elle a 27 ans et a trouvé sa vocation : restauratrice de meubles. Stéphanie reçoit, à ce titre, le prix du jeune artisan d'art : « La dotation va me permettre d'ouvrir mon atelier. J'ai déjà trouvé le lieu, dans un village entre Narbonne et Carcassonne. » Son compagnon y a créé une menuiserie. Stéphanie a déjà touché à tout, au fil de sa formation, dont un BTS en alternance, obtenu dans son Auvergne natale. Nos vœux de réussite !", question:"Quel projet cette personne veut-elle réaliser ?", points:21, options:["Démarrer une activité professionnelle","Présenter son travail à un concours","S'associer à un groupement d'artisans","Suivre une formation complémentaire"], correct:'A' },
+            { id:21, text:"Le rire pour soulager les enfants à l'hôpital.\nLes « docteurs rêves » apportent joie et mieux-être aux enfants hospitalisés. Pour que le petit malade puisse oublier un peu ses souffrances et retrouver le sourire, de gentils « docteurs » viennent à sa rencontre. Ils visitent les jeunes enfants, vêtus d'une blouse blanche, stéthoscope autour du cou, comme de vrais médecins. On les appelle les « docteurs rêves ». C'est en artistes professionnels spécialement formés qu'ils interviennent dans les hôpitaux pédiatriques tout en travaillant en synergie avec l'équipe médicale. Les enfants s'échappent un instant, grâce à eux, du monde hospitalier.", question:"Quelle est la fonction des « docteurs rêves » ?", points:21, options:["Mettre en place une lettre thérapie","Remplacer les anciens médecins","Faire rêver les petits patients","Guérir les enfants par le rêve"], correct:'C' },
+            { id:22, text:"Avant de pouvoir entrer, il faut jurer par écrit que l'on s'engage à participer à la lutte contre le réchauffement de la planète.\nBar Surya est devenue la première boîte de nuit écologique. Située à Londres, elle ne propose que des boissons biologiques et offre une entrée gratuite aux clients qui peuvent prouver qu'ils sont venus à pied, à vélo, en bus ou en métro. En outre, un système d'énergie recyclable utilise les mouvements des pieds des danseurs pour fournir une partie de l'électricité. L'objectif affiché est de sensibiliser les jeunes au développement durable. Une bonne idée marketing qui devrait inspirer d'autres initiatives du même type…", question:"Quelle est l'originalité de la discothèque dont il est question ?", points:21, options:["Elle s'adresse exclusivement à une clientèle soucieuse des questions d'environnement","Elle travaille à la réduction des accidents de la route dus à l'alcool","Le coût du billet d'entrée varie en fonction de l'énergie produite par les danseurs","Les jeunes doivent consommer sur place les produits du commerce équitable"], correct:'A' },
+            { id:23, text:"La ville chinoise de Chongqing vient d'inaugurer des voies réservées aux « accros » du portable sur les trottoirs. Les piétons sont en effet nombreux à ne prêter aucune attention à leur entourage, au risque de provoquer des accidents. Un parcours délimité par des lignes blanches peintes au sol invite ceux qui ne quittent pas des yeux leur écran à les emprunter. L'idée de ce marquage n'est pas d'encourager l'usage des portables, mais d'inciter chacun à réfléchir à la place qu'il leur donne dans son quotidien et à faire attention aux autres.", question:"Quel est l'objectif de cette initiative concernant les portables ?", points:21, options:["Faciliter leur utilisation dans l'ensemble de la commune","Faire prendre conscience des excès liés à leur usage","Instaurer de nouvelles règles de priorité de circulation","Multiplier les espaces publicitaires le long des avenues"], correct:'B' },
+            { id:24, text:"Fixer des limites strictes à la pêche, c'est l'action que va mener l'Australie afin de protéger la vie aquatique. « Il est temps que la planète franchisse une nouvelle étape dans la protection des océans » a déclaré le ministre australien de l'environnement. La création d'un réseau de parcs naturels aura un impact sur le secteur de la pêche commerciale qui recevra 79,2 millions d'euros en contrepartie. La fondation australienne pour la protection de l'environnement a qualifié cette annonce « historique », mais elle a souligné que plusieurs zones restaient menacées par l'exploitation humaine des ressources naturelles.", question:"Que projette le gouvernement australien ?", points:21, options:["D'aménager des réserves restreignant la pêche","D'encourager une politique mondiale de la pêche","D'organiser des contrôles pour surveiller la pêche","De créer des taxes sur les produits de la pêche"], correct:'A' },
+            { id:25, text:"L'éducation nationale française vient d'inscrire aux programmes scolaire une initiation à la programmation informatique, appelée « Code ». Le but n'est pas de faire de tous les enfants des informaticiens, mais il est clair que se limiter à être uniquement un utilisateur passif constituera par la suite un handicap professionnel. Le chantier est immense car il faut introduire cette nouvelle matière sans compter sur suffisamment de professeurs formés pour cela. En effet, la vitesse à laquelle les technologies numériques ont changé a été bien supérieure à celle de l'évolution de la formation des équipes pédagogiques.", question:"Qu'apprend-on au sujet de l'enseignement du code à l'école ?", points:21, options:["Les enfants ont des difficultés de concentration dans ce domaine","Les équipements informatiques des écoles sont devenus obsolètes","Les établissements doivent se doter d'une connexion illimitée","Les professeurs avec les compétences nécessaires sont rares"], correct:'D' },
+            { id:26, text:"Futur manager, soyez gentil !\nDepuis les scandales des traders, les grandes écoles ont été mises au plan des accusés : Ce qu'elles transmettaient se limitait à du savoir technique directement exploitable par les entreprises. Myopie sociale et absence d'esprit critique menaçaient les futurs managers du monde économique. L'éthique est maintenant à la mode dans toutes les grandes écoles de management. Il n'y est question que de « social business » ou de « développement durable ». À côté des activités associatives traditionnelles, les actions humanitaires ont fleuri et de plus en plus d'étudiants s'y investissent chaque année. Désormais, un étudiant doit avoir fait du soutien scolaire en banlieue ou monté du microcrédit en Afrique.", question:"D'après ce texte, quelle est la nouvelle orientation des grandes écoles ?", points:21, options:["Créer des partenariats avec le milieu associatif","Former des jeunes défavorisés au management","Intégrer des valeurs sociales et environnementales","Préparer des techniciens aux dangers de la finance"], correct:'C' },
+            { id:27, text:"D'abord surpris par la naïveté du film, puis sceptique face aux clichés habituels et gentillets de ce genre de longs métrages potaches, on se laisse progressivement porter par la réalisation décalée du cinéaste et par l'interprétation savoureuse de la distribution. S'il manque parfois de rythme et s'il a un peu vieilli, ce film n'en demeure pas moins réussi dans sa capacité à savoir capter l'esprit bohème et bon enfant des échanges Erasmus ! Après, ce n'est bien sûr pas le chef-d'œuvre de l'année, mais il est tellement rare aujourd'hui de voir un film français proposer quelque chose d'assez original et drôle sans se départir d'une certaine simplicité et d'une réelle justesse, qu'on ne peut que saluer le travail du réalisateur et de sa sympathique équipe.", question:"Quelle critique négative ce spectateur émet-il sur ce film ?", points:21, options:["La réalisation de l'œuvre manque de maîtrise","Le film tombe dans les stéréotypes du genre","Le jeu des comédiens lui semble plutôt médiocre","Le scénario du film est maladroitement construit"], correct:'B' },
+            { id:28, text:"L'institution scolaire devra sans cesse être défendue, ne serait-ce que parce que la « société civile » n'aura de cesse de vouloir assujettir l'école à ses demandes particulières. Il faut sans cesse rappeler, par exemple, que les règles de l'école ne sont pas celles de la maison. Car l'enfant n'y est plus seulement un enfant, il y est un élève. À l'école, on ne se préoccupe plus de confort et de l'affection pour l'enfant. On s'adresse à l'intelligence de l'élève. Le rapport maître/élève n'est d'ailleurs pas un rapport affectif : on ne demande pas à un professeur d'être sympathique. On lui demande d'être exigeant et juste.", question:"Quelle est l'opinion de l'auteur ?", points:21, options:["L'ambiance de l'école doit être calquée sur le modèle familial","L'autorité du professeur doit être récompensée par sa gentillesse","L'épanouissement de l'enfant doit primer sur sa réussite","L'impartialité doit être l'une des qualités principales d'un maître"], correct:'D' },
+            { id:29, text:"« Pendant des millénaires, les chercheurs du monde entier ont jalousement gardé leurs données. Essentiellement parce qu'ils pensaient que le contrôle de l'information donnait le pouvoir » déclare le conservateur en paléontologie au musée d'Histoire naturelle de Londres. Les mentalités ont changé depuis quelques années à partir du moment où les savants ont pris conscience des bénéfices du travail collaboratif et du partage de l'information. Cependant vouloir échanger entre chercheurs et parvenir à le faire correctement sont deux choses très différentes, c'est ce que constatent les invités d'une conférence internationale sur la biodiversité qui se tient dans la capitale britannique.", question:"Que souhaitent actuellement les chercheurs ?", points:21, options:["Mettre en commun les données","Multiplier les colloques internationaux","Protéger les résultats de leurs études","Vulgariser l'information scientifique"], correct:'A' },
+            { id:30, text:"Trouver un logement dans une ville étudiante est un parcours du combattant pour un grand nombre d'inscrits dans l'enseignement supérieur. La barrière est parfois infranchissable non seulement les loyers sont élevés, mais la sélection des candidats par les propriétaires est très dure, souvent basée sur le niveau de revenus des garants. Pour lever ce frein, la caution locative étudiante (CLE) vient d'être généralisée à l'ensemble du territoire national après avoir été expérimentée dans quatre régions pendant un an. Avec ce dispositif, c'est l'État qui se porte garant du versement des loyers des étudiants en cas de non-paiement.", question:"Quel est le principal obstacle à l'accès au logement des étudiants selon cette analyse ?", points:26, options:["La méfiance des propriétaires","La rareté des offres de logement","L'absence de l'engagement de l'État","Le montant de la caution exigée"], correct:'A' },
+            { id:31, text:"L'opération « Voile à l'école » permet chaque année à des centaines d'enfants d'apprendre à faire du bateau pendant l'école. Au départ, la voile fait peur. Pour rassurer les élèves débutants les leçons sont très progressives. Les enseignants reçoivent des cahiers avec des explications et des informations techniques. Ils peuvent ainsi développer en classe un programme de prévention pour identifier et éviter les dangers.", question:"Quel est le but de l'opération « Voile à l'école » ?", points:26, options:["Expérimenter une nouvelle technologie par le sport","Former les maîtres à la pratique du sport sur l'eau","Permettre aux jeunes de découvrir un sport difficile","Réduire les risques en éducation physique et sportive"], correct:'C' },
+            { id:32, text:"Christian Hincker, dessinateur né en 1967 à Strasbourg, est devenu « Butch » très tôt, et pas seulement parce que dans la cour de récréation il était le portrait craché du caporal du même nom, l'un des héros de la célèbre bande dessinée « Les Tuniques Bleues »… C'est aussi grâce au dessin que « le petit Christian » se protégeait. « Je me coupais du monde, ça m'arrangeait bien, car je fuyais le sport, j'avais la terreur de devenir un souffre-douleur. Le dessin m'a donné une stature au sein de la classe et m'a aidé à survivre… » Doué, il puise dans ses lectures d'enfant de quoi développer son don : « j'étais tellement emballé par les BD que je lisais que j'essayais de perpétuer le plaisir en reproduisant les ambiances de Tintin, Picsou ou Lucky Luke ».", question:"Comment s'explique l'engouement de Christian Hincker pour le dessin ?", points:26, options:["Il dessinait sans relâche","Il se réfugiait dans le dessin pour échapper à ses camarades","Il vendait ses dessins pour se faire de l'argent de poche","Il voulait ressembler à un personnage de bande dessinée"], correct:'B' },
+            { id:33, text:"C'est un joli coup de peinture… avant fermeture !\nLe vieil hôpital psychiatrique du Mans, construit en 1828 et classé aux Monuments historiques depuis 2004, a vu l'arrivée de drôles de troupes. Promis à la destruction et à la rénovation, le bâtiment a été investi par des artistes. L'occasion était belle pour le collectif associatif « Espace provisoire » d'envahir les salles et de leur redonner une seconde vie. Plus de 1000 m2 ont été occupés par une soixantaine d'artistes : musiciens, sculpteurs, photographes…, tous prêts à accueillir des visiteurs, des curieux. L'objectif, non avoué, est de prouver que la culture est à sa place partout.", question:"Que cherche à faire le collectif « Espace provisoire » ?", points:26, options:["Convertir les lieux en maison de culture","Diffuser l'art dans des endroits inattendus","Ouvrir un centre de formation artistique","Rénover les anciens locaux en les décorant"], correct:'B' },
+            { id:34, text:"« Le Fait du Roi »\nC'est l'histoire d'un homme qui prend l'identité d'un autre, mort, en se glissant dans sa peau, dans sa vie, dans sa maison… Rien ne sert de raconter l'intrigue de ce roman tant elle est simple et sans surprise. L'écriture de l'auteur reste cependant toujours aussi piquante et agréable à lire. Le héros principal, quant à lui, est dépeint avec une certaine profondeur.", question:"Sur quel point porte la critique négative faite à ce livre ?", points:26, options:["La description du personnage","La longueur du texte","La qualité de l'écriture","Le déroulement des événements"], correct:'D' },
+            { id:35, text:"L'ambition de cet auteur ? Changer l'art d'écrire, rien de moins. Mais cela est dit sans emphase, d'un ton dubitatif, fataliste presque : « Changer l'art d'écrire, chaque écrivain le fait à sa façon. Je voudrais le faire de façon absolue, radicale, en abolissant totalement les histoires, l'intrigue, bien qu'il y ait toujours, en fait, des sortes de micro-narrations dans mes livres. J'ai l'idée qu'il est encore trop tôt pour savoir ce que j'ai apporté ou pas. Cela dit, lorsque vous écrivez, vous êtes tellement occupé à essayer de résoudre les problèmes techniques qui se posent à chaque instant que vous n'avez pas le temps d'avoir beaucoup d'idées générales. »", question:"De quelle manière cet auteur veut-il réaliser son ambition ?", points:26, options:["En abandonnant les codes traditionnels du roman","En cherchant des sources d'inspiration méditée","En proposant de nouveaux concepts universels","En se jouant des difficultés liées à l'écriture"], correct:'A' },
+            { id:36, text:"Dans leur nouvelle collection, les éditions Nil invitent des auteurs à se livrer à un exercice épistolaire intime en écrivant une lettre pour dire l'indicible. Le modèle est celui que Kafka rédigea à l'intention de son père. Et qu'il préféra ranger dans un tiroir tant l'accusation portée était peu amène.\nAvec « L'autre fille », missive adressée à sa sœur aînée, morte avant sa naissance, Annie Ernaux inaugure brillamment le concept, fidèle à son écriture tranchante et analytique. Rejetant le terme d'autofiction, l'écrivain se dit fascinée par la réalité, partant à la recherche d'une vérité sur une mort que ses parents lui ont toujours cachée. En demandant à des auteurs de se libérer d'un vieux tourment, la collection souhaite réhabiliter un genre littéraire oublié.", question:"À quel résultat la participation à cette collection conduit-elle Annie Ernaux ?", points:33, options:["À s'acquitter d'un engagement moral","À s'affranchir d'une histoire ancienne","À se justifier d'une action peu coupable","À se justifier d'une action peu glorieuse"], correct:'B' },
+            { id:37, text:"Une scolarisation précoce permet une meilleure adaptation à l'univers scolaire et peut donc être le gage d'une réussite scolaire ultérieure. « La scolarisation avant 3 ans, écrit Agnès Florin (professeur de psychologie), trouve des justifications dans les résultats de plusieurs recherches, au moins pour les enfants des milieux défavorisés et sur certains aspects de leur développement cognitif et langagier. Par ailleurs, l'entrée précoce à l'école permet d'éviter l'apparition de troubles ou de perturbations et joue donc un rôle préventif. On trouve en effet de nombreux exemples de jeunes enfants dont on a pu détecter certains problèmes psychologiques ou physiologiques grâce à leur entrée à l'école.", question:"Selon l'auteur, que permet la scolarité précoce des enfants ?", points:33, options:["Développer leurs capacités de socialisation","Diagnostiquer d'éventuels déséquilibres","Faciliter l'apprentissage d'une seconde langue","Lutter contre les inégalités sociales"], correct:'B' },
+            { id:38, text:"PRIX BAS TOUTE L'ANNÉE\nDes voyages aux loisirs en passant par les voitures, plus question de rater la bonne affaire. Voilà pourquoi les fins de série, les promotions, les soldes ne se sont jamais aussi bien portés. On achète surtout des vêtements, jusqu'à 14 articles pour un montant moyen de 186 euros, même si on doit dépenser moins le reste de l'année. Le gouvernement l'a bien compris : il vient d'octroyer deux semaines supplémentaires de soldes, à la convenance des commerçants, en dehors des mois de juillet et janvier, afin de redonner un peu de tonus aux ventes.", question:"Quel est le thème de cet article ?", points:33, options:["Le développement du commerce en ligne","Les stratégies des consommateurs","Un nouveau concept de magasin","Les habitudes d'achat des Français"], correct:'B' },
+            { id:39, text:"Le trois-mâts d'exploration La Boudeuse va reprendre le large pour une nouvelle mission à caractère scientifique. Le voilier va mettre le cap en septembre prochain sur l'Amérique du Sud et ses grands fleuves. Il se consacrera « aux études scientifiques et humaines concernant la biosphère, le réchauffement climatique et le développement durable », selon la « lettre de mission » adressée à son commandant, signée du ministre d'État aux Transports et à l'Écologie. Cette « lettre de mission » de la République assigne à l'équipage un audacieux programme concernant la protection de l'environnement.", question:"Selon l'article, que va faire l'équipage du voilier La Boudeuse ?", points:33, options:["Former des scientifiques à la prévention des risques écologiques","Innover dans les moyens de lutter contre les pollutions fluviales","Observer l'écosystème dans une région de grands fleuves","Représenter le gouvernement français lors d'une rencontre"], correct:'C' },
+            { id:40, text:"Chers Amis,\nNous sommes heureux de vous annoncer l'arrivée d'un nouveau membre dans notre famille. Il se nomme Adrien et a vu le jour le 1er septembre au matin.\nBien à vous.", question:"De quel évènement s'agit-il ?", points:3, options:["Le mariage de parents","L'achat d'une nouvelle maison","La naissance d'un bébé","L'obtention d'un diplôme"], correct:'C' }
+        ];
+
+        // === QUIZ STATE ===
+        let currentIdx = 0;
+        let userAnswers = new Array(40).fill(null);
+        let reviewFlags = new Array(40).fill(false);
+        let timeLeft = 2400; // 40 minutes = 2400 seconds
+        let timerInterval;
+        let startTime = new Date();
+
+        // DOM elements
+        const authOverlay = document.getElementById('authOverlay');
+        const authMessage = document.getElementById('authMessage');
+        const quizContainer = document.getElementById('quizContainer');
+
+        // ========== FIREBASE AUTHENTICATION ==========
+        async function initFirebase() {
+            try {
+                firebaseApp = firebase.initializeApp(firebaseConfig);
+                firebaseAuth = firebase.auth();
+                firestore = firebase.firestore();
+
+                firebaseAuth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        await handleAuthenticatedUser(user);
+                    } else {
+                        showAuthMessage('not_logged_in', 'Non connecté', 'Vous devez être connecté avec un compte premium pour accéder à ce test.');
+                    }
+                });
+            } catch (e) {
+                showAuthMessage('error', 'Erreur Firebase', 'Impossible de contacter le serveur.');
+            }
+        }
+
+        async function handleAuthenticatedUser(user) {
+            try {
+                showAuthMessage('loading', 'Vérification', 'Vérification de votre statut premium...');
+                const doc = await firestore.collection('users').doc(user.uid).get();
+                if (!doc.exists) {
+                    showAuthMessage('error', 'Utilisateur inconnu', 'Aucun profil trouvé.');
+                    return;
+                }
+                const data = doc.data();
+                currentUser = { uid: user.uid, email: user.email, ...data };
+
+                // Premium check
+                isPremium = false;
+                if (data.premiumActive === true) isPremium = true;
+                if (data.premium === true) isPremium = true;
+                if (data.premiumType && data.premiumType !== "none") isPremium = true;
+                if (data.status === "premium" || data.status === "active") isPremium = true;
+                if (data.subscriptionStatus === "active") isPremium = true;
+                if (data.premiumExpiry) {
+                    const now = new Date(), expiry = new Date(data.premiumExpiry);
+                    if (expiry > now) isPremium = true;
+                }
+                // hardcoded premium
+                if (user.uid === "a0fPHv3JniRr55uJJjJggSMFKGY2") isPremium = true;
+                if (user.email === "bouhoula_mohamedhedi@yahoo.fr") isPremium = true;
+                if (data.role === "admin" || data.isAdmin) isPremium = true;
+
+                if (!isPremium) {
+                    showAuthMessage('premium_required', 'Accès premium requis', 'Ce test nécessite un abonnement premium actif.');
+                    return;
+                }
+
+                // Access granted
+                authOverlay.style.display = 'none';
+                quizContainer.style.display = 'flex';
+                startQuiz();
+
+            } catch (err) {
+                showAuthMessage('error', 'Erreur', 'Impossible de récupérer vos données.');
+            }
+        }
+
+        function showAuthMessage(type, title, message) {
+            let icon = '';
+            let content = '';
+            if (type === 'loading') {
+                icon = '<div class="loading-spinner"></div>';
+                content = `<div class="auth-icon">⏳</div><div class="auth-title">${title}</div><div class="auth-subtitle">${message}</div>${icon}`;
+            } else if (type === 'not_logged_in' || type === 'premium_required') {
+                icon = '🔒';
+                content = `<div class="auth-icon">${icon}</div><div class="auth-title">${title}</div><div class="auth-subtitle">${message}</div>
+                <div style="margin-top:2rem;"><button class="auth-btn auth-btn-primary" onclick="redirectToLogin()">Se connecter</button>
+                <button class="auth-btn auth-btn-secondary" onclick="closePage()">Fermer</button></div>`;
+            } else {
+                icon = '❌';
+                content = `<div class="auth-icon">${icon}</div><div class="auth-title">${title}</div><div class="auth-subtitle">${message}</div>
+                <button class="auth-btn auth-btn-primary" onclick="location.reload()">Réessayer</button>`;
+            }
+            authMessage.innerHTML = content;
+            authOverlay.style.display = 'flex';
+        }
+
+        window.redirectToLogin = function() {
+            window.location.href = 'index.html';
+        };
+        window.closePage = function() { window.close(); };
+
+        // ========== QUIZ CORE ==========
+        function startQuiz() {
+            createQuestionGrid();
+            loadQuestion(0);
+            startTimer();
+            updateProgress();
+            setupCopyProtection();
+        }
+
+        function createQuestionGrid() {
+            const grid = document.getElementById('questionGrid');
+            grid.innerHTML = '';
+            for (let i=0; i<40; i++) {
+                let btn = document.createElement('button');
+                btn.className = 'q-btn';
+                btn.textContent = i+1;
+                btn.onclick = () => navigateTo(i);
+                grid.appendChild(btn);
+            }
+            updateGridClasses();
+        }
+
+        function updateGridClasses() {
+            document.querySelectorAll('.q-btn').forEach((btn, idx) => {
+                btn.classList.remove('active','answered','review');
+                if (idx === currentIdx) btn.classList.add('active');
+                if (userAnswers[idx] !== null) btn.classList.add('answered');
+                if (reviewFlags[idx]) btn.classList.add('review');
+            });
+        }
+
+        function loadQuestion(index) {
+            const q = questions[index];
+            document.getElementById('qNumberDisplay').innerText = `Question ${index+1} / 40`;
+            document.getElementById('pointsDisplay').innerText = q.points + ' points';
+
+            // Apply special formatting for announcement (question 40)
+            if (q.id === 40) {
+                document.getElementById('questionText').innerHTML = `<div class="announcement-text">${q.text}</div>`;
+            } else {
+                document.getElementById('questionText').innerText = q.text;
+            }
+
+            // Optional instruction (could be shown if needed)
+            document.getElementById('instructionText').style.display = 'none';
+
+            const optsDiv = document.getElementById('optionsContainer');
+            optsDiv.innerHTML = '';
+            q.options.forEach((opt, optIdx) => {
+                let letter = String.fromCharCode(65+optIdx);
+                let selectedClass = (userAnswers[index] === letter) ? 'selected' : '';
+                let div = document.createElement('div');
+                div.className = `option-item ${selectedClass}`;
+                div.onclick = () => selectOption(optIdx);
+                div.innerHTML = `<div class="option-letter">${letter}</div><div class="option-text">${opt}</div>`;
+                optsDiv.appendChild(div);
+            });
+
+            document.getElementById('prevBtn').disabled = (index===0);
+            let nextBtn = document.getElementById('nextBtn');
+            nextBtn.innerHTML = (index===39) ? 'Terminer <i class="fas fa-check"></i>' : 'Suivant <i class="fas fa-arrow-right"></i>';
+
+            let reviewBtn = document.getElementById('reviewBtn');
+            reviewBtn.innerHTML = reviewFlags[index] ? '✓ Révision' : '<i class="fas fa-bookmark"></i> Marquer';
+
+            updateGridClasses();
+            updateProgress();
+        }
+
+        function selectOption(optIdx) {
+            userAnswers[currentIdx] = String.fromCharCode(65+optIdx);
+            loadQuestion(currentIdx);
+        }
+
+        function navigateTo(idx) {
+            if (idx>=0 && idx<40) {
+                currentIdx = idx;
+                loadQuestion(currentIdx);
+            }
+        }
+
+        document.getElementById('prevBtn').onclick = () => navigateTo(currentIdx-1);
+        document.getElementById('nextBtn').onclick = () => {
+            if (currentIdx === 39) finishTest();
+            else navigateTo(currentIdx+1);
+        };
+        document.getElementById('reviewBtn').onclick = () => {
+            reviewFlags[currentIdx] = !reviewFlags[currentIdx];
+            loadQuestion(currentIdx);
+        };
+
+        function updateProgress() {
+            let answered = userAnswers.filter(a => a !== null).length;
+            document.getElementById('globalProgress').style.width = (answered/40*100)+'%';
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                if (timeLeft <= 0) finishTest();
+                let m = Math.floor(timeLeft/60);
+                let s = timeLeft%60;
+                let timerEl = document.getElementById('timerDisplay');
+                timerEl.innerText = `00:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                if (timeLeft < 300) timerEl.className = 'timer-card danger';
+                else if (timeLeft < 600) timerEl.className = 'timer-card warning';
+                else timerEl.className = 'timer-card';
+            }, 1000);
+        }
+
+        function finishTest() {
+            clearInterval(timerInterval);
+
+            let correctCount = 0, totalPoints = 0, earned = 0;
+            questions.forEach((q,i) => {
+                totalPoints += q.points;
+                if (userAnswers[i] === q.correct) {
+                    correctCount++;
+                    earned += q.points;
+                }
+            });
+            let percent = Math.round((earned/totalPoints)*100);
+
+            document.getElementById('correctCount').innerText = correctCount;
+            let elapsedSeconds = 2400 - timeLeft;
+            let m = Math.floor(elapsedSeconds/60);
+            let s = elapsedSeconds%60;
+            document.getElementById('timeUsed').innerText = `00:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            document.getElementById('scorePercent').innerText = percent + '%';
+
+            let cecrEl = document.getElementById('cecrLevelDisplay');
+            if (percent>=85) cecrEl.innerText = 'C2 ATTEINT';
+            else if (percent>=75) cecrEl.innerText = 'C1 ATTEINT';
+            else if (percent>=60) cecrEl.innerText = 'B2 ATTEINT';
+            else if (percent>=40) cecrEl.innerText = 'B1 ATTEINT';
+            else if (percent>=20) cecrEl.innerText = 'A2 ATTEINT';
+            else cecrEl.innerText = 'A1 NON ATTEINT';
+
+            let qlist = document.getElementById('questionsList');
+            qlist.innerHTML = '';
+            for (let i=0;i<40;i++) {
+                let span = document.createElement('span');
+                span.className = `question-result-btn ${userAnswers[i]===questions[i].correct ? 'correct' : 'incorrect'}`;
+                span.innerText = i+1;
+                span.onclick = () => showCorrection(i);
+                qlist.appendChild(span);
+            }
+            document.getElementById('resultsModal').style.display = 'flex';
+        }
+
+        function showCorrection(idx) {
+            let q = questions[idx];
+            let html = `<div class="corrections-container"><h3 style="margin-bottom:1rem;">Question ${idx+1} (${q.points} pts)</h3>`;
+            html += `<p style="margin-bottom:1rem; font-style:italic;">${q.question}</p>`;
+            html += `<div style="background:#f8f9fa; padding:1rem; border-radius:18px; margin-bottom:1.5rem;">${q.text}</div>`;
+            q.options.forEach((opt,i) => {
+                let letter = String.fromCharCode(65+i);
+                let classe = '';
+                if (letter === q.correct) classe = 'correct-answer';
+                if (userAnswers[idx] === letter && letter !== q.correct) classe = 'user-answer';
+                html += `<div class="correction-option ${classe}"><div class="correction-letter">${letter}</div><div style="flex:1;">${opt}</div></div>`;
+            });
+            let correctLetter = q.correct;
+            let correctText = q.options[q.correct.charCodeAt(0)-65];
+            let userLetter = userAnswers[idx] || 'Aucune';
+            let userText = userAnswers[idx] ? q.options[userAnswers[idx].charCodeAt(0)-65] : '';
+            html += `<div style="margin-top:1.5rem; padding:1rem; background:white; border-radius:18px;"><p><strong>Votre réponse:</strong> ${userLetter} - ${userText || 'Non répondue'}</p><p><strong>Réponse correcte:</strong> ${correctLetter} - ${correctText}</p></div>`;
+            html += `</div>`;
+            document.getElementById('correctionsContainer').innerHTML = html;
+            document.getElementById('correctionsContainer').style.display = 'block';
+        }
+
+        window.toggleCorrections = function() {
+            let c = document.getElementById('correctionsContainer');
+            if (c.style.display === 'none' || c.style.display === '') { showCorrection(0); c.style.display = 'block'; }
+            else c.style.display = 'none';
+        };
+        window.closeResults = function() { document.getElementById('resultsModal').style.display = 'none'; };
+
+        function setupCopyProtection() {
+            document.addEventListener('copy', (e) => {
+                if (window.getSelection().toString().length > 40) { e.preventDefault(); showCopyWarning(); }
+            });
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey||e.metaKey) && (e.key === 'c'||e.key === 'C')) {
+                    if (window.getSelection().toString().length > 40) { e.preventDefault(); showCopyWarning(); }
+                }
+            });
+        }
+        function showCopyWarning() {
+            let w = document.getElementById('copyWarning');
+            w.style.display = 'block';
+            setTimeout(() => w.style.display = 'none', 1500);
+        }
+
+        // initialize
+        initFirebase();
+    })();
+</script>
+</body>
+</html>

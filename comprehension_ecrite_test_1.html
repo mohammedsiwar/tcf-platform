@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <title>TCF Master • Compréhension Écrite (Test 1)</title>
+    
+    <!-- Font Awesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --secondary: #3b82f6;
+            --secondary-dark: #2563eb;
+            --accent: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --premium: #8b5cf6;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #f1f5f9 0%, #e6eefc 100%);
+            min-height: 100vh;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .glass-panel {
+            width: 100%;
+            max-width: 1300px;
+            height: 95vh;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 42px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        /* Header */
+        .modern-header {
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(12px);
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(59,130,246,0.2);
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .logo-icon {
+            background: linear-gradient(135deg, var(--secondary), var(--premium));
+            width: 44px;
+            height: 44px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.4rem;
+        }
+        .title-block h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #0f172a, #2563eb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .timer-card {
+            background: #1e293b;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 120px;
+            font-weight: 600;
+            font-size: 1.5rem;
+            font-family: 'Monaco', monospace;
+            border: 1px solid #3b82f6;
+        }
+        .timer-card.warning { background: #f59e0b; color: black; }
+        .timer-card.danger { background: #ef4444; animation: pulse 1s infinite; }
+        @keyframes pulse { 50% { opacity: 0.7; } }
+        /* Navigation */
+        .nav-section {
+            background: white;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .question-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
+        }
+        .q-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 18px;
+            border: 1.5px solid var(--gray-200);
+            background: white;
+            font-weight: 600;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .q-btn.active { background: var(--secondary); border-color: var(--secondary); color: white; transform: scale(1.05); }
+        .q-btn.answered { background: var(--success); border-color: var(--success); color: white; }
+        .q-btn.review { background: var(--warning); border-color: var(--warning); color: white; }
+        .progress-legende {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .progress-bar-bg {
+            flex: 1;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 20px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border-radius: 20px;
+            width: 0%;
+        }
+        .legend i { margin-right: 0.2rem; color: var(--gray-600); }
+        /* main scroll */
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+        .question-header-card {
+            display: flex;
+            justify-content: space-between;
+            background: white;
+            padding: 1.2rem 2rem;
+            border-radius: 30px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(59,130,246,0.2);
+        }
+        .badge-points {
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            padding: 0.4rem 1.2rem;
+            border-radius: 60px;
+            color: white;
+            font-weight: 700;
+        }
+        /* textes */
+        .text-passage {
+            background: #f8fafc;
+            padding: 1.8rem;
+            border-radius: 32px;
+            border: 1px solid var(--gray-200);
+            font-size: 1.1rem;
+            line-height: 1.7;
+            white-space: pre-line;
+            font-family: 'Georgia', serif;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+        }
+        .actual-question {
+            background: #eef2ff;
+            padding: 1.5rem;
+            border-radius: 30px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 2rem;
+            border: 2px solid var(--secondary);
+        }
+        /* options */
+        .options-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .option-item {
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 2px solid var(--gray-200);
+            border-radius: 30px;
+            padding: 1.2rem 2rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .option-item:hover { border-color: var(--secondary); background: #f0f9ff; }
+        .option-item.selected { border-color: var(--secondary); background: #eef2ff; }
+        .option-letter {
+            width: 50px;
+            height: 50px;
+            border-radius: 30px;
+            background: var(--gray-100);
+            border: 2px solid var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-right: 1.5rem;
+        }
+        .selected .option-letter { background: var(--secondary); color: white; }
+        /* footer */
+        .quiz-footer {
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(12px);
+            padding: 1.5rem 2rem;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-foot-btn {
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            border: none;
+            background: white;
+            border: 1px solid var(--gray-300);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .nav-foot-btn.primary { background: var(--secondary); color: white; border: none; }
+        .review-mark-btn {
+            background: #f59e0b;
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            border: none;
+        }
+        /* auth overlay */
+        .auth-overlay {
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .auth-card {
+            background: white;
+            border-radius: 48px;
+            padding: 2.5rem;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+        }
+        .auth-icon { font-size: 4rem; margin-bottom: 1rem; }
+        .auth-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .auth-subtitle { color: var(--gray-600); margin-bottom: 1.5rem; }
+        .auth-btn {
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            margin: 0.3rem;
+        }
+        .auth-btn-primary { background: var(--secondary); color: white; }
+        .auth-btn-secondary { background: var(--gray-200); color: var(--gray-900); }
+        .debug-info {
+            background: #f1f5f9;
+            padding: 1rem;
+            border-radius: 20px;
+            margin: 1rem 0;
+            text-align: left;
+            font-family: monospace;
+            font-size: 0.8rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        /* modal résultats */
+        .modal-overlay {
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .modal-card {
+            background: white;
+            border-radius: 48px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .stat-box {
+            background: var(--gray-100);
+            border-radius: 24px;
+            padding: 1.2rem;
+            text-align: center;
+        }
+        .score-level { padding: 0.5rem 1.5rem; border-radius: 60px; display: inline-block; }
+        .score-level.a1 { background: #ef4444; color: white; }
+        .score-level.a2 { background: #f59e0b; color: white; }
+        .score-level.b1 { background: #fbbf24; color: black; }
+        .score-level.b2 { background: #8bc34a; color: white; }
+        .score-level.c1 { background: #4caf50; color: white; }
+        .score-level.c2 { background: #2e7d32; color: white; }
+        .correction-option { display: flex; align-items: center; padding: 0.8rem 1.2rem; border-radius: 18px; margin: 0.3rem 0; }
+        .correction-option.correct-answer { background: #e6f7e6; border-left: 6px solid #10b981; }
+        .correction-option.user-answer { background: #fee9e9; border-left: 6px solid #ef4444; }
+        .copy-warning {
+            position: fixed;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #ef4444; color: white; padding: 1rem 2rem;
+            border-radius: 60px; font-weight: 600; z-index: 10000;
+            display: none;
+        }
+        .force-access-btn {
+            background: #10b981;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 40px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        @media (max-width:768px) {
+            .glass-panel { height: 100vh; border-radius: 24px; }
+            .modern-header { flex-direction: column; align-items: start; gap: 0.5rem; }
+            .timer-card { align-self: flex-end; }
+            .option-item { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- AUTH OVERLAY -->
+<div class="auth-overlay" id="authOverlay" style="display:flex;">
+    <div class="auth-card" id="authMessage">
+        <div class="auth-icon">🔒</div>
+        <div class="auth-title">Vérification</div>
+        <div class="auth-subtitle">Chargement de l'authentification...</div>
+        <div class="auth-loading"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
+    </div>
+</div>
+
+<!-- COPY WARNING -->
+<div class="copy-warning" id="copyWarning">⚠️ La copie est interdite</div>
+
+<!-- MAIN QUIZ PANEL (initially hidden) -->
+<div class="glass-panel" id="quizContainer" style="display:none;">
+    <!-- HEADER -->
+    <div class="modern-header">
+        <div class="logo-area">
+            <div class="logo-icon"><i class="fas fa-book-open"></i></div>
+            <div class="title-block"><h1>Compréhension Écrite · Test 1</h1></div>
+        </div>
+        <div class="timer-card" id="timerDisplay">01:00:00</div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <div class="nav-section">
+        <div class="question-grid" id="questionGrid"></div>
+        <div class="progress-legende">
+            <div class="progress-bar-bg"><div class="progress-fill" id="globalProgress" style="width:0%"></div></div>
+            <span><i class="fas fa-circle" style="color:#f59e0b;"></i> Révision</span>
+            <span><i class="fas fa-circle" style="color:#10b981;"></i> Répondu</span>
+        </div>
+    </div>
+
+    <!-- SCROLL CONTENT -->
+    <div class="scroll-content" id="mainScroll">
+        <div class="question-header-card">
+            <span id="qNumberDisplay">Question 1 / 39</span>
+            <span class="badge-points" id="pointsDisplay">3 points</span>
+        </div>
+
+        <!-- text passage & question -->
+        <div class="text-passage" id="textPassage"></div>
+        <div class="actual-question" id="actualQuestion"></div>
+
+        <!-- options -->
+        <div class="options-panel" id="optionsContainer"></div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="quiz-footer">
+        <button class="nav-foot-btn" id="prevBtn"><i class="fas fa-arrow-left"></i> Précédent</button>
+        <button class="review-mark-btn" id="reviewBtn"><i class="fas fa-bookmark"></i> Marquer</button>
+        <button class="nav-foot-btn primary" id="nextBtn">Suivant <i class="fas fa-arrow-right"></i></button>
+    </div>
+</div>
+
+<!-- RESULTS MODAL -->
+<div class="modal-overlay" id="resultsModal">
+    <div class="modal-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2 style="font-weight:700;">Résultats</h2>
+            <button onclick="closeResults()" style="background:none; border:none; font-size:2rem;">&times;</button>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-box"><span id="correctCount">0</span><br>Correctes</div>
+            <div class="stat-box"><span id="timeUsed">00:00</span><br>Temps</div>
+            <div class="stat-box"><span id="scorePercent">0</span>%<br>Score</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#0f172a,#1e293b); color:white; padding:1.5rem; border-radius:32px; text-align:center;" id="cecrLevelDisplay">NIVEAU A1 NON ATTEINT</div>
+        <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin:2rem 0;" id="questionsList"></div>
+        <button class="nav-foot-btn primary" style="width:100%;" onclick="toggleCorrections()">Afficher les corrections</button>
+        <div id="correctionsContainer" style="display:none; margin-top:2rem;"></div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ========== CONFIG ==========
+        const firebaseConfig = {
+            apiKey: "AIzaSyAhGVA4vr3pISonxvccIMCxZZOE5bkynRQ",
+            authDomain: "platformtcf.firebaseapp.com",
+            projectId: "platformtcf",
+            storageBucket: "platformtcf.firebasestorage.app",
+            messagingSenderId: "779352652301",
+            appId: "1:779352652301:web:41ca6b1dbcc42739b47344"
+        };
+
+        let currentUser = null;
+        let isPremium = false;
+        let firebaseApp, firebaseAuth, firestore;
+        let forceAccess = false; // Pour le débogage
+
+        // Quiz data (39 questions, already defined)
+        const questions = [
+            { id:1, text:"Maman.\nJe fais mes devoirs de mathématiques chez Louise.\nJe rentre à 21 heures. Bises et à ce soir.\nPatrick", question:"Qu'est-ce que Patrick fait chez Louise ?", points:3, options:["Il dort","Il travaille","Il joue","Il mange"], correct:"B" },
+            { id:2, text:"Cette semaine, l'accueil de l'université est fermé lundi toute la journée et vendredi après-midi.", question:"À quoi sert cette affiche ?", points:3, options:["Annoncer un changement","Décrire un endroit","Donner un rendez-vous","Organiser une réunion"], correct:"A" },
+            { id:3, text:"Alen, bonjour,\nC'est d'accord, RV avec les copines chez moi le 30 avril pour déjeuner.\nBisous,\nYvette", question:"Quelles sont les relations entre Aline et Yvette ?", points:3, options:["Professionnelles","Familiales","Amicales","Commerciales"], correct:"C" },
+            { id:4, text:"Nous informons notre aimable clientèle que nous sommes actuellement en vacances jusqu'au dimanche 1er septembre. Nous aurons le plaisir de vous retrouver à partir du 2. Le magasin ouvrira comme tous les lundis à 11 h.\nBonnes vacances à tous.", question:"Qu'apprend-on sur le magasin ?", points:3, options:["Il va avoir de nouveaux horaires","Il va changer de propriétaire","Il va déménager en septembre","Il va fermer pendant l'été"], correct:"D" },
+            { id:5, text:"Salut Paul,\nJe t'écris du Canada. J'ai rencontré un étudiant mexicain. Je suis contente de parler ma langue avec lui, car l'Espagne me manque beaucoup ! En juin, nous suivons ensemble une formation en Italie. Je t'appelle bientôt.\nBisous,\nElsa", question:"Quelle est la nationalité d'Elsa ?", points:3, options:["Canadienne","Espagnole","Italienne","Mexicaine"], correct:"B" },
+            { id:6, text:"Nous avons prévu quelques réparations dans l'appartement à la fin de la semaine. Veuillez nous excuser pour le bruit.\nM. et Mme Garnier\n7 avenue du Général Leclerc\nAppt. 307", question:"Qu'est-ce que M. et Mme Garnier écrivent à leurs voisins ?", points:3, options:["Ils vont bientôt déménager","Ils vont faire des travaux","Ils vont organiser une soirée","Ils vont recevoir de la visite"], correct:"B" },
+            { id:7, text:"Chère Cathy,\nAprès six mois de travaux, Pierre et moi avons quitté la maison de ses parents et nous sommes enfin installés chez nous ! Nous fêtons l'évènement le dimanche 23 juin à partir de 19 h 30.\nJ'espère que tu pourras venir !\nLésa", question:"Qu'est-ce que Lésa va fêter ?", points:3, options:["La retraite de ses parents","Son anniversaire de mariage","Un nouveau logement","Une création d'entreprise"], correct:"C" },
+            { id:8, text:"Un poste est libre dans votre association ?\nLe site www.place-publique.fr vous propose de publier une annonce. Envoyez-nous la description du poste, le salaire et vos coordonnées. Votre annonce sera visible pendant un mois.", question:"Que peuvent faire les associations sur ce site Internet ?", points:3, options:["Offrir des emplois","Participer à un forum","Présenter leur action","Trouver de l'argent"], correct:"A" },
+            { id:9, text:"Madame,\nNous avons bien reçu votre demande de remboursement pour un billet de train (voyage professionnel). Vous nous avez envoyé le ticket de carte bancaire, mais nous avons aussi besoin d'une attestation de votre employeur. Merci de nous l'adresser par courrier postal ou sous format électronique.\nCordialement,\nLe service financier.", question:"Quel document doit fournir la femme ?", points:3, options:["Un document professionnel","Un titre de transport","Une enveloppe timbrée","Une somme d'argent"], correct:"A" },
+            { id:10, text:"Semaine du 6 au 10 septembre :\nLe restaurant universitaire vous propose des recettes régionales variées au tarif normal.\nRendez-vous de 11h15 à 13h dans la salle du premier étage.\nBon appétit !", question:"Que propose le restaurant du 6 au 10 septembre ?", points:3, options:["Des cours de cuisine","Des menus différents","Des plats à emporter","Des tickets bon marché"], correct:"B" },
+            { id:11, text:"Vous voulez faire connaître votre entreprise ?\nNous vous proposons de très bons prix pour mettre une annonce sur notre site Internet. Envoyez-nous votre texte, nous vous contacterons pour vous informer sur nos prix.", question:"Que propose cette annonce aux entreprises ?", points:3, options:["Un service de création de site","Une aide informatique rapide","Une formation sur Internet","Une publicité à faible coût"], correct:"D" },
+            { id:12, text:"La librairie des Orgues à Paris a récolté 9000 euros de ses clients afin de financer son déménagement. Un résultat inespéré qui a permis à la librairie de s'agrandir. Lors de l'inauguration, la libraire a offert un verre à ses généreux donateurs. En fonction du montant de leur participation, ils ont reçu un livre de leur choix ou ont obtenu le statut de client d'or, signifié par une plaque à leur nom sur le mobilier de la librairie.", question:"Pourquoi la librairie a-t-elle récolté de l'argent ?", points:9, options:["Pour acheter des meubles de bibliothèque","Pour organiser un concours de lecture","Pour ouvrir un salon de thé littéraire","Pour s'installer dans un local plus vaste"], correct:"D" },
+            { id:13, text:"Madame Guilbert,\nL'imprimante de mon bureau ne fonctionne pas.\nMes consultations commencent demain à 14 h.\nPourriez-vous commander rapidement du papier et de l'encre, s'il vous plaît ?\nMerci\nDocteur Philippe", question:"Que doit faire Madame Guilbert ?", points:9, options:["Acheter du matériel","Appeler un réparateur","Imprimer un document","Noter un rendez-vous"], correct:"A" },
+            { id:14, text:"Cher Paul,\nJe suis désolée de t'avoir laissé sans nouvelle. Je pensais t'écrire de Fès, mais notre séjour ne s'est pas déroulé comme nous l'espérions. Nous avons passé trois nuits supplémentaires à Tanger à cause d'un problème technique sur une de nos lignes touristiques. Nous avons aussi annulé le rendez-vous prévu aujourd'hui avec notre client de Casablanca, car nous avons dû nous rendre à Marrakech pour régler les frais occasionnés par cet incident. Nous rentrons demain à Paris.\nBises\nMathilde", question:"Dans quelle ville se trouve Mathilde d'après cette lettre ?", points:9, options:["Fès","Casablanca","Marrakech","Tanger"], correct:"C" },
+            { id:15, text:"Olivier Pollet, co-fondateur d'Escursia, veut développer le tourisme scientifique. C'est un tourisme permettant de découvrir et d'apprendre sur la nature, la faune et la flore, au cours de treks ou de randonnées guidées par des accompagnateurs scientifiques professionnels désirant faire partager leurs connaissances. Ces séjours sont ouverts à tous les publics et pour y prendre part, il ne faut pas nécessairement disposer d'une excellente condition physique, il faut juste une pointe de curiosité et le sens de l'observation.", question:"Quelle est la particularité du tourisme scientifique ?", points:9, options:["Il fait observer la nature de façon différente","Il aide au développement de la recherche","Il nécessite un bon entraînement sportif","Il s'adresse à des spécialistes passionnés"], correct:"A" },
+            { id:16, text:"Les gardes-chasse d'Orly ont lancé une campagne de capture des lapins vivant sur l'aéroport, afin de les expatrier vers le sud de la France, dont la faune et la flore ont été dévastées par les grands incendies de l'été dernier. Le lapin élevé au kérosène va donc se refaire une santé auprès des romarins et des thyms de Provence. On connaît des riverains qui aimeraient bien être des petits lapins !", question:"Qu'est-il arrivé aux lapins de l'aéroport d'Orly ?", points:9, options:["On les a tués afin de les manger","On les a attrapés et emmenés ailleurs","On les a chassés de l'aéroport","On les a soignés et relâchés"], correct:"B" },
+            { id:17, text:"Il y a beaucoup d'avantages démontrés par les faits à choisir la Suisse pour y effectuer ses études ou une partie de celles-ci. La qualité de vie, celle des formations dispensées même si elles sont souvent chères, la situation géographique et l'ouverture internationale du pays... Du côté des défauts, mentionnons le fait que toutes les filières et formations ne sont pas représentées, ce qui est le cas dans la plupart des petits pays.", question:"Quel avantage présente l'enseignement supérieur dans ce pays ?", points:9, options:["Le choix des matières est vaste","Le nombre d'étudiants est limité","Le prix des études est peu élevé","L'enseignement est d'un bon niveau"], correct:"D" },
+            { id:18, text:"On croyait leur métier en voie de disparition et pourtant le nombre de secrétaires a doublé en vingt ans. Ceux qui avaient dit que l'informatique les remplacerait se sont trompés. Au contraire, elles n'ont jamais été aussi recherchées. Leurs tâches classiques ont tendance à diminuer au profit de nouvelles responsabilités. Elles sont de moins en moins rattachées à une seule personne, mais à une équipe. Toutefois, malgré l'importance qu'elles ont prise, elles souffrent toujours d'un certain manque de reconnaissance.", question:"Aujourd'hui, quel est l'inconvénient du métier de secrétaire ?", points:9, options:["La quantité de travail est importante","Le rôle est peu valorisé","Les postes sont supprimés","Les tâches sont limitées"], correct:"B" },
+            { id:19, text:"L'anglais est arrivé au vingtième siècle, à la première place du palmarès des langues internationales. Près de la moitié de l'humanité est concernée par cette langue, car elle est quasi obligatoire dans de nombreux secteurs d'activité. Pourtant, cette situation a des limites et l'anglais devra faire face à la progression d'autres langues dans les années à venir. Les raisons sont la montée en puissance économique et industrielle de grands pays émergents, le développement d'échanges régionaux et ceux entre pays voisins.", question:"Que dit-on de la langue anglaise dans cet article ?", points:9, options:["Elle doit devenir la langue de l'administration publique","Elle peut perdre son statut de langue dominante","Elle restera la langue privilégiée dans le commerce","Elle va provoquer la disparition de langues minoritaires"], correct:"B" },
+            { id:20, text:"Job d'été, la première expérience\nQuand une entreprise fait appel pour la première fois à un jeune, elle n'a pas d'attente vis-à-vis de ses compétences professionnelles, c'est donc sur son comportement que vont se porter ses critères d'évaluation. Même saisonnier. Il faut montrer qu'on a vraiment envie de décrocher un job. Les jeunes sans expérience ont tout intérêt à parler de leur passion et à démontrer leur motivation. Pour un employeur, c'est ce qui reste souvent le critère le plus important.", question:"Selon l'article, que faut-il faire pour trouver un job d'été ?", points:15, options:["Exposer l'ensemble de ses qualités professionnelles","Faire la preuve de son désir de travailler","Parler avec enthousiasme de ses projets de formation","Parler des emplois qu'on a déjà occupés"], correct:"B" },
+            { id:21, text:"Le jour viendra où un fonds de pension ou un groupe alimentaire mondial investira dans l'entreprise d'un cuisinier reconnu pour orchestrer son développement international. Bien sûr, on ne peut qu'avoir de la nostalgie pour les temps héroïques ou une bande de copains inventait les codes de la nouvelle cuisine. Aujourd'hui, n'importe quel jeune cuisinier est prêt à payer très cher pour le privilège d'un stage de six mois chez un « Grand chef ». Il rentabilisera vite cet investissement en s'autoproclamant élève de, car les marques des grands chefs ne cessent de prendre de la valeur.", question:"Qu'apprend-on sur les grands chefs ?", points:15, options:["Leur conception de la cuisine est passée de mode","Leur créativité leur assure une célébrité mondiale","Leur nom s'est transformé en label de prestige","Leurs établissements sont cotés en bourse"], correct:"C" },
+            { id:22, text:"Non, Maupassant n'est pas qu'un écrivain pour cours de français. Comme tout bon auteur culte, ses thématiques sont percutantes, grinçantes, toujours d'actualité. Et tellement vraies dans le fond : hypocrisie de la bourgeoisie, monde paysan décrit sans artifice, rapports humains aliénés par le contexte social et culturel... Du pain bénit pour les auteurs de « Chez Maupassant », une collection de huit téléfilms tirés des contes et nouvelles du grand Guy.", question:"Que présente l'auteur de l'article ?", points:15, options:["Des adaptations télévisées de Maupassant","Des programmes d'études littéraires","Une exposition consacrée à Maupassant","Un ouvrage critique récemment paru"], correct:"A" },
+            { id:23, text:"Elle devait être démolie et un nouveau lieu de culte reconstruit à l'arrière de l'église actuelle, le long du boulevard. Le projet, qui prévoyait la restructuration complète de l'îlot avec la création de logements sociaux, ne verra finalement pas le jour. La Ville et le diocèse ont pris la décision de conserver l'église Sainte-Madeleine considérant avec certains experts que sa démolition aurait causé la perte regrettable d'un élément important du patrimoine nantais. Des travaux d'urgence vont être réalisés avant le lancement d'un véritable programme de restauration et de mise en valeur du bâtiment.", question:"Selon cet article, quelle décision a été prise ?", points:15, options:["Bâtir une église identique dans le quartier","Débuter le réaménagement du boulevard","Entreprendre une rénovation du lieu","Réhabiliter les logements sociaux existants"], correct:"C" },
+            { id:24, text:"L'insecte pourrait devenir une solution économique à notre appétit de protéines. Vous attrapez trois grillons déshydratés et les enfournez dans votre bouche : vous voilà mangeur d'insectes. Vous contribuez à la préservation des ressources. En effet, il faut 10 kg de céréales pour produire 1 kg de bœuf ou 9 kg d'insectes. La demande mondiale de protéines va doubler et les insectes, c'est riche en protéines. Depuis l'an dernier, la communauté européenne subventionne les projets de recherche dans ce secteur. Les grands groupes alimentaires s'intéressent au sujet, mais attendent que les citoyens soient psychologiquement prêts.", question:"Qu'apprend-on sur la production d'insectes ?", points:15, options:["C'est une réponse à des besoins alimentaires accrus","Des recherches remettent en cause l'intérêt nutritif","Elle s'avère moins rentable que les cultures de céréales","Les citoyens exigent des garanties sanitaires"], correct:"A" },
+            { id:25, text:"Ces dernières années, les nouvelles versions de films à succès se sont multipliées et ce mouvement ne semble pas près de s'arrêter, comme si l'industrie cinématographique ne parvenait plus à inventer de nouvelles histoires, de nouveaux concepts qui pourraient éveiller la curiosité d'un large public. Pourtant, de nouvelles idées, de nouvelles sensibilités, il y en aura toujours, encore faut-il qu'elles trouvent un relais financier pour voir le jour. Et l'industrie cinématographique hésite à investir dans du « neuf », alors elle se tourne vers les valeurs sûres des succès passés.", question:"Quelle constatation ce journaliste fait-il sur le cinéma contemporain ?", points:15, options:["Les producteurs évitent de prendre des risques","Les réalisateurs sont à la recherche d'idées neuves","Les scénaristes font preuve d'une imagination limitée","Les spectateurs privilégient les créations classiques"], correct:"A" },
+            { id:26, text:"Le droit à l'oubli sur internet est fondamental. Aujourd'hui, internet nous expose à des risques, en mettant à portée d'institutions ou d'entreprises des informations personnelles que nous avons oubliées ou que nous souhaitons oublier. Or l'oubli, autant que la mémoire, est essentiel à l'humain pour être capable d'agir et de fonctionner dans le présent. Un spécialiste de la question propose une solution. Si les gens ont envie de sauvegarder des informations les concernant, ils y attacheront une date d'expiration. Les citoyens doivent choisir eux-mêmes ce qui de leurs informations personnelles, sera retenu ou effacé, cela ne doit pas résulter du choix de grosses sociétés ou de gouvernements.", question:"Pourquoi le droit à l'oubli sur internet est-il important ?", points:15, options:["Pour aider à faire le deuil du passé","Pour alléger le stockage des données","Pour faire obstacle aux multinationales","Pour rester maître de sa vie privée"], correct:"D" },
+            { id:27, text:"Une étude récente révèle que la concentration de déchets plastiques flottant à la surface du Pacifique Nord a été multipliée par cent en quarante ans. Ce constat, émis par les pêcheurs en haute mer, est alarmant, car cette pollution a des conséquences écologiques. La gigantesque plaque de déchets flottant sur l'océan Pacifique, épaisse par endroits de plusieurs dizaines de mètres, constitue un milieu favorable à la reproduction d'une espèce d'araignée d'eau. Cet insecte est en train de se multiplier dans le Pacifique Nord. Si la densité des plastiques continue à augmenter, certaines espèces pourraient continuer à se multiplier, risquant de déséquilibrer l'écosystème du Pacifique.", question:"Quel danger représentent ces déchets ?", points:15, options:["Un obstacle pour les bateaux de pêche","Un réchauffement dramatique des eaux","Un risque d'intoxication des populations du Pacifique","Une diminution de la diversité de la faune océanique"], correct:"D" },
+            { id:28, text:"Les jeunes du lycée professionnel hôtelier Paul-Valéry ont des idées. Afin de pallier la faiblesse des moyens de l'Éducation nationale pour financer leurs voyages d'études, ils n'arrêtent pas de mobiliser les bonnes volontés à coups d'initiatives originales et qui font mouche. Après l'exemple donné par les terminales de restauration qui proposent un repas « tout citron » pour un voyage d'études à Barcelone, c'est au tour des élèves de 2nde de battre le rappel. Ceux-ci bénéficieront des retombées d'un vide-grenier, organisé par le Lions club, pour boucler le budget de leur voyage d'études en Corse à la rentrée.", question:"Quel est l'objectif des élèves de 2nde ?", points:15, options:["Élaborer le budget de leur voyage à Barcelone","Gagner de l'argent pour payer leur séjour","Montrer aux autres classes leurs talents culinaires","Soutenir le futur projet des élèves de terminale"], correct:"B" },
+            { id:29, text:"Les gens empilaient les objets dans les chariots de métal, avec frénésie. Ils avaient des visages sérieux, contractés, et leurs paupières battaient de façon anormalement lente. Les femmes tendaient les mains vers les étals. On aurait dit que les gens ne savaient plus ce qu'ils faisaient. Comment l'auraient-ils su ? Ce n'étaient pas eux qui saisissaient la marchandise. C'est la marchandise qui se collait d'elle-même à leurs mains, elle entrait directement dans les caddies. La nourriture n'était plus que des formes, des couleurs. Les yeux dévoraient les couleurs rouge, blanche, verte, orange, les yeux avaient faim de sphères et de pyramides, faim de plastiques lisses et de capsules de fer-blanc.", question:"Dans cet extrait, qu'apprend-on sur les acheteurs ?", points:21, options:["Ils donnent l'impression de vénérer les produits","Ils ont l'air éblouis par le gigantisme des magasins","Ils paraissent manipulés par une force supérieure","Ils semblent perdus dans le labyrinthe des rayons"], correct:"C" },
+            { id:30, text:"Ne pas assez dormir plusieurs nuits de suite perturbe, tout le monde s'en rend compte. Ce qui est moins visible, c'est comment cela affecte notre santé. (...) Des scientifiques ont montré que le manque de sommeil modifiait l'intensité de l'activité de plus de 700 gènes, parmi eux ceux liés au stress et à la lutte contre les maladies. Mais ils ne peuvent encore dire si ces modifications des gènes sont une réponse de court terme et sans danger à un sommeil de mauvaise qualité, un signe d'adaptation du corps à la privation de sommeil, ou un danger potentiel pour la santé.", question:"Qu'est-ce que les scientifiques ont découvert concernant le manque de sommeil ?", points:21, options:["La gestion du stress est difficile","La santé est mise en péril","Le corps est moins réactif","Le système génétique est affecté"], correct:"D" },
+            { id:31, text:"Solitude, conflit avec les parents, difficultés scolaires... Les adolescents peuvent se confier sur des sites spécialisés où leur parole sera prise en compte. Fil Santé jeune a vu ses visites augmenter de 313 % ces dernières années. De l'autre côté de l'écran, animateurs et psychologues s'efforcent de maintenir le contact et de prolonger la discussion. L'entreprise est délicate puisque les regards et les gestes ne peuvent être pris en compte par le professionnel. Le réconfort naît aussi, et peut-être avant tout, des autres internautes qui vivent une situation similaire.", question:"À quelle difficulté se heurtent les spécialistes ?", points:21, options:["L'absence totale des signes visuels du langage","L'opposition des familles à leurs interventions","La nécessité de modérer le ton des échanges","Les nombreuses remarques des participants"], correct:"A" },
+            { id:32, text:"Méthode originale, la psychologie narrative propose les clés d'un nouvel art de vivre pour renoncer définitivement aux comportements susceptibles de brider notre propension au bonheur ! Cette pratique, loin de vanter le bienfait de vaines chimères, repose sur une prise de conscience : celle que le monde tel que je le pense n'est pas tel que je le vis. Le travestissement de la réalité est incessant. Il y a d'un côté la réalité des faits, et de l'autre, ma représentation, explique Yves Alexandre Thalmann. Avec notre cerveau, nous passons notre temps à organiser les liens de cause à effet de façon à ce que ça prenne une signification à nos yeux. Or, selon le psychologue, la manière dont nous appréhendons les choses détermine davantage notre qualité de vie que les événements eux-mêmes. À ce titre, nos représentations mentales ont donc la capacité de nous procurer une vie plus agréable.", question:"Comment la perception des événements permet-elle d'accéder au bonheur ?", points:21, options:["Si on les prend en compte avec lucidité","Si on les remodèle à travers l'imagination","Si on modifie la façon dont on les perçoit","Si on recherche leur signification profonde"], correct:"C" },
+            { id:33, text:"« Le Fait du Roi »\nC'est l'histoire d'un homme qui prend l'identité d'un autre, mort, en se glissant dans sa peau, dans sa vie, dans sa maison... Rien ne sert de raconter l'intrigue de ce roman tant elle est simple et sans surprise. Le style de l'auteur reste cependant toujours aussi piquant et agréable à lire. Le héros principal, quant à lui, est dépeint avec une certaine profondeur.", question:"Sur quel point porte la critique négative faite à ce livre ?", points:21, options:["La description du personnage","La longueur du texte","La qualité de l'écriture","Le déroulement des événements"], correct:"D" },
+            { id:34, text:"Monsieur et Madame Martin n'ont pas un emploi du temps également captivant. Quand Monsieur se rend au travail, Madame manie l'aspirateur. Quand il est au bureau, elle achète des surgelés au supermarché. Quand il se cale devant la télé, l'épouse modèle se colle aux fourneaux. Une illustration exhumée d'un manuel des années 1950 ? Non, les images d'un exercice pour une classe de CP afin de « comprendre la simultanéité » en étudiant les moments de la journée d'une famille. Quand Virginie Sassoon est tombée sur ce document ultra-stéréotypé dans le classeur de sa fille, cette maman est tombée des nues. « Cette fiche dévoile une forme de violence symbolique qui persiste dans notre société et qui relève selon moi, de la responsabilité collective. »", question:"Pourquoi Virginie Sassoon est-elle choquée par les exercices proposés dans la classe de sa fille ?", points:21, options:["Ils correspondent à des programmes scolaires obsolètes","Ils méconnaissent l'existence des familles recomposées","Ils présentent un partage sexiste des tâches dans le couple","Ils se moquent du quotidien des personnes sans emploi"], correct:"C" },
+            { id:35, text:"Des chercheurs mettent en doute l'idée répandue que la langue que nous parlons influence notre façon de penser. Ils présentent une recherche sur l'ordre des mots dans la phrase : Sujet, Verbe, Objet pour certaines langues ; Sujet, Objet, Verbe pour d'autres. Leurs 40 sujets, locuteurs d'anglais, d'espagnol, de mandarin, de turc, ont décrit des séquences vidéo dans leur langue d'abord, puis en utilisant des gestes. Si les descriptions verbales différaient dans l'ordre des mots selon les langues, les descriptions faites avec les mains reprenaient toutes le même ordre (sujet, objet, verbe), suivant celui des langues des signes inventées par des locuteurs sourds.", question:"Quel est le résultat de l'expérience présentée dans cet article ?", points:21, options:["Les gestes révèleraient systématiquement la langue maternelle des locuteurs","Il existerait un ordre universel de la pensée, indépendant de l'ordre linguistique","Il y aurait autant de façons de penser que de structures de langue différentes","Les structures des langues seraient dépendantes de notre expérience du monde"], correct:"B" },
+            { id:36, text:"Sexistes, les jeux vidéo ? Peut-être que oui, peut-être que non. En tout cas, à parcourir les allées de la Paris Games Week, l'œil avisé aura lui-même bien du mal à trouver un personnage principal féminin de jeu vidéo. Il y a bien la célébrissime Lara Croft du jeu vidéo Tomb Raider, aux attributs particulièrement imposants, conçus presque sur mesure pour plaire aux masculins. Pour le reste, circulez, il n'y a presque rien d'autre à voir, si l'on balaye d'un coup de manette de jeu, au mieux, les princesses à sauver, au pire, les call-girls de mafioso. Pourtant, l'industrie du jeu vidéo a pris conscience ces dernières années du potentiel du marché des joueuses.", question:"Quel constat est dressé sur les jeux vidéo ?", points:26, options:["La quasi-absence d'héroïnes","L'appel constant à la violence","L'atténuation des clichés","L'uniformité des scénarios"], correct:"A" },
+            { id:37, text:"Les technologies de l'information et de la communication (TIC) sont de plus en plus utilisées et adoptées de façon variable par les établissements d'enseignement supérieur à travers le monde. Les TIC apparaissent autant comme une prestation en présence sur le campus que comme un enseignement ouvert et à distance. Les actions de l'UNESCO se concentrent sur l'aide aux États membres afin de développer des politiques durables dans le domaine des TIC dans l'enseignement supérieur. Les plans d'action et les investissements positifs en matière de TIC sont clairement bénéfiques pour les institutions d'enseignement supérieur (IES), même si les TIC n'ont pas remplacé les modes d'apprentissage ou d'enseignement classiques telles que les salles de classe.", question:"Pourquoi peut-on dire que l'UNESCO est active dans le domaine des TIC ?", points:26, options:["Parce qu'elle finance les programmes de développement des TIC","Parce qu'elle organise des débats entre États membres sur les TIC","Parce qu'elle sensibilise les établissements d'enseignement aux TIC","Parce qu'elle habilite des formateurs à l'utilisation des TIC"], correct:"C" },
+            { id:38, text:"Travailler avec son mari ou son petit ami, sa sœur ou sa mère n'est pas une punition pour tout le monde ! Pour certains, c'est même la condition du bien-être professionnel. Si cette idée évoquait jadis une petite entreprise conservatrice, transmise de père en fils, aujourd'hui, travailler en famille relève de réalités très différentes. Critères retenus : confiance, valeurs et goûts communs ; et surtout, besoin de réaliser ses projets plutôt que ceux des autres. Depuis toujours, la majorité des entreprises en France, toutes tailles confondues, sont familiales ; et de plus en plus de créations sont le fait de femmes. Ce sont d'ailleurs des entreprises où l'on vit mieux et qui durent plus longtemps que les autres. Aujourd'hui, la création d'une entreprise est plus souvent motivée par le désir d'assurer un travail à ses enfants ou d'échapper à des structures jugées déshumanisantes.", question:"Que permet la structure d'entreprise présentée ?", points:26, options:["De concrétiser des objectifs personnels","De fonctionner dans un cadre innovant","De limiter la répartition des gains","De renforcer les liens entre les générations"], correct:"A" },
+            { id:39, text:"Le contrôle, en toute matière, aboutit à pervertir l'action… Dès qu'une action est soumise à un contrôle, le but profond de celui qui agit n'est plus l'action, mais la prévision du contrôle, la mise en échec des moyens de contrôle. Le contrôle des études n'est qu'un cas particulier et une démonstration éclatante de cette observation très générale. Le diplôme donne à la société un fantôme de garantie, et aux diplômés des fantômes de droits. Le diplômé passe officiellement pour détenir un savoir : il garde toute sa vie ce brevet d'une science momentanée. C'est pour accéder au diplôme qu'on a vu se substituer à la lecture des auteurs, l'usage des résumés, des manuels, des recueils de questions et de réponses toutes faites et autres abominations.", question:"Que soutient l'auteur de ce texte à propos du contrôle ?", points:33, options:["Il contribue à améliorer les méthodes d'apprentissage","Il est indispensable pour accéder au monde professionnel","Il permet de certifier les compétences réelles d'un candidat","Il perturbe le processus d'acquisition des connaissances"], correct:"D" }
+        ];
+
+        // assign points dynamiquement selon index (déjà corrects)
+        const finalQuestions = questions.map((q, idx) => {
+            let p = 3;
+            if (idx >= 11 && idx <= 18) p = 9;
+            else if (idx >= 19 && idx <= 27) p = 15;
+            else if (idx >= 28 && idx <= 34) p = 21;
+            else if (idx >= 35 && idx <= 37) p = 26;
+            else if (idx === 38) p = 33;
+            return { ...q, points: p };
+        });
+
+        // ----- variables globales du quiz -----
+        let currentIdx = 0;
+        let userAnswers = new Array(39).fill(null);
+        let reviewFlags = new Array(39).fill(false);
+        let timeLeft = 3600; // 1h
+        let timerInterval;
+        let startTime = new Date();
+
+        // éléments DOM
+        const authOverlay = document.getElementById('authOverlay');
+        const authMessage = document.getElementById('authMessage');
+        const quizContainer = document.getElementById('quizContainer');
+
+        // initialisation Firebase + auth
+        async function initFirebase() {
+            try {
+                firebaseApp = firebase.initializeApp(firebaseConfig);
+                firebaseAuth = firebase.auth();
+                firestore = firebase.firestore();
+
+                // Afficher un message de chargement
+                showAuth('loading', 'Authentification...', 
+                    'Vérification de votre accès premium...');
+
+                firebaseAuth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        await handleUser(user);
+                    } else {
+                        showAuth('not_logged_in', 'Non connecté', 
+                            'Vous devez être connecté pour accéder à ce test.');
+                    }
+                });
+            } catch (e) {
+                console.error("Firebase init error:", e);
+                showAuth('error', 'Erreur Firebase', 
+                    'Impossible de se connecter au serveur. ' + e.message);
+            }
+        }
+
+        async function handleUser(user) {
+            try {
+                console.log("User connected:", user.uid);
+                
+                // Récupérer le document utilisateur
+                const docRef = firestore.collection('users').doc(user.uid);
+                const docSnap = await docRef.get();
+                
+                if (!docSnap.exists) {
+                    console.log("User document not found");
+                    showAuth('error', 'Compte non trouvé', 
+                        'Votre profil utilisateur est introuvable.');
+                    return;
+                }
+                
+                const userData = docSnap.data();
+                console.log("User data:", userData);
+                
+                currentUser = { uid: user.uid, email: user.email, ...userData };
+                
+                // === VÉRIFICATION PREMIUM AMÉLIORÉE ===
+                isPremium = false;
+                let premiumReason = "";
+                
+                // Vérifier premiumActive (booléen)
+                if (userData.premiumActive === true) {
+                    isPremium = true;
+                    premiumReason = "premiumActive";
+                }
+                
+                // Vérifier premium (booléen)
+                if (userData.premium === true) {
+                    isPremium = true;
+                    premiumReason = "premium";
+                }
+                
+                // Vérifier premiumType (présent dans vos données)
+                if (userData.premiumType && userData.premiumType !== "none" && userData.premiumType !== "free") {
+                    isPremium = true;
+                    premiumReason = "premiumType: " + userData.premiumType;
+                }
+                
+                // Vérifier status = "premium" ou "active"
+                if (userData.status === "premium" || userData.status === "active") {
+                    isPremium = true;
+                    premiumReason = "status: " + userData.status;
+                }
+                
+                // Vérifier subscriptionStatus
+                if (userData.subscriptionStatus === "active" || userData.subscriptionStatus === "premium") {
+                    isPremium = true;
+                    premiumReason = "subscriptionStatus: " + userData.subscriptionStatus;
+                }
+                
+                // Vérifier la date d'expiration
+                if (userData.premiumExpiry) {
+                    const now = new Date();
+                    const expiry = new Date(userData.premiumExpiry);
+                    if (expiry > now) {
+                        isPremium = true;
+                        premiumReason = "premiumExpiry valide";
+                    }
+                }
+                
+                // Vérifier subscriptionExpiry
+                if (userData.subscriptionExpiry) {
+                    const now = new Date();
+                    const expiry = new Date(userData.subscriptionExpiry);
+                    if (expiry > now) {
+                        isPremium = true;
+                        premiumReason = "subscriptionExpiry valide";
+                    }
+                }
+                
+                // Vérifier explicitement votre UID (au cas où)
+                if (user.uid === "a0fPHv3JniRr55uJJjJggSMFKGY2") {
+                    isPremium = true;
+                    premiumReason = "uid reconnu";
+                }
+                
+                // Vérifier votre email
+                if (user.email === "bouhoula_mohamedhedi@yahoo.fr") {
+                    isPremium = true;
+                    premiumReason = "email reconnu";
+                }
+                
+                // Si l'utilisateur est admin, donner accès
+                if (userData.role === "admin" || userData.isAdmin === true) {
+                    isPremium = true;
+                    premiumReason = "administrateur";
+                }
+                
+                console.log("Premium check: " + (isPremium ? "OUI" : "NON") + " (" + premiumReason + ")");
+                
+                if (!isPremium) {
+                    // Afficher les données sans le message détaillé
+                    showAuth('premium_required', 'Accès Premium', 
+                        'Ce test nécessite un abonnement premium actif.');
+                    return;
+                }
+                
+                // Tout est bon : cacher overlay, lancer quiz
+                authOverlay.style.display = 'none';
+                quizContainer.style.display = 'flex';
+                startQuiz();
+                
+            } catch (err) {
+                console.error("Error handling user:", err);
+                showAuth('error', 'Erreur', 
+                    'Impossible de charger les données. ' + err.message);
+            }
+        }
+
+        function showAuth(type, title, msg) {
+            let icon = '🔒';
+            if (type === 'loading') icon = '<i class="fas fa-spinner fa-spin"></i>';
+            else if (type === 'error') icon = '❌';
+            
+            authMessage.innerHTML = `
+                <div class="auth-icon">${icon}</div>
+                <div class="auth-title">${title}</div>
+                <div class="auth-subtitle">${msg}</div>
+            `;
+            authOverlay.style.display = 'flex';
+        }
+
+        // ----- quiz functions -----
+        function startQuiz() {
+            createGrid();
+            loadQuestion(0);
+            startTimer();
+            updateProgress();
+            setupCopyProtection();
+        }
+
+        function createGrid() {
+            const grid = document.getElementById('questionGrid');
+            grid.innerHTML = '';
+            for (let i=0; i<39; i++) {
+                let btn = document.createElement('button');
+                btn.className = 'q-btn';
+                btn.textContent = i+1;
+                btn.onclick = () => navigateTo(i);
+                grid.appendChild(btn);
+            }
+            updateGridClasses();
+        }
+
+        function updateGridClasses() {
+            document.querySelectorAll('.q-btn').forEach((btn, idx) => {
+                btn.classList.remove('active','answered','review');
+                if (idx === currentIdx) btn.classList.add('active');
+                if (userAnswers[idx] !== null) btn.classList.add('answered');
+                if (reviewFlags[idx]) btn.classList.add('review');
+            });
+        }
+
+        function loadQuestion(index) {
+            const q = finalQuestions[index];
+            document.getElementById('qNumberDisplay').innerText = `Question ${index+1} / 39`;
+            document.getElementById('pointsDisplay').innerText = q.points + ' points';
+            document.getElementById('textPassage').innerText = q.text;
+            document.getElementById('actualQuestion').innerText = q.question;
+
+            const optsDiv = document.getElementById('optionsContainer');
+            optsDiv.innerHTML = '';
+            q.options.forEach((opt, optIdx) => {
+                let letter = String.fromCharCode(65+optIdx);
+                let selectedClass = (userAnswers[index] === letter) ? 'selected' : '';
+                let div = document.createElement('div');
+                div.className = `option-item ${selectedClass}`;
+                div.onclick = () => selectOption(optIdx);
+                div.innerHTML = `<div class="option-letter">${letter}</div><div class="flex-grow-1">${opt}</div>`;
+                optsDiv.appendChild(div);
+            });
+
+            document.getElementById('prevBtn').disabled = (index===0);
+            let nextBtn = document.getElementById('nextBtn');
+            nextBtn.innerHTML = (index===38) ? 'Terminer <i class="fas fa-check"></i>' : 'Suivant <i class="fas fa-arrow-right"></i>';
+            document.getElementById('reviewBtn').innerHTML = reviewFlags[index] ? '✓ Révision' : '<i class="fas fa-bookmark"></i> Marquer';
+            updateGridClasses();
+            updateProgress();
+        }
+
+        function selectOption(optIdx) {
+            let letter = String.fromCharCode(65+optIdx);
+            userAnswers[currentIdx] = letter;
+            loadQuestion(currentIdx);
+        }
+
+        function navigateTo(idx) {
+            if (idx>=0 && idx<39) { currentIdx = idx; loadQuestion(currentIdx); }
+        }
+
+        document.getElementById('prevBtn').onclick = () => navigateTo(currentIdx-1);
+        document.getElementById('nextBtn').onclick = () => { if (currentIdx===38) finishTest(); else navigateTo(currentIdx+1); };
+        document.getElementById('reviewBtn').onclick = () => { reviewFlags[currentIdx] = !reviewFlags[currentIdx]; loadQuestion(currentIdx); };
+
+        function updateProgress() {
+            let answered = userAnswers.filter(a=>a!==null).length;
+            document.getElementById('globalProgress').style.width = (answered/39*100)+'%';
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => { 
+                timeLeft--; 
+                if (timeLeft<=0) finishTest(); 
+                updateTimer(); 
+            }, 1000);
+        }
+        
+        function updateTimer() {
+            let h = Math.floor(timeLeft/3600);
+            let m = Math.floor((timeLeft%3600)/60);
+            let s = timeLeft%60;
+            let timer = document.getElementById('timerDisplay');
+            timer.innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            if (timeLeft<300) timer.className = 'timer-card danger';
+            else if (timeLeft<600) timer.className = 'timer-card warning';
+        }
+
+        function finishTest() {
+            clearInterval(timerInterval);
+            let correct=0, total=0, earned=0;
+            finalQuestions.forEach((q,i) => { 
+                total += q.points; 
+                if (userAnswers[i]===q.correct) { 
+                    correct++; 
+                    earned += q.points; 
+                } 
+            });
+            let percent = Math.round((earned/total)*100);
+            document.getElementById('correctCount').innerText = correct;
+            document.getElementById('timeUsed').innerText = getTimeUsed();
+            document.getElementById('scorePercent').innerText = percent;
+            let levelElem = document.getElementById('cecrLevelDisplay');
+            if (percent>=85) levelElem.innerText = 'NIVEAU C2 ATTEINT';
+            else if (percent>=75) levelElem.innerText = 'NIVEAU C1 ATTEINT';
+            else if (percent>=60) levelElem.innerText = 'NIVEAU B2 ATTEINT';
+            else if (percent>=40) levelElem.innerText = 'NIVEAU B1 ATTEINT';
+            else if (percent>=20) levelElem.innerText = 'NIVEAU A2 ATTEINT';
+            else levelElem.innerText = 'NIVEAU A1 NON ATTEINT';
+
+            let qlist = document.getElementById('questionsList');
+            qlist.innerHTML = '';
+            finalQuestions.forEach((_,i) => {
+                let span = document.createElement('span');
+                span.style.padding = '0.7rem 1rem'; 
+                span.style.borderRadius = '30px';
+                span.style.background = (userAnswers[i]===finalQuestions[i].correct) ? '#10b981' : '#ef4444';
+                span.style.color = 'white'; 
+                span.style.cursor = 'pointer';
+                span.innerText = i+1;
+                span.onclick = () => showCorrection(i);
+                qlist.appendChild(span);
+            });
+            document.getElementById('resultsModal').style.display = 'flex';
+        }
+
+        function getTimeUsed() {
+            let diff = (new Date() - startTime)/1000;
+            let h = Math.floor(diff/3600), m = Math.floor((diff%3600)/60), s = Math.floor(diff%60);
+            return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+
+        function showCorrection(idx) {
+            let q = finalQuestions[idx];
+            let html = `<div style="background:#f8fafc; padding:1rem; border-radius:24px;">`;
+            html += `<p><strong>Q${idx+1}</strong> (${q.points}pts) — ${q.question}</p>`;
+            q.options.forEach((opt,i) => {
+                let lettre = String.fromCharCode(65+i);
+                let classe = '';
+                if (lettre === q.correct) classe = 'correct-answer';
+                if (userAnswers[idx] === lettre && lettre !== q.correct) classe = 'user-answer';
+                html += `<div class="correction-option ${classe}"><span style="width:40px;">${lettre}</span> ${opt}</div>`;
+            });
+            html += `</div>`;
+            document.getElementById('correctionsContainer').innerHTML = html;
+            document.getElementById('correctionsContainer').style.display = 'block';
+        }
+
+        window.toggleCorrections = function() {
+            let c = document.getElementById('correctionsContainer');
+            if (c.style.display === 'none') { 
+                showCorrection(0); 
+                c.style.display = 'block'; 
+            }
+            else c.style.display = 'none';
+        };
+        
+        window.closeResults = function() { 
+            document.getElementById('resultsModal').style.display = 'none'; 
+        };
+
+        function setupCopyProtection() {
+            document.addEventListener('copy', (e) => {
+                if (window.getSelection().toString().length > 50) { 
+                    e.preventDefault(); 
+                    showCopyWarning(); 
+                }
+            });
+        }
+        
+        function showCopyWarning() {
+            let w = document.getElementById('copyWarning');
+            w.style.display = 'block';
+            setTimeout(() => w.style.display = 'none', 1500);
+        }
+
+        // lancement
+        initFirebase();
+    })();
+</script>
+</body>
+</html>
